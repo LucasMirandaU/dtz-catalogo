@@ -224,6 +224,13 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
       <span>Variante_del_producto__product_product_.xlsx</span>
     </div>
     <input type="file" id="file-input" accept=".xlsx,.xls" onchange="handleFile(this.files[0])">
+    <div style="background:rgba(45,212,191,.06);border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;font-size:.78rem;color:var(--muted);line-height:1.7;margin-bottom:1rem">
+      <strong style="color:var(--teal)">Columnas que lee del Excel de Odoo:</strong><br>
+      ✔ <strong>Referencia interna</strong> → Código (debe empezar con *)<br>
+      ✔ <strong>Nombre</strong> → Nombre del producto<br>
+      ✔ <strong>Precio de venta</strong> → Precio (0 = "Consultar precio")<br>
+      ✔ <strong>Cantidad a la mano</strong> → Stock disponible
+    </div>
     <div class="stats-row" id="statsRow" style="display:none">
       <div class="stat-card"><div class="num stat-info" id="s-total">–</div><div class="lbl">Productos</div></div>
       <div class="stat-card"><div class="num stat-ok" id="s-valid">–</div><div class="lbl">Código válido ✔</div></div>
@@ -403,24 +410,23 @@ function handleFile(file) {
     let headerIdx=rows.findIndex(r=>r.some(c=>String(c).toLowerCase().includes('nombre')));
     if(headerIdx<0) headerIdx=0;
     const headers=rows[headerIdx].map(h=>String(h).toLowerCase().trim());
+    // Columnas reales del Excel de Odoo
+    const colCode  =headers.findIndex(h=>h.includes('referencia'));
     const colNombre=headers.findIndex(h=>h.includes('nombre'));
-    const colPrecio=headers.findIndex(h=>h.includes('valor')||h.includes('precio'));
-    const colStock=headers.findIndex(h=>h.includes('cantidad')||h.includes('stock'));
+    const colPrecio=headers.findIndex(h=>h.includes('precio')||h.includes('venta'));
+    const colStock =headers.findIndex(h=>h.includes('cantidad')||h.includes('mano'));
     const products=[],warnings=[];
     for(let i=headerIdx+1;i<rows.length;i++){
       const row=rows[i];
-      const rawName=String(row[colNombre]||'').trim();
-      if(!rawName) continue;
-      const price=parseFloat(row[colPrecio])||0;
+      const rawCode=String(row[colCode]||'').trim();
+      const name   =String(row[colNombre]||'').trim();
+      if(!name&&!rawCode) continue;
+      const price=parseFloat(String(row[colPrecio]).replace(/[^0-9.]/g,''))||0;
       const stock=parseInt(row[colStock])||0;
-      const codeMatch=rawName.match(/^\[(\*?\d+)\]\s*(.*)/);
-      let code='',name=rawName,hasValidCode=false,codeNum=9999;
-      if(codeMatch){
-        code=codeMatch[1]; name=codeMatch[2].trim();
-        hasValidCode=code.startsWith('*'); codeNum=parseInt(code.replace('*',''))||9999;
-        if(!hasValidCode) warnings.push(`Sin asterisco: ${rawName}`);
-      } else warnings.push(`Sin código: ${rawName}`);
-      products.push({code,name,price,stock,has_valid_code:hasValidCode,code_num:codeNum});
+      const hasValidCode=rawCode.startsWith('*');
+      const codeNum=parseInt(rawCode.replace('*',''))||9999;
+      if(!hasValidCode) warnings.push(`Sin asterisco: [${rawCode}] ${name}`);
+      products.push({code:rawCode,name,price,stock,has_valid_code:hasValidCode,code_num:codeNum});
     }
     pendingProducts=products;
     const valid=products.filter(p=>p.has_valid_code).length;
