@@ -494,10 +494,20 @@ dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over
 // ── PRODUCTS TABLE ────────────────────────────────────────
 async function loadProductsTable() {
   showLoading('Cargando productos...');
-  const {data,error}=await supabase.from('productos').select('id,code,name,price,stock,img_url,has_valid_code').order('code_num',{ascending:true});
+  // Paginamos de a 1000 para traer todos los productos
+  let allData=[], from=0, pageSize=1000, keepGoing=true;
+  while(keepGoing){
+    const {data,error}=await supabase.from('productos')
+      .select('id,code,name,price,stock,img_url,has_valid_code')
+      .order('code_num',{ascending:true})
+      .range(from, from+pageSize-1);
+    if(error){toast('Error cargando productos','err');hideLoading();return;}
+    allData=allData.concat(data||[]);
+    keepGoing=(data&&data.length===pageSize);
+    from+=pageSize;
+  }
   hideLoading();
-  if(error){toast('Error cargando productos','err');return;}
-  allProducts=data||[];
+  allProducts=allData;
   filteredProducts=[...allProducts];
   document.getElementById('prodCount').textContent=`${allProducts.length} productos`;
   renderTable(1);
