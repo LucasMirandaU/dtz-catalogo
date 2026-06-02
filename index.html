@@ -236,13 +236,13 @@ const PER_PAGE = 60;
 let allProducts = [], filtered = [], currentFilter = 'all', currentPage = 1;
 let cart = {}; // { id: { product, qty } }
 
-const supabase = window.supabase.createClient(DTZ_CONFIG.supabaseUrl, DTZ_CONFIG.supabaseAnonKey);
+const db = window.supabase.createClient(DTZ_CONFIG.supabaseUrl, DTZ_CONFIG.supabaseAnonKey);
 const WA_NUMBER = '543416608662';
 
 // ── LOGO ──────────────────────────────────────────────────
 async function loadLogo() {
   try {
-    const { data } = await supabase.from('configuracion').select('valor').eq('clave','logo_url').single();
+    const { data } = await db.from('configuracion').select('valor').eq('clave','logo_url').single();
     if (data?.valor) {
       document.getElementById('logoImg').src = data.valor;
       document.getElementById('logoImg').style.display = 'block';
@@ -259,7 +259,7 @@ async function loadProducts() {
     // Paginamos de a 1000 para traer todos los productos
     let allData=[], from=0, pageSize=1000, keepGoing=true;
     while(keepGoing){
-      const {data,error}=await supabase.from('productos')
+      const {data,error}=await db.from('productos')
         .select('id,code,name,price,stock,img_url,has_valid_code')
         .order('code_num',{ascending:true})
         .range(from, from+pageSize-1);
