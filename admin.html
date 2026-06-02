@@ -165,6 +165,28 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-overlay p{color:var(--teal);font-size:.9rem}
 .loading-overlay.hidden{display:none}
+
+/* USERS TAB */
+.users-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start}
+@media(max-width:800px){.users-grid{grid-template-columns:1fr}}
+.users-card{background:var(--surface2);border-radius:12px;padding:1.5rem;border:1px solid var(--border2)}
+.users-card h3{font-family:'Rajdhani',sans-serif;font-size:1.1rem;color:var(--teal);margin-bottom:1.25rem;letter-spacing:1px}
+.users-table{width:100%;border-collapse:collapse}
+.users-table th{background:var(--surface);padding:.55rem .85rem;text-align:left;font-size:.72rem;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;font-weight:500}
+.users-table td{padding:.65rem .85rem;border-bottom:1px solid var(--border2);font-size:.83rem;vertical-align:middle}
+.users-table tr:last-child td{border-bottom:none}
+.role-badge{font-size:.68rem;padding:2px 8px;border-radius:10px;font-weight:600;letter-spacing:.5px}
+.role-admin{background:var(--teal-glow);border:1px solid var(--border);color:var(--teal)}
+.role-viewer{background:rgba(255,255,255,.06);border:1px solid var(--border2);color:var(--muted)}
+.btn-sm{padding:4px 10px;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:'Inter',sans-serif;border:1px solid var(--border2);background:transparent;color:var(--muted);transition:all .2s;white-space:nowrap}
+.btn-sm:hover{border-color:var(--teal);color:var(--teal)}
+.pass-wrap{display:flex;gap:.5rem}
+.pass-wrap input{flex:1}
+.btn-gen{background:var(--surface2);border:1px solid var(--border2);color:var(--muted);padding:.65rem .75rem;border-radius:8px;font-size:.8rem;cursor:pointer;white-space:nowrap;transition:all .2s;font-family:'Inter',sans-serif}
+.btn-gen:hover{border-color:var(--teal);color:var(--teal)}
+.forgot-link{display:block;text-align:center;font-size:.78rem;color:var(--muted);margin-top:.85rem;cursor:pointer;transition:color .2s;user-select:none}
+.forgot-link:hover{color:var(--teal)}
+.viewer-banner{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:.6rem 1rem;font-size:.8rem;color:var(--warn);margin-bottom:1.25rem;display:none}
 </style>
 </head>
 <body>
@@ -192,6 +214,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     </div>
     <button class="btn-primary" id="btnLogin" onclick="doLogin()">Ingresar</button>
     <div class="login-error" id="loginError">Email o contraseña incorrectos</div>
+    <span class="forgot-link" onclick="doForgotPassword()">¿Olvidaste tu contraseña?</span>
   </div>
 </div>
 
@@ -208,6 +231,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
       <button class="nav-btn active" onclick="showTab('import',this)">📊 Importar</button>
       <button class="nav-btn" onclick="showTab('products',this)">📦 Productos</button>
       <button class="nav-btn" onclick="showTab('logo',this)">🖼 Logo</button>
+      <button class="nav-btn" onclick="showTab('users',this)">👥 Usuarios</button>
     </nav>
     <div class="admin-right">
       <span class="user-chip" id="userEmail"></span>
@@ -313,6 +337,56 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
       </div>
     </div>
   </div>
+
+  <!-- TAB: USERS -->
+  <div class="tab-content" id="tab-users">
+    <div class="section-header"><h2>GESTIÓN DE USUARIOS</h2></div>
+    <div class="viewer-banner" id="viewerBanner">👁 Modo visualización — No tenés permisos de administrador para gestionar usuarios.</div>
+    <div class="users-grid">
+
+      <!-- Crear usuario -->
+      <div class="users-card">
+        <h3>CREAR NUEVO USUARIO</h3>
+        <div class="form-group">
+          <label>Nombre / Apodo visible</label>
+          <input type="text" id="newUserName" placeholder="Ej: María, Operador 1" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="newUserEmail" placeholder="usuario@ejemplo.com" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>Contraseña temporal</label>
+          <div class="pass-wrap">
+            <input type="text" id="newUserPass" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+            <button class="btn-gen" onclick="generatePassword()">🎲 Generar</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Rol</label>
+          <select class="filter-select" id="newUserRole" style="width:100%">
+            <option value="admin">Administrador — puede editar todo</option>
+            <option value="viewer">Visualizador — solo lectura</option>
+          </select>
+        </div>
+        <button class="btn-primary" id="btnCreateUser" onclick="createUser()">+ Crear usuario</button>
+        <div class="info-box" style="margin-top:1rem">
+          <strong>¿Cómo funciona?</strong><br>
+          Se crea el usuario y se le envía un <strong>email de confirmación</strong>. Una vez que confirme, podrá ingresar con el email y la contraseña temporal que definas acá.<br><br>
+          <strong>Recordá</strong> comunicarle la contraseña por WhatsApp o mensaje aparte.
+        </div>
+      </div>
+
+      <!-- Lista de usuarios -->
+      <div class="users-card">
+        <h3>USUARIOS DEL SISTEMA</h3>
+        <div id="usersTableWrap">
+          <div style="color:var(--muted);font-size:.85rem;padding:1rem 0">Cargando...</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
 
 <!-- PRODUCT IMAGE MODAL -->
@@ -340,7 +414,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 <script>
 const db = window.supabase.createClient(DTZ_CONFIG.supabaseUrl, DTZ_CONFIG.supabaseAnonKey);
 
-let currentUser=null, allProducts=[], filteredProducts=[], pendingProducts=[];
+let currentUser=null, currentUserProfile=null, allProducts=[], filteredProducts=[], pendingProducts=[];
 let currentProdPage=1, currentEditId=null, pendingImgFile=null, pendingLogoFile=null;
 const PROD_PER_PAGE=50;
 
@@ -367,10 +441,11 @@ async function doLogin() {
   const pass=document.getElementById('loginPass').value;
   const btn=document.getElementById('btnLogin');
   btn.disabled=true; btn.textContent='Ingresando...';
-  document.getElementById('loginError').style.display='none';
+  const errEl=document.getElementById('loginError');
+  errEl.style.display='none'; errEl.style.color=''; errEl.textContent='Email o contraseña incorrectos';
   const {data,error} = await db.auth.signInWithPassword({email,password:pass});
   if (error) {
-    document.getElementById('loginError').style.display='block';
+    errEl.style.display='block';
     btn.disabled=false; btn.textContent='Ingresar';
   } else showAdmin(data.user);
 }
@@ -387,6 +462,7 @@ function showAdmin(user) {
   document.getElementById('userEmail').textContent=user.email;
   loadAdminLogo();
   loadProductsTable();
+  loadUserProfile();
 }
 
 // ── TABS ─────────────────────────────────────────────────
@@ -397,6 +473,7 @@ function showTab(tab,btn) {
   btn.classList.add('active');
   if(tab==='products') loadProductsTable();
   if(tab==='logo') loadLogoTab();
+  if(tab==='users') loadUsersTab();
 }
 
 // ── IMPORT ───────────────────────────────────────────────
@@ -706,6 +783,144 @@ function toast(msg,type='info'){
 }
 document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 document.getElementById('loginEmail').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('loginPass').focus();});
+
+// ── USER MANAGEMENT ───────────────────────────────────────
+async function loadUserProfile() {
+  if (!currentUser) return;
+  try {
+    const {data} = await db.from('profiles').select('*').eq('id', currentUser.id).single();
+    currentUserProfile = data;
+    if (data?.display_name) {
+      document.getElementById('userEmail').textContent = data.display_name;
+    }
+  } catch(e) {}
+}
+
+async function loadUsersTab() {
+  // Esperar perfil si todavía no cargó
+  if (!currentUserProfile && currentUser) await loadUserProfile();
+
+  const viewerBanner = document.getElementById('viewerBanner');
+  const wrap = document.getElementById('usersTableWrap');
+  const createCard = document.querySelector('#tab-users .users-card:first-child');
+
+  if (currentUserProfile?.role !== 'admin') {
+    if (viewerBanner) viewerBanner.style.display = 'block';
+    if (createCard) { createCard.style.opacity = '.35'; createCard.style.pointerEvents = 'none'; }
+    if (wrap) wrap.innerHTML = '<div style="color:var(--muted);font-size:.85rem;padding:1rem 0">Solo los administradores pueden ver la lista de usuarios.</div>';
+    return;
+  }
+
+  if (!wrap) return;
+  wrap.innerHTML = '<div style="color:var(--muted);font-size:.85rem;padding:1rem 0">Cargando...</div>';
+  const {data, error} = await db.from('profiles').select('*').order('created_at', {ascending: true});
+  if (error || !data?.length) {
+    wrap.innerHTML = '<div style="color:var(--muted);font-size:.85rem;padding:1rem 0">No hay usuarios registrados aún.</div>';
+    return;
+  }
+  wrap.innerHTML = `<table class="users-table">
+    <thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Acciones</th></tr></thead>
+    <tbody>${data.map(u => `
+      <tr>
+        <td style="font-weight:500">${escHtml(u.display_name || '–')}</td>
+        <td style="color:var(--muted);font-size:.75rem">${escHtml(u.email || '–')}</td>
+        <td><span class="role-badge ${u.role === 'admin' ? 'role-admin' : 'role-viewer'}">${u.role === 'admin' ? 'ADMIN' : 'VIEWER'}</span></td>
+        <td style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center">
+          <button class="btn-sm" onclick="resetUserPassword('${escHtml(u.email || '')}')" title="Enviar email para restablecer contraseña">✉ Reset</button>
+          ${u.id !== currentUser?.id
+            ? `<button class="btn-sm" onclick="toggleUserRole('${u.id}','${u.role}')" title="Cambiar rol">${u.role === 'admin' ? '↓ Viewer' : '↑ Admin'}</button>`
+            : `<span style="font-size:.72rem;color:var(--teal);padding:4px 6px">(vos)</span>`
+          }
+        </td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+function generatePassword() {
+  const chars = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789@#!';
+  let pass = '';
+  for (let i = 0; i < 10; i++) pass += chars[Math.floor(Math.random() * chars.length)];
+  document.getElementById('newUserPass').value = pass;
+}
+
+async function createUser() {
+  if (currentUserProfile?.role !== 'admin') { toast('Sin permisos de administrador', 'err'); return; }
+  const name  = document.getElementById('newUserName').value.trim();
+  const email = document.getElementById('newUserEmail').value.trim();
+  const pass  = document.getElementById('newUserPass').value;
+  const role  = document.getElementById('newUserRole').value;
+  if (!email || !pass) { toast('Completá email y contraseña', 'err'); return; }
+  if (pass.length < 6) { toast('La contraseña debe tener al menos 6 caracteres', 'err'); return; }
+
+  const btn = document.getElementById('btnCreateUser');
+  btn.disabled = true; btn.textContent = 'Creando...';
+
+  // Cliente separado con persistSession:false para NO reemplazar la sesión del admin
+  const tempClient = window.supabase.createClient(DTZ_CONFIG.supabaseUrl, DTZ_CONFIG.supabaseAnonKey, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+  });
+  const displayName = name || email.split('@')[0];
+  const {data, error} = await tempClient.auth.signUp({
+    email, password: pass,
+    options: { data: { display_name: displayName } }
+  });
+
+  btn.disabled = false; btn.textContent = '+ Crear usuario';
+  if (error) { toast('Error: ' + error.message, 'err'); return; }
+
+  // Upsert de perfil con el rol seleccionado (puede pisar lo que hizo el trigger)
+  if (data?.user) {
+    await db.from('profiles').upsert(
+      { id: data.user.id, email, display_name: displayName, role },
+      { onConflict: 'id' }
+    );
+  }
+
+  toast('✔ Usuario creado. Le llegará un email de confirmación.', 'ok');
+  document.getElementById('newUserName').value = '';
+  document.getElementById('newUserEmail').value = '';
+  document.getElementById('newUserPass').value  = '';
+  loadUsersTab();
+}
+
+async function resetUserPassword(email) {
+  if (!email) return;
+  const {error} = await db.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '/admin.html'
+  });
+  if (error) toast('Error: ' + error.message, 'err');
+  else toast('✔ Email de reset enviado a ' + email, 'ok');
+}
+
+async function toggleUserRole(userId, currentRole) {
+  const newRole = currentRole === 'admin' ? 'viewer' : 'admin';
+  const {error} = await db.from('profiles').update({ role: newRole }).eq('id', userId);
+  if (error) toast('Error actualizando rol', 'err');
+  else { toast('Rol cambiado a ' + newRole, 'ok'); loadUsersTab(); }
+}
+
+async function doForgotPassword() {
+  const email  = document.getElementById('loginEmail').value.trim();
+  const errEl  = document.getElementById('loginError');
+  if (!email) {
+    document.getElementById('loginEmail').focus();
+    errEl.style.color   = 'var(--warn)';
+    errEl.textContent   = 'Escribí tu email arriba y luego hacé clic en "Olvidaste tu contraseña"';
+    errEl.style.display = 'block';
+    return;
+  }
+  const {error} = await db.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + '/admin.html'
+  });
+  errEl.style.display = 'block';
+  if (error) {
+    errEl.style.color = 'var(--danger)';
+    errEl.textContent = 'Error: ' + error.message;
+  } else {
+    errEl.style.color = 'var(--ok)';
+    errEl.textContent = '✔ Email enviado a ' + email + '. Revisá tu bandeja de entrada.';
+  }
+}
 
 checkSession();
 </script>
