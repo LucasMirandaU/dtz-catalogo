@@ -1,0 +1,11 @@
+# Archivos SQL de setup — ejecutar manualmente en Supabase, no subir al repo
+*.sql
+
+# Archivos de entorno y configuración sensible
+.env
+.env.local
+*.env
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
