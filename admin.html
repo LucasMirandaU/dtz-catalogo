@@ -187,6 +187,24 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .forgot-link{display:block;text-align:center;font-size:.78rem;color:var(--muted);margin-top:.85rem;cursor:pointer;transition:color .2s;user-select:none}
 .forgot-link:hover{color:var(--teal)}
 .viewer-banner{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:.6rem 1rem;font-size:.8rem;color:var(--warn);margin-bottom:1.25rem;display:none}
+
+/* PROMOTIONS TAB */
+.promo-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start}
+@media(max-width:800px){.promo-grid{grid-template-columns:1fr}}
+.promo-card{background:var(--surface2);border-radius:12px;padding:1.5rem;border:1px solid var(--border2)}
+.promo-card h3{font-family:'Rajdhani',sans-serif;font-size:1.1rem;color:var(--teal);margin-bottom:1.25rem;letter-spacing:1px}
+.promo-table{width:100%;border-collapse:collapse}
+.promo-table th{background:var(--surface);padding:.55rem .85rem;text-align:left;font-size:.72rem;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;font-weight:500}
+.promo-table td{padding:.65rem .85rem;border-bottom:1px solid var(--border2);font-size:.83rem;vertical-align:middle}
+.promo-table tr:last-child td{border-bottom:none}
+.badge-active{font-size:.68rem;padding:2px 8px;border-radius:10px;font-weight:600;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:var(--ok)}
+.badge-inactive{font-size:.68rem;padding:2px 8px;border-radius:10px;font-weight:600;background:rgba(255,255,255,.05);border:1px solid var(--border2);color:var(--muted)}
+.override-badge{font-size:.63rem;padding:1px 5px;border-radius:3px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);color:var(--warn);margin-left:.3rem;vertical-align:middle}
+.input-num{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:.65rem 1rem;color:var(--text);font-size:.9rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+.input-num:focus{border-color:var(--teal)}
+.role-superadmin{background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.4);color:#a78bfa}
+.role-admin{background:var(--teal-glow);border:1px solid var(--border);color:var(--teal)}
+.role-staff{background:rgba(255,255,255,.06);border:1px solid var(--border2);color:var(--muted)}
 </style>
 </head>
 <body>
@@ -227,11 +245,12 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
       <span>DTZ</span>
       <div class="badge">ADMIN</div>
     </div>
-    <nav class="admin-nav">
-      <button class="nav-btn active" onclick="showTab('import',this)">📊 Importar</button>
-      <button class="nav-btn" onclick="showTab('products',this)">📦 Productos</button>
-      <button class="nav-btn" onclick="showTab('logo',this)">🖼 Logo</button>
-      <button class="nav-btn" onclick="showTab('users',this)">👥 Usuarios</button>
+    <nav class="admin-nav" id="adminNav">
+      <button class="nav-btn active" data-tab="import" onclick="showTab('import',this)">📊 Importar</button>
+      <button class="nav-btn" data-tab="products" onclick="showTab('products',this)">📦 Productos</button>
+      <button class="nav-btn" data-tab="promotions" onclick="showTab('promotions',this)">🏷️ Promociones</button>
+      <button class="nav-btn" data-tab="logo" onclick="showTab('logo',this)">🖼 Logo</button>
+      <button class="nav-btn" data-tab="users" onclick="showTab('users',this)">👥 Usuarios</button>
     </nav>
     <div class="admin-right">
       <span class="user-chip" id="userEmail"></span>
@@ -291,10 +310,10 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
         <option value="without">Sin stock</option>
       </select>
     </div>
-    <table class="products-table">
+    <table class="products-table" id="productsTable">
       <thead>
-        <tr>
-          <th>Imagen</th><th>Código</th><th>Nombre</th><th>Precio</th><th>Stock</th><th>Acción</th>
+        <tr id="productsTableHead">
+          <th>Imagen</th><th>Código</th><th>Nombre Odoo</th><th>Precio Odoo</th><th>Stock</th><th>Acciones</th>
         </tr>
       </thead>
       <tbody id="productsTbody"></tbody>
@@ -338,10 +357,53 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     </div>
   </div>
 
+  <!-- TAB: PROMOTIONS -->
+  <div class="tab-content" id="tab-promotions">
+    <div class="section-header"><h2>PROMOCIONES POR VOLUMEN</h2></div>
+    <div class="promo-grid">
+
+      <!-- Crear promoción -->
+      <div class="promo-card">
+        <h3>NUEVA PROMOCIÓN</h3>
+        <div class="form-group">
+          <label>Nombre de la promoción</label>
+          <input type="text" id="promoNombre" placeholder="Ej: Promo Volumen Junio" class="form-group input" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:.65rem 1rem;color:var(--text);font-size:.9rem;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s" onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+        </div>
+        <div class="form-group">
+          <label>Cantidad mínima de productos en carrito</label>
+          <input type="number" id="promoMinQty" class="input-num" min="1" placeholder="Ej: 3">
+        </div>
+        <div class="form-group">
+          <label>Porcentaje de descuento (%)</label>
+          <input type="number" id="promoDescuento" class="input-num" min="1" max="100" step="0.5" placeholder="Ej: 10">
+        </div>
+        <button class="btn-primary" id="btnCreatePromo" onclick="createPromo()">+ Crear promoción</button>
+        <div class="info-box" style="margin-top:1rem">
+          <strong>¿Cómo funciona?</strong><br>
+          Cuando el carrito del cliente alcanza la cantidad indicada, se aplica el descuento automáticamente.<br><br>
+          Podés crear varios niveles:<br>
+          · 3 productos → 5% off<br>
+          · 6 productos → 10% off<br>
+          · 10 productos → 15% off<br><br>
+          Se aplica siempre el <strong>nivel más alto</strong> que corresponda.
+        </div>
+      </div>
+
+      <!-- Lista de promociones -->
+      <div class="promo-card">
+        <h3>PROMOCIONES CONFIGURADAS</h3>
+        <div id="promosTableWrap">
+          <div style="color:var(--muted);font-size:.85rem;padding:1rem 0">Cargando...</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- TAB: USERS -->
   <div class="tab-content" id="tab-users">
     <div class="section-header"><h2>GESTIÓN DE USUARIOS</h2></div>
-    <div class="viewer-banner" id="viewerBanner">👁 Modo visualización — No tenés permisos de administrador para gestionar usuarios.</div>
+    <div class="viewer-banner" id="viewerBanner">🔒 Solo el Superadministrador puede gestionar usuarios.</div>
     <div class="users-grid">
 
       <!-- Crear usuario -->
@@ -365,15 +427,18 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
         <div class="form-group">
           <label>Rol</label>
           <select class="filter-select" id="newUserRole" style="width:100%">
-            <option value="admin">Administrador — puede editar todo</option>
-            <option value="viewer">Visualizador — solo lectura</option>
+            <option value="admin">Administrador — importa, edita productos y promociones</option>
+            <option value="staff">Empleado — solo carga imágenes de productos</option>
           </select>
         </div>
         <button class="btn-primary" id="btnCreateUser" onclick="createUser()">+ Crear usuario</button>
         <div class="info-box" style="margin-top:1rem">
-          <strong>¿Cómo funciona?</strong><br>
-          Se crea el usuario y se le envía un <strong>email de confirmación</strong>. Una vez que confirme, podrá ingresar con el email y la contraseña temporal que definas acá.<br><br>
-          <strong>Recordá</strong> comunicarle la contraseña por WhatsApp o mensaje aparte.
+          <strong>Roles del sistema:</strong><br>
+          🔵 <strong>Superadmin</strong> — Acceso total (solo desarrollador)<br>
+          🟢 <strong>Admin</strong> — Gestiona productos y promociones<br>
+          ⚪ <strong>Staff</strong> — Solo imágenes de productos<br><br>
+          El nuevo usuario recibe un <strong>email de confirmación</strong>.
+          Comunicarle la contraseña por separado.
         </div>
       </div>
 
@@ -409,14 +474,61 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
   </div>
 </div>
 
+<!-- PRODUCT OVERRIDE MODAL -->
+<div class="modal-overlay" id="overrideModal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header">
+      <h3>✏ EDITAR PARA CATÁLOGO WEB</h3>
+      <button class="modal-close" onclick="closeOverrideModal()">✕</button>
+    </div>
+    <div class="modal-product-name" id="overrideProductName"></div>
+    <div class="info-box" style="margin-bottom:1.25rem;font-size:.78rem">
+      Dejá en blanco lo que no querés cambiar — el catálogo usará los datos de Odoo.<br>
+      Útil para nombres más cortos, precios promocionales web, etc.
+    </div>
+    <div class="form-group">
+      <label>Nombre web (vacío = usar nombre de Odoo)</label>
+      <input type="text" id="overrideNameInput" placeholder="Nombre alternativo para el catálogo" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>Precio web (vacío = usar precio de Odoo)</label>
+      <input type="number" id="overridePriceInput" placeholder="Precio especial o promocional" min="0" step="0.01">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-save" id="btnSaveOverride" style="display:block" onclick="saveOverride()">💾 Guardar</button>
+      <button class="btn-delete-img" id="btnClearOverride" style="display:none" onclick="clearOverride()">🗑 Limpiar override</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 const db = window.supabase.createClient(DTZ_CONFIG.supabaseUrl, DTZ_CONFIG.supabaseAnonKey);
 
 let currentUser=null, currentUserProfile=null, allProducts=[], filteredProducts=[], pendingProducts=[];
-let currentProdPage=1, currentEditId=null, pendingImgFile=null, pendingLogoFile=null;
+let allOverrides={}, currentProdPage=1, currentEditId=null, currentOverrideCode=null;
+let pendingImgFile=null, pendingLogoFile=null;
 const PROD_PER_PAGE=50;
+
+// Tabs permitidos por rol
+const ROLE_TABS = {
+  superadmin: ['import','products','promotions','logo','users'],
+  admin:      ['import','products','promotions','logo'],
+  staff:      ['products']
+};
+function setupNavForRole(role) {
+  const allowed = ROLE_TABS[role] || ['products'];
+  document.querySelectorAll('#adminNav .nav-btn[data-tab]').forEach(btn => {
+    btn.style.display = allowed.includes(btn.dataset.tab) ? '' : 'none';
+  });
+  // Si el tab activo ya no está permitido, redirigir a productos
+  const activeTab = document.querySelector('#adminNav .nav-btn.active');
+  if (activeTab && !allowed.includes(activeTab.dataset.tab)) {
+    const fallback = document.querySelector(`#adminNav .nav-btn[data-tab="products"]`);
+    if (fallback) { showTab('products', fallback); }
+  }
+}
 
 // ── AUTH ─────────────────────────────────────────────────
 async function checkSession() {
@@ -471,9 +583,10 @@ function showTab(tab,btn) {
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   btn.classList.add('active');
-  if(tab==='products') loadProductsTable();
-  if(tab==='logo') loadLogoTab();
-  if(tab==='users') loadUsersTab();
+  if(tab==='products')   loadProductsTable();
+  if(tab==='logo')       loadLogoTab();
+  if(tab==='users')      loadUsersTab();
+  if(tab==='promotions') loadPromosTab();
 }
 
 // ── IMPORT ───────────────────────────────────────────────
@@ -571,7 +684,6 @@ dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag-over
 // ── PRODUCTS TABLE ────────────────────────────────────────
 async function loadProductsTable() {
   showLoading('Cargando productos...');
-  // Paginamos de a 1000 para traer todos los productos
   let allData=[], from=0, pageSize=1000, keepGoing=true;
   while(keepGoing){
     const {data,error}=await db.from('productos')
@@ -583,10 +695,19 @@ async function loadProductsTable() {
     keepGoing=(data&&data.length===pageSize);
     from+=pageSize;
   }
+  // Cargar overrides
+  const {data:ovData} = await db.from('product_overrides').select('code,display_name,custom_price');
+  allOverrides={};
+  (ovData||[]).forEach(o=>{ allOverrides[o.code]=o; });
   hideLoading();
   allProducts=allData;
   filteredProducts=[...allProducts];
   document.getElementById('prodCount').textContent=`${allProducts.length} productos`;
+  // Adaptar encabezado según rol
+  const canOverride = ['superadmin','admin'].includes(currentUserProfile?.role);
+  document.getElementById('productsTableHead').innerHTML = canOverride
+    ? '<th>Imagen</th><th>Código</th><th>Nombre Odoo</th><th>Precio Odoo</th><th>Stock</th><th>Imagen</th><th>Override web</th>'
+    : '<th>Imagen</th><th>Código</th><th>Nombre</th><th>Precio</th><th>Stock</th><th>Imagen</th>';
   renderTable(1);
 }
 function filterTable() {
@@ -607,19 +728,30 @@ function renderTable(page) {
   currentProdPage=page;
   const slice=filteredProducts.slice((page-1)*PROD_PER_PAGE,page*PROD_PER_PAGE);
   const tbody=document.getElementById('productsTbody');
+  const canOverride=['superadmin','admin'].includes(currentUserProfile?.role);
+  const colspan = canOverride ? 7 : 6;
   if(!filteredProducts.length){
-    tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:3rem;color:var(--muted)">Sin resultados</td></tr>`;
+    tbody.innerHTML=`<tr><td colspan="${colspan}" style="text-align:center;padding:3rem;color:var(--muted)">Sin resultados</td></tr>`;
     document.getElementById('prodPagination').innerHTML=''; return;
   }
-  tbody.innerHTML=slice.map(p=>`
+  tbody.innerHTML=slice.map(p=>{
+    const ov = allOverrides[p.code];
+    const hasOv = !!(ov?.display_name || ov?.custom_price != null);
+    const ovBadge = hasOv ? '<span class="override-badge">✏ WEB</span>' : '';
+    const overrideBtn = canOverride
+      ? `<button class="btn-img ${hasOv?'has-img':''}" onclick="openOverrideModal('${escHtml(p.code)}','${escHtml(p.name)}',${p.price})" title="Editar nombre/precio para el catálogo web">${hasOv?'✏ Editado':'✏ Override'}</button>`
+      : '';
+    return `
     <tr>
-      <td>${p.img_url?`<img class="thumb" src="${p.img_url}" alt="${escHtml(p.name)}">`:`<div class="thumb-placeholder" onclick="openImgModal('${p.id}','${escHtml(p.name)}','${p.img_url||''}')">🖼</div>`}</td>
+      <td>${p.img_url?`<img class="thumb" src="${p.img_url}" alt="${escHtml(p.name)}">`:`<div class="thumb-placeholder" onclick="openImgModal('${p.id}','${escHtml(p.name)}','${p.img_url||''}')" >🖼</div>`}</td>
       <td><div class="code-badge">[${p.code}]</div>${!p.has_valid_code?'<div class="badge-warn">⚠ Sin *</div>':''}</td>
-      <td style="max-width:280px">${escHtml(p.name)}</td>
+      <td style="max-width:220px">${escHtml(p.name)}${ovBadge}</td>
       <td class="${p.price>0?'price-cell':'consultar-cell'}">${p.price>0?'$'+p.price.toLocaleString('es-AR'):'Consultar'}</td>
       <td class="${p.stock>0?'stock-ok':'stock-zero'}">${p.stock>0?p.stock:'–'}</td>
       <td><button class="btn-img ${p.img_url?'has-img':''}" onclick="openImgModal('${p.id}','${escHtml(p.name)}','${p.img_url||''}')">${p.img_url?'🖼 Cambiar':'+ Imagen'}</button></td>
-    </tr>`).join('');
+      ${canOverride?`<td>${overrideBtn}</td>`:''}
+    </tr>`;
+  }).join('');
   renderProdPagination();
 }
 function renderProdPagination() {
@@ -793,21 +925,26 @@ async function loadUserProfile() {
     if (data?.display_name) {
       document.getElementById('userEmail').textContent = data.display_name;
     }
+    // Chip de rol en el header
+    const roleLabels = { superadmin:'SUPERADMIN', admin:'ADMIN', staff:'STAFF' };
+    const roleBadge = document.querySelector('.admin-logo .badge');
+    if (roleBadge) roleBadge.textContent = roleLabels[data?.role] || 'ADMIN';
+    // Configurar nav según rol
+    setupNavForRole(data?.role || 'staff');
   } catch(e) {}
 }
 
 async function loadUsersTab() {
-  // Esperar perfil si todavía no cargó
   if (!currentUserProfile && currentUser) await loadUserProfile();
 
   const viewerBanner = document.getElementById('viewerBanner');
   const wrap = document.getElementById('usersTableWrap');
   const createCard = document.querySelector('#tab-users .users-card:first-child');
 
-  if (currentUserProfile?.role !== 'admin') {
+  if (currentUserProfile?.role !== 'superadmin') {
     if (viewerBanner) viewerBanner.style.display = 'block';
     if (createCard) { createCard.style.opacity = '.35'; createCard.style.pointerEvents = 'none'; }
-    if (wrap) wrap.innerHTML = '<div style="color:var(--muted);font-size:.85rem;padding:1rem 0">Solo los administradores pueden ver la lista de usuarios.</div>';
+    if (wrap) wrap.innerHTML = '<div style="color:var(--muted);font-size:.85rem;padding:1rem 0">Solo el Superadministrador puede ver y gestionar usuarios.</div>';
     return;
   }
 
@@ -818,18 +955,22 @@ async function loadUsersTab() {
     wrap.innerHTML = '<div style="color:var(--muted);font-size:.85rem;padding:1rem 0">No hay usuarios registrados aún.</div>';
     return;
   }
+  const roleLabel = { superadmin:'SUPERADMIN', admin:'ADMIN', staff:'STAFF' };
+  const roleClass = { superadmin:'role-superadmin', admin:'role-admin', staff:'role-staff' };
+  const roleNext  = { superadmin:'admin', admin:'staff', staff:'admin' };
+  const roleNextLabel = { superadmin:'↓ Admin', admin:'↓ Staff', staff:'↑ Admin' };
   wrap.innerHTML = `<table class="users-table">
     <thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Acciones</th></tr></thead>
     <tbody>${data.map(u => `
       <tr>
-        <td style="font-weight:500">${escHtml(u.display_name || '–')}</td>
-        <td style="color:var(--muted);font-size:.75rem">${escHtml(u.email || '–')}</td>
-        <td><span class="role-badge ${u.role === 'admin' ? 'role-admin' : 'role-viewer'}">${u.role === 'admin' ? 'ADMIN' : 'VIEWER'}</span></td>
+        <td style="font-weight:500">${escHtml(u.display_name||'–')}</td>
+        <td style="color:var(--muted);font-size:.75rem">${escHtml(u.email||'–')}</td>
+        <td><span class="role-badge ${roleClass[u.role]||'role-staff'}">${roleLabel[u.role]||u.role}</span></td>
         <td style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center">
-          <button class="btn-sm" onclick="resetUserPassword('${escHtml(u.email || '')}')" title="Enviar email para restablecer contraseña">✉ Reset</button>
-          ${u.id !== currentUser?.id
-            ? `<button class="btn-sm" onclick="toggleUserRole('${u.id}','${u.role}')" title="Cambiar rol">${u.role === 'admin' ? '↓ Viewer' : '↑ Admin'}</button>`
-            : `<span style="font-size:.72rem;color:var(--teal);padding:4px 6px">(vos)</span>`
+          <button class="btn-sm" onclick="resetUserPassword('${escHtml(u.email||'')}')" title="Enviar email de reset">✉ Reset</button>
+          ${u.id!==currentUser?.id
+            ?`<button class="btn-sm" onclick="toggleUserRole('${u.id}','${u.role}')" title="Cambiar rol">${roleNextLabel[u.role]||'Cambiar'}</button>`
+            :`<span style="font-size:.72rem;color:var(--teal);padding:4px 6px">(vos)</span>`
           }
         </td>
       </tr>`).join('')}
@@ -844,7 +985,7 @@ function generatePassword() {
 }
 
 async function createUser() {
-  if (currentUserProfile?.role !== 'admin') { toast('Sin permisos de administrador', 'err'); return; }
+  if (currentUserProfile?.role !== 'superadmin') { toast('Solo el Superadministrador puede crear usuarios', 'err'); return; }
   const name  = document.getElementById('newUserName').value.trim();
   const email = document.getElementById('newUserEmail').value.trim();
   const pass  = document.getElementById('newUserPass').value;
@@ -893,11 +1034,120 @@ async function resetUserPassword(email) {
 }
 
 async function toggleUserRole(userId, currentRole) {
-  const newRole = currentRole === 'admin' ? 'viewer' : 'admin';
+  const order = ['staff','admin','superadmin'];
+  const idx = order.indexOf(currentRole);
+  // Ciclo: staff→admin→staff (superadmin no se puede asignar desde UI)
+  const newRole = currentRole === 'admin' ? 'staff' : 'admin';
   const {error} = await db.from('profiles').update({ role: newRole }).eq('id', userId);
   if (error) toast('Error actualizando rol', 'err');
   else { toast('Rol cambiado a ' + newRole, 'ok'); loadUsersTab(); }
 }
+
+// ── PROMOTIONS ────────────────────────────────────────────
+async function loadPromosTab() {
+  if (!currentUserProfile && currentUser) await loadUserProfile();
+  const wrap = document.getElementById('promosTableWrap');
+  if (!wrap) return;
+  wrap.innerHTML = '<div style="color:var(--muted);font-size:.85rem;padding:1rem 0">Cargando...</div>';
+  const {data, error} = await db.from('promotions').select('*').order('min_cantidad', {ascending: true});
+  if (error || !data?.length) {
+    wrap.innerHTML = '<div style="color:var(--muted);font-size:.85rem;padding:1rem 0">No hay promociones configuradas aún.</div>';
+    return;
+  }
+  wrap.innerHTML = `<table class="promo-table">
+    <thead><tr><th>Nombre</th><th>Mín. prods.</th><th>Descuento</th><th>Estado</th><th>Acciones</th></tr></thead>
+    <tbody>${data.map(p=>`
+      <tr>
+        <td style="font-weight:500">${escHtml(p.nombre)}</td>
+        <td style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;color:var(--teal)">${p.min_cantidad}+</td>
+        <td style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;color:var(--ok)">${p.descuento_pct}%</td>
+        <td><span class="${p.activo?'badge-active':'badge-inactive'}">${p.activo?'ACTIVA':'PAUSADA'}</span></td>
+        <td style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center">
+          <button class="btn-sm" onclick="togglePromo(${p.id},${p.activo})">${p.activo?'⏸ Pausar':'▶ Activar'}</button>
+          <button class="btn-sm" onclick="deletePromo(${p.id})" style="color:var(--danger)" onmouseover="this.style.borderColor='var(--danger)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.08)'">🗑</button>
+        </td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+async function createPromo() {
+  const nombre    = document.getElementById('promoNombre').value.trim();
+  const minQty    = parseInt(document.getElementById('promoMinQty').value);
+  const descuento = parseFloat(document.getElementById('promoDescuento').value);
+  if (!nombre)                          { toast('Ingresá un nombre para la promoción','err'); return; }
+  if (!minQty || minQty < 1)            { toast('La cantidad mínima debe ser mayor a 0','err'); return; }
+  if (!descuento||descuento<=0||descuento>100){ toast('El descuento debe ser entre 1 y 100','err'); return; }
+  const btn = document.getElementById('btnCreatePromo');
+  btn.disabled=true; btn.textContent='Creando...';
+  const {error} = await db.from('promotions').insert({nombre, min_cantidad:minQty, descuento_pct:descuento, activo:true});
+  btn.disabled=false; btn.textContent='+ Crear promoción';
+  if (error) { toast('Error: '+error.message,'err'); return; }
+  toast('✔ Promoción creada','ok');
+  document.getElementById('promoNombre').value='';
+  document.getElementById('promoMinQty').value='';
+  document.getElementById('promoDescuento').value='';
+  loadPromosTab();
+}
+async function togglePromo(id, activo) {
+  const {error} = await db.from('promotions').update({activo:!activo}).eq('id',id);
+  if (error) toast('Error actualizando promoción','err');
+  else { toast(`Promoción ${!activo?'activada':'pausada'}`,'ok'); loadPromosTab(); }
+}
+async function deletePromo(id) {
+  if (!confirm('¿Eliminar esta promoción permanentemente?')) return;
+  const {error} = await db.from('promotions').delete().eq('id',id);
+  if (error) toast('Error eliminando promoción','err');
+  else { toast('Promoción eliminada','info'); loadPromosTab(); }
+}
+
+// ── PRODUCT OVERRIDES ─────────────────────────────────────
+async function openOverrideModal(code, odooName, odooPrice) {
+  currentOverrideCode = code;
+  document.getElementById('overrideProductName').textContent = `[${code}] ${odooName}`;
+  document.getElementById('overrideNameInput').value = '';
+  document.getElementById('overridePriceInput').value = '';
+  document.getElementById('btnClearOverride').style.display = 'none';
+  const {data} = await db.from('product_overrides').select('*').eq('code',code).single();
+  if (data) {
+    if (data.display_name) document.getElementById('overrideNameInput').value = data.display_name;
+    if (data.custom_price !== null && data.custom_price !== undefined)
+      document.getElementById('overridePriceInput').value = data.custom_price;
+    document.getElementById('btnClearOverride').style.display = 'block';
+  }
+  document.getElementById('overrideModal').classList.add('open');
+}
+function closeOverrideModal() {
+  document.getElementById('overrideModal').classList.remove('open');
+  currentOverrideCode = null;
+}
+async function saveOverride() {
+  if (!currentOverrideCode) return;
+  const displayName  = document.getElementById('overrideNameInput').value.trim() || null;
+  const priceVal     = document.getElementById('overridePriceInput').value;
+  const custom_price = priceVal !== '' ? parseFloat(priceVal) : null;
+  const {error} = await db.from('product_overrides').upsert(
+    { code:currentOverrideCode, display_name:displayName, custom_price, updated_by:currentUser?.email, updated_at:new Date().toISOString() },
+    { onConflict:'code' }
+  );
+  if (error) { toast('Error: '+error.message,'err'); return; }
+  // Actualizar cache local
+  if (displayName || custom_price !== null)
+    allOverrides[currentOverrideCode] = { code:currentOverrideCode, display_name:displayName, custom_price };
+  else
+    delete allOverrides[currentOverrideCode];
+  toast('✔ Override guardado','ok');
+  closeOverrideModal();
+  renderTable(currentProdPage);
+}
+async function clearOverride() {
+  if (!currentOverrideCode) return;
+  const {error} = await db.from('product_overrides').delete().eq('code',currentOverrideCode);
+  if (error) { toast('Error eliminando override','err'); return; }
+  delete allOverrides[currentOverrideCode];
+  toast('Override eliminado — vuelve a mostrar datos de Odoo','info');
+  closeOverrideModal();
+  renderTable(currentProdPage);
+}
+document.getElementById('overrideModal').addEventListener('click',function(e){if(e.target===this)closeOverrideModal();});
 
 async function doForgotPassword() {
   const email  = document.getElementById('loginEmail').value.trim();

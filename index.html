@@ -234,6 +234,7 @@ main{padding:1.5rem 2rem;max-width:1400px;margin:0 auto}
 <script>
 const PER_PAGE = 60;
 let allProducts = [], filtered = [], currentFilter = 'all', currentPage = 1;
+let allOverrides = {}, activePromotions = [];
 let cart = {}; // { id: { product, qty } }
 
 const db = window.supabase.createClient(DTZ_CONFIG.supabaseUrl, DTZ_CONFIG.supabaseAnonKey);
@@ -256,7 +257,7 @@ async function loadLogo() {
 async function loadProducts() {
   document.getElementById('loadingOverlay').classList.remove('hidden');
   try {
-    // Paginamos de a 1000 para traer todos los productos
+    // Productos
     let allData=[], from=0, pageSize=1000, keepGoing=true;
     while(keepGoing){
       const {data,error}=await db.from('productos')
@@ -269,7 +270,14 @@ async function loadProducts() {
       from+=pageSize;
     }
     allProducts=allData;
-  } catch(e) { allProducts = []; }
+    // Overrides (nombre/precio personalizado)
+    const {data:ovData} = await db.from('product_overrides').select('code,display_name,custom_price');
+    allOverrides={};
+    (ovData||[]).forEach(o=>{ allOverrides[o.code]=o; });
+    // Promociones activas
+    const {data:promoData} = await db.from('promotions').select('*').eq('activo',true).order('min_cantidad',{ascending:true});
+    activePromotions = promoData||[];
+  } catch(e) { allProducts=[]; }
   document.getElementById('loadingOverlay').classList.add('hidden');
   applyFiltersAndRender();
 }
@@ -315,16 +323,19 @@ function renderPage(page) {
     document.getElementById('pagination').style.display='none'; return;
   }
   grid.innerHTML = slice.map(p => {
+    const ov = allOverrides[p.code];
+    const displayName  = ov?.display_name  || p.name;
+    const displayPrice = (ov?.custom_price != null) ? ov.custom_price : p.price;
     const inCart = !!cart[p.id];
     return `<div class="product-card" id="card-${p.id}">
       <div class="product-img">
-        ${p.img_url?`<img src="${p.img_url}" alt="${esc(p.name)}" loading="lazy">`:`<div class="no-img-icon">🖼</div>`}
+        ${p.img_url?`<img src="${p.img_url}" alt="${esc(displayName)}" loading="lazy">`:`<div class="no-img-icon">🖼</div>`}
       </div>
       <div class="product-code">[${p.code}]</div>
-      <div class="product-name">${esc(p.name)}</div>
+      <div class="product-name">${esc(displayName)}</div>
       <div class="product-footer">
-        <div class="product-price ${p.price===0?'consultar':''}">
-          ${p.price>0?'$'+p.price.toLocaleString('es-AR'):'Consultar precio'}
+        <div class="product-price ${displayPrice===0?'consultar':''}">
+          ${displayPrice>0?'$'+displayPrice.toLocaleString('es-AR'):'Consultar precio'}
         </div>
         <div class="product-stock ${p.stock>0?'stock-ok':'stock-zero'}">
           ${p.stock>0?'✔ '+p.stock:'Sin stock'}
@@ -415,10 +426,17 @@ function clearCart() {
   renderCartDrawer();
 }
 
+function getBestPromo(totalItems) {
+  return activePromotions.filter(p=>totalItems>=p.min_cantidad).sort((a,b)=>b.descuento_pct-a.descuento_pct)[0]||null;
+}
+function getNextPromo(totalItems) {
+  return activePromotions.filter(p=>totalItems<p.min_cantidad).sort((a,b)=>a.min_cantidad-b.min_cantidad)[0]||null;
+}
+
 function renderCartDrawer() {
-  const body = document.getElementById('cartBody');
+  const body   = document.getElementById('cartBody');
   const footer = document.getElementById('cartFooter');
-  const items = Object.values(cart);
+  const items  = Object.values(cart);
 
   if (!items.length) {
     body.innerHTML=`<div class="cart-empty"><div class="icon">🛒</div><p>Tu carrito está vacío</p><p style="font-size:.78rem">Agregá productos para armar tu pedido</p></div>`;
@@ -427,34 +445,61 @@ function renderCartDrawer() {
   }
 
   footer.style.display='flex';
-  let totalKnown = 0, hasConsultar = false;
-  items.forEach(({product,qty})=>{
-    if (product.price>0) totalKnown += product.price*qty;
+  const totalItems = items.reduce((s,i)=>s+i.qty, 0);
+  let totalKnown=0, hasConsultar=false;
+  items.forEach(({product:p,qty})=>{
+    const ov = allOverrides[p.code];
+    const price = (ov?.custom_price != null) ? ov.custom_price : p.price;
+    if (price>0) totalKnown += price*qty;
     else hasConsultar = true;
   });
 
-  document.getElementById('cartItemCount').textContent = items.reduce((s,i)=>s+i.qty,0);
+  // Promociones
+  const bestPromo = getBestPromo(totalItems);
+  const nextPromo = getNextPromo(totalItems);
+  let discountAmt = 0;
+  let promoHtml = '';
+  if (bestPromo && totalKnown>0) {
+    discountAmt = Math.round(totalKnown * bestPromo.descuento_pct / 100);
+    promoHtml += `<div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:8px;padding:.6rem 1rem;font-size:.8rem;color:var(--ok);margin-bottom:.75rem">
+      🏷️ <strong>${esc(bestPromo.nombre)}</strong>: ${bestPromo.descuento_pct}% off aplicado (${bestPromo.min_cantidad}+ productos)
+    </div>`;
+  }
+  if (nextPromo) {
+    const faltam = nextPromo.min_cantidad - totalItems;
+    promoHtml += `<div style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:.55rem 1rem;font-size:.75rem;color:var(--warn);margin-bottom:.75rem">
+      💡 Agregá ${faltam} producto${faltam>1?'s':''} más y obtenés <strong>${nextPromo.descuento_pct}% de descuento</strong>
+    </div>`;
+  }
+
+  document.getElementById('cartItemCount').textContent = totalItems;
   const totalEl = document.getElementById('cartTotal');
-  if (totalKnown > 0 && !hasConsultar) {
-    totalEl.textContent = '$'+totalKnown.toLocaleString('es-AR');
+  const finalTotal = totalKnown - discountAmt;
+  if (totalKnown>0 && !hasConsultar) {
+    let txt = '$'+finalTotal.toLocaleString('es-AR');
+    if (discountAmt>0) txt = `<span style="text-decoration:line-through;opacity:.45;font-size:.85em">$${totalKnown.toLocaleString('es-AR')}</span> $${finalTotal.toLocaleString('es-AR')}`;
+    totalEl.innerHTML = txt;
     document.getElementById('cartTotalWrap').style.display='flex';
-  } else if (totalKnown > 0 && hasConsultar) {
-    totalEl.textContent = '$'+totalKnown.toLocaleString('es-AR')+' + consultar';
+  } else if (totalKnown>0 && hasConsultar) {
+    totalEl.textContent = '$'+finalTotal.toLocaleString('es-AR')+' + consultar';
     document.getElementById('cartTotalWrap').style.display='flex';
   } else {
     document.getElementById('cartTotalWrap').style.display='none';
   }
 
-  body.innerHTML = items.map(({product:p, qty})=>`
-    <div class="cart-item">
+  body.innerHTML = promoHtml + items.map(({product:p, qty})=>{
+    const ov = allOverrides[p.code];
+    const displayName  = ov?.display_name  || p.name;
+    const displayPrice = (ov?.custom_price != null) ? ov.custom_price : p.price;
+    return `<div class="cart-item">
       ${p.img_url
-        ?`<img class="cart-item-img" src="${p.img_url}" alt="${esc(p.name)}">`
+        ?`<img class="cart-item-img" src="${p.img_url}" alt="${esc(displayName)}">`
         :`<div class="cart-item-img-placeholder">🖼</div>`}
       <div class="cart-item-info">
         <div class="cart-item-code">[${p.code}]</div>
-        <div class="cart-item-name">${esc(p.name)}</div>
-        <div class="cart-item-price ${p.price===0?'consultar':''}">
-          ${p.price>0?'$'+p.price.toLocaleString('es-AR'):'Consultar precio'}
+        <div class="cart-item-name">${esc(displayName)}</div>
+        <div class="cart-item-price ${displayPrice===0?'consultar':''}">
+          ${displayPrice>0?'$'+displayPrice.toLocaleString('es-AR'):'Consultar precio'}
         </div>
         <div class="cart-item-qty">
           <button class="qty-btn" onclick="changeQty(${p.id},-1)">−</button>
@@ -463,7 +508,8 @@ function renderCartDrawer() {
         </div>
       </div>
       <button class="cart-item-remove" onclick="removeFromCart(${p.id})" title="Quitar">✕</button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function toggleCart() {
@@ -483,19 +529,28 @@ function sendToWhatsapp() {
   msg += '━━━━━━━━━━━━━━━━━━━━\n';
 
   items.forEach(({product:p, qty}, i) => {
-    msg += `\n*${i+1}. ${p.name}*\n`;
+    const ov = allOverrides[p.code];
+    const displayName  = ov?.display_name  || p.name;
+    const displayPrice = (ov?.custom_price != null) ? ov.custom_price : p.price;
+    msg += `\n*${i+1}. ${displayName}*\n`;
     msg += `   Código: [${p.code}]\n`;
     msg += `   Cantidad: ${qty}\n`;
-    msg += `   Precio unitario: ${p.price>0 ? '$'+p.price.toLocaleString('es-AR') : 'A consultar'}\n`;
+    msg += `   Precio unitario: ${displayPrice>0 ? '$'+displayPrice.toLocaleString('es-AR') : 'A consultar'}\n`;
   });
 
   msg += '\n━━━━━━━━━━━━━━━━━━━━\n';
 
+  const totalItems = items.reduce((s,i)=>s+i.qty,0);
   let totalKnown=0, hasConsultar=false;
   items.forEach(({product:p,qty})=>{
-    if(p.price>0) totalKnown+=p.price*qty; else hasConsultar=true;
+    const ov = allOverrides[p.code];
+    const price = (ov?.custom_price != null) ? ov.custom_price : p.price;
+    if(price>0) totalKnown+=price*qty; else hasConsultar=true;
   });
-  if (totalKnown>0) msg += `*Subtotal (productos con precio): $${totalKnown.toLocaleString('es-AR')}*\n`;
+  const bestPromo = getBestPromo(totalItems);
+  const discountAmt = (bestPromo && totalKnown>0) ? Math.round(totalKnown * bestPromo.descuento_pct/100) : 0;
+  if (totalKnown>0) msg += `*Subtotal: $${totalKnown.toLocaleString('es-AR')}*\n`;
+  if (discountAmt>0) msg += `*Descuento ${bestPromo.descuento_pct}% (${bestPromo.nombre}): -$${discountAmt.toLocaleString('es-AR')}*\n*Total: $${(totalKnown-discountAmt).toLocaleString('es-AR')}*\n`;
   if (hasConsultar) msg += `_Algunos productos requieren consulta de precio_\n`;
 
   if (nota) msg += `\n📝 *Nota:* ${nota}\n`;

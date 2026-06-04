@@ -1,6 +1,9 @@
 # Archivos SQL de setup — ejecutar manualmente en Supabase, no subir al repo
 *.sql
 
+# Guías, planes y documentación interna del desarrollador
+guias_y_planes/
+
 # Archivos de entorno y configuración sensible
 .env
 .env.local
