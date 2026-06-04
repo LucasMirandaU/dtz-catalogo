@@ -127,9 +127,32 @@ main{padding:1.5rem 2rem;max-width:1400px;margin:0 auto}
 .btn-clear-cart{width:100%;background:none;border:1px solid var(--border2);color:var(--muted);padding:8px;border-radius:8px;font-size:.8rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
 .btn-clear-cart:hover{border-color:#f87171;color:#f87171}
 
-/* WA FAB (shown when cart is empty / closed) */
-.wa-fab{position:fixed;bottom:1.5rem;right:1.5rem;background:#25D366;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;text-decoration:none;box-shadow:0 4px 16px rgba(37,211,102,.4);z-index:99;transition:transform .2s}
+/* WA FAB */
+.wa-fab{position:fixed;bottom:1.5rem;right:1.5rem;background:#25D366;width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;text-decoration:none;box-shadow:0 4px 16px rgba(37,211,102,.4);z-index:99;transition:transform .2s;border:none;cursor:pointer}
 .wa-fab:hover{transform:scale(1.1)}
+
+/* STORE SELECTOR */
+.store-selector{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.75rem 1rem;margin-bottom:.5rem}
+.store-selector-label{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem;display:block}
+.store-options{display:flex;flex-direction:column;gap:.4rem}
+.store-option{display:flex;align-items:center;gap:.6rem;cursor:pointer;padding:.3rem 0}
+.store-option input[type=radio]{accent-color:var(--teal);width:15px;height:15px;cursor:pointer;flex-shrink:0}
+.store-option-text{font-size:.82rem;line-height:1.3}
+.store-option-text strong{display:block;color:var(--text)}
+.store-option-text span{font-size:.72rem;color:var(--muted)}
+
+/* FAB STORE MODAL */
+.fab-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:150;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(4px)}
+.fab-modal-overlay.open{opacity:1;pointer-events:all}
+.fab-modal{position:fixed;bottom:5.5rem;right:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem;width:260px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:151;transform:translateY(10px) scale(.97);opacity:0;transition:all .25s;pointer-events:none}
+.fab-modal-overlay.open .fab-modal{transform:translateY(0) scale(1);opacity:1;pointer-events:all}
+.fab-modal h4{font-family:'Rajdhani',sans-serif;font-size:1rem;color:var(--teal);margin-bottom:.9rem;letter-spacing:.5px}
+.fab-wa-btn{display:flex;align-items:center;gap:.75rem;background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.3);border-radius:10px;padding:.75rem 1rem;color:#fff;cursor:pointer;font-size:.85rem;font-family:'Inter',sans-serif;width:100%;margin-bottom:.5rem;transition:all .2s}
+.fab-wa-btn:hover{background:rgba(37,211,102,.2);border-color:rgba(37,211,102,.6)}
+.fab-wa-btn:last-child{margin-bottom:0}
+.fab-wa-icon{width:28px;height:28px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.fab-wa-info strong{display:block;font-weight:600}
+.fab-wa-info span{font-size:.72rem;color:rgba(255,255,255,.6)}
 
 /* LOADING */
 .loading-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem}
@@ -249,6 +272,26 @@ main{padding:1.5rem 2rem;max-width:1400px;margin:0 auto}
       <span><strong id="cartItemCount">0</strong> productos</span>
       <span id="cartTotalWrap">Total: <strong id="cartTotal">–</strong></span>
     </div>
+    <!-- Selección de local -->
+    <div class="store-selector">
+      <span class="store-selector-label">📍 Retiro en</span>
+      <div class="store-options">
+        <label class="store-option">
+          <input type="radio" name="storeSelect" id="store1" value="store1" checked>
+          <div class="store-option-text">
+            <strong>San Juan 2984</strong>
+            <span>+54 9 3416 60-8662</span>
+          </div>
+        </label>
+        <label class="store-option">
+          <input type="radio" name="storeSelect" id="store2" value="store2">
+          <div class="store-option-text">
+            <strong>San Juan 1912</strong>
+            <span>+54 9 341 328-1697</span>
+          </div>
+        </label>
+      </div>
+    </div>
     <textarea class="cart-note" id="cartNote" placeholder="Nota opcional (ej: necesito para esta semana, soy de Rosario, etc.)"></textarea>
     <button class="btn-wa" onclick="sendToWhatsapp()">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
@@ -258,17 +301,80 @@ main{padding:1.5rem 2rem;max-width:1400px;margin:0 auto}
   </div>
 </div>
 
-<a class="wa-fab" href="https://wa.me/543416608662" target="_blank" title="Consultar por WhatsApp">💬</a>
+<!-- FAB WhatsApp con selector de local -->
+<div class="fab-modal-overlay" id="fabModalOverlay" onclick="closeFabModal()">
+  <div class="fab-modal" onclick="event.stopPropagation()">
+    <h4>📍 ¿A qué local consultar?</h4>
+    <button class="fab-wa-btn" onclick="openWA('store1')">
+      <div class="fab-wa-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      </div>
+      <div class="fab-wa-info">
+        <strong>San Juan 2984</strong>
+        <span>+54 9 3416 60-8662</span>
+      </div>
+    </button>
+    <button class="fab-wa-btn" onclick="openWA('store2')">
+      <div class="fab-wa-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      </div>
+      <div class="fab-wa-info">
+        <strong>San Juan 1912</strong>
+        <span>+54 9 341 328-1697</span>
+      </div>
+    </button>
+  </div>
+</div>
+<button class="wa-fab" id="waFab" onclick="toggleFabModal()" title="Consultar por WhatsApp">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</button>
 
 <script>
 const PER_PAGE = 60;
 let allProducts = [], filtered = [], currentFilter = 'all', currentPage = 1;
 let allOverrides = {}, activePromotions = [];
 let carouselIndex = 0, carouselTimer = null, carouselSlides = [];
-let cart = {}; // { id: { product, qty } }
+let cart = {};
+
+const WA_STORES = {
+  store1: { nombre: 'San Juan 2984', numero: '5493416608662' },
+  store2: { nombre: 'San Juan 1912', numero: '5493413281697' }
+};
 
 const db = window.supabase.createClient(DTZ_CONFIG.supabaseUrl, DTZ_CONFIG.supabaseAnonKey);
-const WA_NUMBER = '543416608662';
+
+// ── CART PERSISTENCE (localStorage) ──────────────────────
+const CART_KEY   = 'dtz_cart_v1';
+const CART_TTL_H = 24; // horas
+function saveCartToStorage() {
+  try {
+    localStorage.setItem(CART_KEY, JSON.stringify({
+      cart,
+      savedAt: Date.now()
+    }));
+  } catch(e) {}
+}
+function loadCartFromStorage() {
+  try {
+    const raw = localStorage.getItem(CART_KEY);
+    if (!raw) return;
+    const { cart: saved, savedAt } = JSON.parse(raw);
+    const hoursElapsed = (Date.now() - savedAt) / 3600000;
+    if (hoursElapsed > CART_TTL_H) { localStorage.removeItem(CART_KEY); return; }
+    // Reconstruir solo con productos que existen en allProducts
+    Object.values(saved).forEach(({ product: p, qty }) => {
+      const fresh = allProducts.find(x => x.id === p.id);
+      if (fresh) cart[fresh.id] = { product: fresh, qty };
+    });
+    if (Object.keys(cart).length) {
+      updateCartCount();
+      renderCartDrawer();
+    }
+  } catch(e) {}
+}
+function clearCartStorage() {
+  try { localStorage.removeItem(CART_KEY); } catch(e) {}
+}
 
 // ── LOGO ──────────────────────────────────────────────────
 async function loadLogo() {
@@ -455,11 +561,9 @@ function renderPagination() {
 function toggleCartItem(productId) {
   const product = allProducts.find(p=>p.id===productId);
   if (!product) return;
-  if (cart[productId]) {
-    delete cart[productId];
-  } else {
-    cart[productId] = { product, qty: 1 };
-  }
+  if (cart[productId]) delete cart[productId];
+  else cart[productId] = { product, qty: 1 };
+  saveCartToStorage();
   updateCartBtn(productId);
   updateCartCount();
   renderCartDrawer();
@@ -489,22 +593,23 @@ function updateCartCount() {
 function changeQty(productId, delta) {
   if (!cart[productId]) return;
   cart[productId].qty = Math.max(1, cart[productId].qty + delta);
+  saveCartToStorage();
   updateCartCount();
   renderCartDrawer();
 }
 
 function removeFromCart(productId) {
   delete cart[productId];
+  saveCartToStorage();
   updateCartBtn(productId);
   updateCartCount();
   renderCartDrawer();
 }
 
 function clearCart() {
-  Object.keys(cart).forEach(id => {
-    updateCartBtn(parseInt(id));
-  });
+  Object.keys(cart).forEach(id => updateCartBtn(parseInt(id)));
   cart = {};
+  clearCartStorage();
   updateCartCount();
   renderCartDrawer();
 }
@@ -602,15 +707,19 @@ function toggleCart() {
   drawer.classList.toggle('open');
 }
 
-// ── WHATSAPP ──────────────────────────────────────────────
+// ── WHATSAPP ─────────────────────────────────────────────
+function getSelectedStore() {
+  const checked = document.querySelector('input[name="storeSelect"]:checked');
+  return WA_STORES[checked?.value || Object.keys(WA_STORES)[0]];
+}
 function sendToWhatsapp() {
   const items = Object.values(cart);
   if (!items.length) return;
-
+  const store = getSelectedStore();
   const nota = document.getElementById('cartNote').value.trim();
   let msg = '🛒 *PEDIDO DTZ SERVICIO TÉCNICO*\n';
+  msg += `📍 *Retiro en:* ${store.nombre}\n`;
   msg += '━━━━━━━━━━━━━━━━━━━━\n';
-
   items.forEach(({product:p, qty}, i) => {
     const ov = allOverrides[p.code];
     const displayName  = ov?.display_name  || p.name;
@@ -650,7 +759,7 @@ document.getElementById('searchInput').addEventListener('input',()=>{currentPage
 
 loadLogo();
 loadBanners();
-loadProducts();
+loadProducts().then(() => loadCartFromStorage());
 </script>
 </body>
 </html>
