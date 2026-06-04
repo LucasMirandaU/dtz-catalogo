@@ -748,11 +748,22 @@ function sendToWhatsapp() {
   if (nota) msg += `\n📝 *Nota:* ${nota}\n`;
   msg += '\n_Enviado desde el catálogo web de DTZ_';
 
-  const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(msg)}`;
-  window.open(url, '_blank');
+  window.open(`https://wa.me/${store.numero}?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
-// ── UTILS ─────────────────────────────────────────────────
+// ── FAB MODAL ──────────────────────────────────────────
+function toggleFabModal() {
+  document.getElementById('fabModalOverlay').classList.toggle('open');
+}
+function closeFabModal() {
+  document.getElementById('fabModalOverlay').classList.remove('open');
+}
+function openWA(storeKey) {
+  closeFabModal();
+  window.open(`https://wa.me/${WA_STORES[storeKey].numero}`, '_blank');
+}
+
+// ── UTILS ──────────────────────────────────────────────
 function esc(str){return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 document.getElementById('searchInput').addEventListener('input',()=>{currentPage=1;applyFiltersAndRender();});
