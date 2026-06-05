@@ -587,7 +587,7 @@ const PROD_PER_PAGE=50;
 // Tabs permitidos por rol
 const ROLE_TABS = {
   superadmin: ['import','products','promotions','banners','logo','users','audit'],
-  admin:      ['import','products','promotions','banners','logo','audit'],
+  admin:      ['import','products','promotions','banners','logo','users','audit'],
   staff:      ['products']
 };
 function setupNavForRole(role) {
@@ -1017,16 +1017,9 @@ async function loadUsersTab() {
   if (!currentUserProfile && currentUser) await loadUserProfile();
 
   const viewerBanner = document.getElementById('viewerBanner');
+  if (viewerBanner) viewerBanner.style.display = 'none';
+
   const wrap = document.getElementById('usersTableWrap');
-  const createCard = document.querySelector('#tab-users .users-card:first-child');
-
-  if (currentUserProfile?.role !== 'superadmin') {
-    if (viewerBanner) viewerBanner.style.display = 'block';
-    if (createCard) { createCard.style.opacity = '.35'; createCard.style.pointerEvents = 'none'; }
-    if (wrap) wrap.innerHTML = '<div style="color:var(--muted);font-size:.85rem;padding:1rem 0">Solo el Superadministrador puede ver y gestionar usuarios.</div>';
-    return;
-  }
-
   if (!wrap) return;
   wrap.innerHTML = '<div style="color:var(--muted);font-size:.85rem;padding:1rem 0">Cargando...</div>';
   const {data, error} = await db.from('profiles').select('*').order('created_at', {ascending: true});
@@ -1036,8 +1029,8 @@ async function loadUsersTab() {
   }
   const roleLabel = { superadmin:'SUPERADMIN', admin:'ADMIN', staff:'STAFF' };
   const roleClass = { superadmin:'role-superadmin', admin:'role-admin', staff:'role-staff' };
-  const roleNext  = { superadmin:'admin', admin:'staff', staff:'admin' };
   const roleNextLabel = { superadmin:'↓ Admin', admin:'↓ Staff', staff:'↑ Admin' };
+  const myRole = currentUserProfile?.role;
   wrap.innerHTML = `<table class="users-table">
     <thead><tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Acciones</th></tr></thead>
     <tbody>${data.map(u => `
@@ -1047,9 +1040,12 @@ async function loadUsersTab() {
         <td><span class="role-badge ${roleClass[u.role]||'role-staff'}">${roleLabel[u.role]||u.role}</span></td>
         <td style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center">
           <button class="btn-sm" onclick="resetUserPassword('${escHtml(u.email||'')}')" title="Enviar email de reset">✉ Reset</button>
-          ${u.id!==currentUser?.id
-            ?`<button class="btn-sm" onclick="toggleUserRole('${u.id}','${u.role}')" title="Cambiar rol">${roleNextLabel[u.role]||'Cambiar'}</button>`
-            :`<span style="font-size:.72rem;color:var(--teal);padding:4px 6px">(vos)</span>`
+          ${u.id !== currentUser?.id && u.role !== 'superadmin'
+            ?`<button class="btn-sm" onclick="toggleUserRole('${u.id}','${u.role}','${escHtml(u.email||'')}')" title="Cambiar rol">${roleNextLabel[u.role]||'Cambiar'}</button>
+              <button class="btn-sm" onclick="deleteUser('${u.id}','${escHtml(u.display_name||u.email||'')}')" style="color:var(--danger)" title="Eliminar usuario">🗑</button>`
+            : u.id === currentUser?.id
+              ? `<span style="font-size:.72rem;color:var(--teal);padding:4px 6px">(vos)</span>`
+              : `<span style="font-size:.72rem;color:var(--muted);padding:4px 6px">Superadmin</span>`
           }
         </td>
       </tr>`).join('')}
@@ -1064,7 +1060,6 @@ function generatePassword() {
 }
 
 async function createUser() {
-  if (currentUserProfile?.role !== 'superadmin') { toast('Solo el Superadministrador puede crear usuarios', 'err'); return; }
   const name  = document.getElementById('newUserName').value.trim();
   const email = document.getElementById('newUserEmail').value.trim();
   const pass  = document.getElementById('newUserPass').value;
@@ -1112,9 +1107,7 @@ async function resetUserPassword(email) {
   else toast('✔ Email de reset enviado a ' + email, 'ok');
 }
 
-async function toggleUserRole(userId, currentRole) {
-  const order = ['staff','admin','superadmin'];
-  const idx = order.indexOf(currentRole);
+async function toggleUserRole(userId, currentRole, userEmail) {
   // Ciclo: staff→admin→staff (superadmin no se puede asignar desde UI)
   const newRole = currentRole === 'admin' ? 'staff' : 'admin';
   const {error} = await db.from('profiles').update({ role: newRole }).eq('id', userId);
@@ -1124,6 +1117,17 @@ async function toggleUserRole(userId, currentRole) {
     toast('Rol cambiado a ' + newRole, 'ok');
     loadUsersTab();
   }
+}
+
+async function deleteUser(userId, userName) {
+  if (!confirm(`¿Eliminar al usuario "${userName}" permanentemente?\nEsta acción no se puede deshacer.`)) return;
+  // Eliminar perfil (la cuenta de auth solo puede borrarse con service_role key,
+  // pero borrando el profile se pierde el acceso al panel)
+  const {error} = await db.from('profiles').delete().eq('id', userId);
+  if (error) { toast('Error eliminando usuario: ' + error.message, 'err'); return; }
+  logAction('USUARIO_ELIMINAR', null, userName, 'Usuario eliminado del sistema');
+  toast(`Usuario "${userName}" eliminado`, 'info');
+  loadUsersTab();
 }
 
 // ── PROMOTIONS ────────────────────────────────────────────
