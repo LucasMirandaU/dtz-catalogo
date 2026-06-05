@@ -38,8 +38,9 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:0
 .cart-count.visible{opacity:1}
 
 /* CONTACT BAR */
-.contact-bar{background:#0d1f1d;border-bottom:1px solid var(--border);padding:.5rem 2rem;display:flex;align-items:center;gap:2rem;font-size:.82rem;color:var(--teal);flex-wrap:wrap}
-.contact-bar span{display:flex;align-items:center;gap:.4rem}
+.contact-bar{background:#0d1f1d;border-bottom:1px solid var(--border);padding:.5rem 2rem;display:flex;align-items:center;gap:1.5rem;font-size:.82rem;color:var(--teal);flex-wrap:wrap}
+.contact-bar a,.contact-bar span{display:flex;align-items:center;gap:.4rem;text-decoration:none;color:var(--teal);transition:opacity .2s}
+.contact-bar a:hover{opacity:.7}
 
 /* FILTERS */
 .filters-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:.75rem 2rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
@@ -224,11 +225,7 @@ main{padding:1.5rem 2rem;max-width:1400px;margin:0 auto}
   </div>
 </header>
 
-<div class="contact-bar">
-  <span>📍 San Juan 2984, Rosario</span>
-  <span>📱 3416608662</span>
-  <span>📸 @DTZ.SERVICIOTECNICO</span>
-</div>
+<div class="contact-bar" id="contactBar"></div>
 
 <div class="filters-bar">
   <span class="filter-label">Stock:</span>
@@ -768,8 +765,25 @@ function esc(str){return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').
 
 document.getElementById('searchInput').addEventListener('input',()=>{currentPage=1;applyFiltersAndRender();});
 
+async function loadContactBar() {
+  const bar = document.getElementById('contactBar');
+  if (!bar) return;
+  try {
+    const {data} = await db.from('contact_items')
+      .select('*').eq('activo', true).order('orden', {ascending: true});
+    if (!data?.length) return;
+    bar.innerHTML = data.map(item => {
+      const inner = `${item.icono} ${item.texto}`;
+      return item.link_url
+        ? `<a href="${item.link_url}" target="_blank" rel="noopener">${inner}</a>`
+        : `<span>${inner}</span>`;
+    }).join('');
+  } catch(e) {}
+}
+
 loadLogo();
 loadBanners();
+loadContactBar();
 loadProducts().then(() => loadCartFromStorage());
 </script>
 </body>

@@ -251,6 +251,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
       <button class="nav-btn" data-tab="promotions" onclick="showTab('promotions',this)">🏷️ Promociones</button>
       <button class="nav-btn" data-tab="banners" onclick="showTab('banners',this)">🖼️ Banners</button>
       <button class="nav-btn" data-tab="logo" onclick="showTab('logo',this)">🔷 Logo</button>
+      <button class="nav-btn" data-tab="contact" onclick="showTab('contact',this)">📞 Contacto</button>
       <button class="nav-btn" data-tab="audit" onclick="showTab('audit',this)">📊 Auditoría</button>
       <button class="nav-btn" data-tab="users" onclick="showTab('users',this)">👥 Usuarios</button>
     </nav>
@@ -456,6 +457,44 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     </div>
   </div>
 
+  <!-- TAB: CONTACT -->
+  <div class="tab-content" id="tab-contact">
+    <div class="section-header"><h2>BARRA DE CONTACTO</h2></div>
+    <div class="info-box" style="margin-bottom:1.25rem">
+      Configurá los ítems que se muestran en la barra superior del catálogo.
+      Cada ítem puede tener un link opcional (teléfono, Instagram, web, WhatsApp, etc.).
+    </div>
+    <div class="users-grid">
+      <!-- Crear ítem -->
+      <div class="users-card">
+        <h3>AGREGAR ÍTEM</h3>
+        <div class="form-group">
+          <label>Icono (emoji)</label>
+          <input type="text" id="contactIcono" placeholder="📍📱📸🌐📧" maxlength="4" style="width:80px" value="📍">
+        </div>
+        <div class="form-group">
+          <label>Texto visible</label>
+          <input type="text" id="contactTexto" placeholder="San Juan 2984, Rosario">
+        </div>
+        <div class="form-group">
+          <label>Link al hacer clic <span style="color:var(--muted);font-weight:400">(opcional)</span></label>
+          <input type="text" id="contactLink" placeholder="tel:+549... | https://instagram.com/...">
+          <div style="font-size:.72rem;color:var(--muted);margin-top:.35rem">
+            Teléfono: <code>tel:+5493416608662</code> &nbsp;|
+            Instagram: <code>https://instagram.com/DTZ.SERVICIOTECNICO</code><br>
+            WhatsApp: <code>https://wa.me/5493416608662</code>
+          </div>
+        </div>
+        <button class="btn-primary" id="btnCreateContact" onclick="createContactItem()">+ Agregar</button>
+      </div>
+      <!-- Lista -->
+      <div class="users-card">
+        <h3>ÍTEMS ACTUALES</h3>
+        <div id="contactTableWrap"><div style="color:var(--muted);font-size:.85rem;padding:1rem 0">Cargando...</div></div>
+      </div>
+    </div>
+  </div>
+
   <!-- TAB: AUDIT -->
   <div class="tab-content" id="tab-audit">
     <div class="section-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem">
@@ -586,8 +625,8 @@ const PROD_PER_PAGE=50;
 
 // Tabs permitidos por rol
 const ROLE_TABS = {
-  superadmin: ['import','products','promotions','banners','logo','users','audit'],
-  admin:      ['import','products','promotions','banners','logo','users','audit'],
+  superadmin: ['import','products','promotions','banners','logo','contact','users','audit'],
+  admin:      ['import','products','promotions','banners','logo','contact','users','audit'],
   staff:      ['products']
 };
 function setupNavForRole(role) {
@@ -661,6 +700,7 @@ function showTab(tab,btn) {
   if(tab==='users')      loadUsersTab();
   if(tab==='promotions') loadPromosTab();
   if(tab==='banners')    loadBannersTab();
+  if(tab==='contact')    loadContactTab();
   if(tab==='audit')      loadAuditTab();
 }
 
@@ -1407,7 +1447,7 @@ async function loadAuditTab() {
   if (!wrap) return;
   wrap.innerHTML = '<div style="color:var(--muted);font-size:.85rem;padding:1rem 0">Cargando...</div>';
   const {data, error} = await db.from('audit_log')
-    .select('*').order('created_at', {ascending: false}).limit(200);
+    .select('*').order('created_at', {ascending: false}).limit(1000);
   document.getElementById('btnExportAudit').disabled = false;
   if (error || !data?.length) {
     wrap.innerHTML = '<div style="color:var(--muted);font-size:.85rem;padding:1rem 0">No hay acciones registradas aún.</div>';
@@ -1461,6 +1501,77 @@ function exportAuditExcel() {
   XLSX.utils.book_append_sheet(wb, ws, 'Auditoría');
   const fecha = new Date().toISOString().slice(0,10);
   XLSX.writeFile(wb, `DTZ_auditoria_${fecha}.xlsx`);
+}
+
+// ── CONTACT ITEMS ───────────────────────────────────
+async function loadContactTab() {
+  const wrap = document.getElementById('contactTableWrap');
+  if (!wrap) return;
+  wrap.innerHTML = '<div style="color:var(--muted);font-size:.85rem;padding:1rem 0">Cargando...</div>';
+  const {data, error} = await db.from('contact_items').select('*').order('orden', {ascending: true});
+  if (error || !data?.length) {
+    wrap.innerHTML = '<div style="color:var(--muted);font-size:.85rem;padding:1rem 0">No hay ítems configurados aún.</div>';
+    return;
+  }
+  wrap.innerHTML = data.map((item, i) => `
+    <div style="display:flex;align-items:center;gap:.6rem;padding:.65rem 0;border-bottom:1px solid var(--border2)">
+      <span style="font-size:1.3rem;width:32px;text-align:center;flex-shrink:0">${escHtml(item.icono)}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:.85rem;font-weight:500">${escHtml(item.texto)}</div>
+        ${item.link_url ? `<div style="font-size:.7rem;color:var(--teal);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">🔗 ${escHtml(item.link_url)}</div>` : '<div style="font-size:.7rem;color:var(--muted)">Sin link</div>'}
+      </div>
+      <span class="${item.activo ? 'badge-active' : 'badge-inactive'}" style="flex-shrink:0">${item.activo ? 'ACTIVO' : 'PAUSADO'}</span>
+      <div style="display:flex;flex-direction:column;gap:.25rem;flex-shrink:0">
+        <button class="btn-sm" onclick="reorderContactItem(${item.id},${item.orden},-1)" ${i===0?'disabled':''} title="Subir">↑</button>
+        <button class="btn-sm" onclick="reorderContactItem(${item.id},${item.orden},1)" ${i===data.length-1?'disabled':''} title="Bajar">↓</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.25rem;flex-shrink:0">
+        <button class="btn-sm" onclick="toggleContactItem(${item.id},${item.activo})" title="${item.activo?'Pausar':'Activar'}">${item.activo ? '⏸' : '▶'}</button>
+        <button class="btn-sm" onclick="deleteContactItem(${item.id})" style="color:var(--danger)" title="Eliminar">🗑</button>
+      </div>
+    </div>`).join('');
+}
+async function createContactItem() {
+  const icono = document.getElementById('contactIcono').value.trim() || '📍';
+  const texto = document.getElementById('contactTexto').value.trim();
+  const link_url = document.getElementById('contactLink').value.trim() || null;
+  if (!texto) { toast('Ingresá un texto para el ítem', 'err'); return; }
+  const btn = document.getElementById('btnCreateContact');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  const {data: last} = await db.from('contact_items').select('orden').order('orden',{ascending:false}).limit(1);
+  const nextOrden = (last?.[0]?.orden ?? -1) + 1;
+  const {error} = await db.from('contact_items').insert({icono, texto, link_url, orden: nextOrden, activo: true});
+  btn.disabled = false; btn.textContent = '+ Agregar';
+  if (error) { toast('Error: ' + error.message, 'err'); return; }
+  logAction('CONTACTO_CREAR', null, texto, link_url ? `Link: ${link_url}` : 'Sin link');
+  toast('✔ Ítem agregado', 'ok');
+  document.getElementById('contactTexto').value = '';
+  document.getElementById('contactLink').value = '';
+  loadContactTab();
+}
+async function toggleContactItem(id, activo) {
+  const {error} = await db.from('contact_items').update({activo: !activo}).eq('id', id);
+  if (error) toast('Error', 'err');
+  else { toast(`Ítem ${!activo?'activado':'pausado'}`, 'ok'); loadContactTab(); }
+}
+async function deleteContactItem(id) {
+  if (!confirm('¿Eliminar este ítem de contacto?')) return;
+  const {data:ci} = await db.from('contact_items').select('texto').eq('id',id).single();
+  const {error} = await db.from('contact_items').delete().eq('id', id);
+  if (error) { toast('Error eliminando', 'err'); return; }
+  logAction('CONTACTO_ELIMINAR', null, ci?.texto, 'Ítem de contacto eliminado');
+  toast('Ítem eliminado', 'info');
+  loadContactTab();
+}
+async function reorderContactItem(id, currentOrden, dir) {
+  const {data} = await db.from('contact_items').select('id,orden').order('orden',{ascending:true});
+  if (!data) return;
+  const idx = data.findIndex(c => c.id === id);
+  const swapIdx = idx + dir;
+  if (swapIdx < 0 || swapIdx >= data.length) return;
+  await db.from('contact_items').update({orden: data[swapIdx].orden}).eq('id', id);
+  await db.from('contact_items').update({orden: currentOrden}).eq('id', data[swapIdx].id);
+  loadContactTab();
 }
 
 checkSession();
