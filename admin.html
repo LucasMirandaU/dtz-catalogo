@@ -661,14 +661,22 @@ async function checkSession() {
   else await loadLoginLogo();
 }
 async function loadLoginLogo() {
+  const cached = localStorage.getItem('dtz_logo_url');
+  const applyLoginLogo = (url) => {
+    const el = document.getElementById('loginLogoFallback');
+    if (!el || el.style.display === 'none') return;
+    const img = document.createElement('img');
+    img.src=url; img.className='llogo-img'; img.alt='DTZ';
+    el.parentNode.insertBefore(img, el);
+    el.style.display='none';
+  };
+  if (cached) applyLoginLogo(cached);
+
   try {
     const {data} = await db.from('configuracion').select('valor').eq('clave','logo_url').single();
     if (data?.valor) {
-      const el = document.getElementById('loginLogoFallback');
-      const img = document.createElement('img');
-      img.src=data.valor; img.className='llogo-img'; img.alt='DTZ';
-      el.parentNode.insertBefore(img, el);
-      el.style.display='none';
+      localStorage.setItem('dtz_logo_url', data.valor);
+      if (data.valor !== cached) applyLoginLogo(data.valor);
     }
   } catch(e){}
 }
@@ -695,7 +703,8 @@ function showAdmin(user) {
   currentUser=user;
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('adminScreen').style.display='block';
-  document.getElementById('userEmail').textContent=user.email;
+  const cachedName = localStorage.getItem('dtz_user_name_' + user.id);
+  document.getElementById('userEmail').textContent = cachedName || '';
   loadAdminLogo();
   loadProductsTable();
   loadUserProfile();
@@ -962,9 +971,14 @@ document.getElementById('imgModal').addEventListener('click',function(e){if(e.ta
 
 // ── LOGO TAB ──────────────────────────────────────────────
 async function loadAdminLogo() {
+  const cachedLogo = localStorage.getItem('dtz_logo_url');
+  if (cachedLogo) applyLogoToAdmin(cachedLogo);
   try {
     const {data}=await db.from('configuracion').select('valor').eq('clave','logo_url').single();
-    if(data?.valor) applyLogoToAdmin(data.valor);
+    if(data?.valor) {
+      localStorage.setItem('dtz_logo_url', data.valor);
+      if (data.valor !== cachedLogo) applyLogoToAdmin(data.valor);
+    }
   } catch(e){}
 }
 async function loadLogoTab() {
@@ -1055,6 +1069,7 @@ async function loadUserProfile() {
     currentUserProfile = data;
     if (data?.display_name) {
       document.getElementById('userEmail').textContent = data.display_name;
+      localStorage.setItem('dtz_user_name_' + currentUser.id, data.display_name);
     }
     // Chip de rol en el header
     const roleLabels = { superadmin:'SUPERADMIN', admin:'ADMIN', staff:'STAFF' };

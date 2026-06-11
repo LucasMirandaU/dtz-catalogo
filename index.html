@@ -375,13 +375,20 @@ function clearCartStorage() {
 
 // ── LOGO ──────────────────────────────────────────────────
 async function loadLogo() {
+  const cached = localStorage.getItem('dtz_logo_url');
+  const applyLogo = (url) => {
+    const img = document.getElementById('logoImg');
+    img.src = url; img.style.display = 'block';
+    document.getElementById('logoIcon').style.display = 'none';
+    document.getElementById('logoText').style.display = 'none';
+  };
+  if (cached) applyLogo(cached);
+
   try {
     const {data} = await db.from('configuracion').select('valor').eq('clave','logo_url').single();
     if (data?.valor) {
-      const img = document.getElementById('logoImg');
-      img.src = data.valor; img.style.display = 'block';
-      document.getElementById('logoIcon').style.display = 'none';
-      document.getElementById('logoText').style.display = 'none';
+      localStorage.setItem('dtz_logo_url', data.valor);
+      if (data.valor !== cached) applyLogo(data.valor);
     }
   } catch(e) {}
 }
