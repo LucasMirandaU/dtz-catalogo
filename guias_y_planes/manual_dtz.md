@@ -25,15 +25,26 @@ Este manual está diseñado para los dueños y administradores de **DTZ Servicio
 
 ---
 
-## 2. 🔐 Control de Empleados y Panel
+## 2. 🔐 Control de Empleados y Panel (Roles)
 
-### ¿Qué control tengo como dueño?
-*   Podés crear usuarios administradores para tus empleados desde la base de datos (Supabase).
+En el panel de administración existen 3 niveles de acceso. Vos como dueño tenés el rol de **Administrador**, lo que te da control total sobre tu negocio y tu equipo.
+
+### Tu Rol: Administrador (Dueño)
+*   **Catálogo y Marketing:** Podés importar Excel de Odoo, cambiar precios/nombres exclusivos para la web, subir fotos, crear promociones, Banners y cambiar el Logo.
+*   **Gestión de Equipo:** Desde la pestaña **"Usuarios"**, podés crear cuentas nuevas para tus empleados, cambiarles la contraseña si se la olvidan, ascenderlos o eliminarlos del sistema. Todo sin salir del panel.
+*   **Auditoría:** Podés ver el historial de quién tocó qué cosa en el sistema.
+
+### Rol de tus Empleados: Staff
+*   **Solo Catálogo:** Al entrar al panel, la única pestaña que verán habilitada es "Productos".
+*   **Permisos:** Solo pueden buscar productos en el catálogo y subir o cambiarles la foto.
+*   **Restricción:** No pueden importar Excel, modificar precios/nombres, ni tocar banners, promociones o usuarios.
+
+### Rol del Desarrollador: Superadmin
+*   Rol oculto y exclusivo para el desarrollador de la web. Tiene los mismos permisos que el Administrador, pero con protección anti-borrado (un Admin no puede borrar ni degradar a un Superadmin).
+
+### Buenas prácticas de seguridad
 *   Cada empleado debe tener un email y una contraseña propios. **No deben compartir credenciales.**
-*   Si un empleado se va de la empresa, podés desactivarlo o eliminar su acceso en cualquier momento. Todo el historial de cambios que haya hecho (qué borró, qué editó) quedará registrado en la sección de Auditoría.
-
-### ¿Qué pasa con los datos de mis productos?
-Toda la información, precios y fotos están respaldados en la nube segura de Supabase. No están en el disco duro de una PC en el local. Si una computadora se rompe, el catálogo sigue funcionando perfectamente y no perdés nada.
+*   Si un empleado se va de la empresa, podés eliminar su acceso en cualquier momento desde la pestaña "Usuarios". Su historial de cambios quedará guardado en Auditoría.
 
 ---
 
