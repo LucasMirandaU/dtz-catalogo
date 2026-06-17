@@ -35,8 +35,9 @@ En el panel de administración existen 3 niveles de acceso. Vos como dueño ten�
 *   **Auditoría:** Podés ver el historial de quién tocó qué cosa en el sistema.
 
 ### Rol de tus Empleados: Staff
-*   **Solo Catálogo:** Al entrar al panel, la única pestaña que verán habilitada es "Productos".
-*   **Permisos:** Solo pueden buscar productos en el catálogo y subir o cambiarles la foto.
+*   **Gestión Básica:** Al entrar al panel, verán habilitada la pestaña "Productos" y el acceso al "📱 Reparaciones".
+*   **Catálogo:** Pueden buscar productos y subir o cambiarles la foto.
+*   **Reparaciones:** Pueden ingresar nuevos equipos, cambiar estados y agregar cobros parciales a los clientes.
 *   **Restricción:** No pueden importar Excel, modificar precios/nombres, ni tocar banners, promociones o usuarios.
 
 ### Rol del Desarrollador: Superadmin
@@ -67,6 +68,12 @@ En el panel de administración existen 3 niveles de acceso. Vos como dueño ten�
     *   Alto: 400 píxeles.
     *   Relación: 3:1 panorámica.
 4. Podés pausar (desactivar) una publicidad en cualquier momento sin borrarla. También podés cambiar el orden arrastrándolas. (Máximo 5 activas).
+
+### Cómo usar el Módulo de Reparaciones (Taller)
+1. Desde el panel, hacé clic en el botón superior **"📱 Reparaciones"**.
+2. **Para ingresar un equipo:** Tocá el botón "+ Nueva". Llená los datos del cliente, la falla que reporta, la contraseña del teléfono y el Nro de Orden físico si usan talonario de papel. Guardá los cambios.
+3. **Para cambiar de estado:** Tocá la tarjeta del cliente y cambiá el estado (Ej: de "Ingresado" a "Reparado"). El color de la tarjeta cambiará automáticamente para que sea fácil identificarlo a simple vista.
+4. **Para registrar una seña o pago:** Entrá a la reparación, bajá hasta "Historial de Pagos" y tocá **"+ Pago"**. Elegí el monto y el método de pago. El sistema restará ese monto del Presupuesto Total y calculará automáticamente cuánto le falta abonar al cliente.
 
 ---
 *Desarrollado en exclusiva para DTZ por [Tu Nombre / Lucatoons]*

@@ -28,6 +28,7 @@ El proyecto está diseñado bajo un enfoque **Serverless + Vanilla Frontend** pa
 *   Protegido mediante comprobación de sesión y validación de tokens contra Supabase Auth.
 *   **PostgreSQL Nativo:** A diferencia de proyectos frontend puros, toda la lógica crítica, validaciones y permisos residen en la base de datos mediante **Triggers** y **SQL puro**.
 *   **Control de Usuarios (RBAC):** Gestión de roles (`superadmin`, `admin`, `staff`) a nivel base de datos.
+*   **Módulo de Reparaciones (Taller):** Micro-sistema independiente para el ingreso de equipos al servicio técnico, gestión de fallas y cuenta corriente (historial de cobros usando campos `JSONB`). Accesible de forma unificada por todos los empleados.
 *   **Registro de Auditoría (Logs):** Trazabilidad total implementada desde el backend. Cada vez que un empleado interactúa, queda registrado de forma inmutable quién, qué y cuándo lo hizo.
 
 ## 📂 Estructura del Repositorio
