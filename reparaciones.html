@@ -197,10 +197,15 @@
       </div>
       <div class="form-group">
         <label>Estado de Ingreso (Checklist)</label>
-        <div style="display:flex;gap:1rem;margin-top:0.3rem">
+        <div style="display:flex;gap:1rem;margin-top:0.3rem;flex-wrap:wrap">
           <label style="display:flex;align-items:center;gap:5px;font-size:0.85rem;color:var(--text);cursor:pointer"><input type="checkbox" id="f_chk_bateria"> Sin Batería</label>
           <label style="display:flex;align-items:center;gap:5px;font-size:0.85rem;color:var(--text);cursor:pointer"><input type="checkbox" id="f_chk_rajado"> Rajado</label>
           <label style="display:flex;align-items:center;gap:5px;font-size:0.85rem;color:var(--text);cursor:pointer"><input type="checkbox" id="f_chk_mojado"> Mojado</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:0.85rem;color:var(--text);cursor:pointer"><input type="checkbox" id="f_chk_sin_bandeja"> Sin Bandeja SIM</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:0.85rem;color:var(--text);cursor:pointer"><input type="checkbox" id="f_chk_tapa_rota"> Tapa Rota</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:0.85rem;color:var(--text);cursor:pointer"><input type="checkbox" id="f_chk_camaras"> Cámaras OK</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:0.85rem;color:var(--text);cursor:pointer"><input type="checkbox" id="f_chk_pin_carga"> Pin carga OK</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:0.85rem;color:var(--text);cursor:pointer"><input type="checkbox" id="f_chk_parlantes"> Parlantes OK</label>
         </div>
       </div>
       <div class="form-group">
@@ -214,6 +219,21 @@
       <div class="form-group">
         <label>Presupuesto Total ($)</label>
         <input type="number" id="f_presupuesto" placeholder="0" autocomplete="off" oninput="renderPaymentsUI()">
+      </div>
+      <div class="form-row" id="rowSenaInicial">
+        <div class="form-group">
+          <label>Seña Inicial ($)</label>
+          <input type="number" id="f_sena" placeholder="0" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>Método de Seña</label>
+          <select id="f_sena_metodo">
+            <option value="efectivo">Efectivo</option>
+            <option value="debito">Débito</option>
+            <option value="credito">Crédito (C/Recargo)</option>
+            <option value="transferencia">Transferencia</option>
+          </select>
+        </div>
       </div>
 
       <!-- PAYMENTS -->
@@ -294,7 +314,7 @@
     </div>
     
     <div class="print-legales">
-      <strong>Condiciones del Servicio:</strong> Sres. Clientes, pasados los 30 días de notificada la reparación, el equipo se considerará abandonado, facultando a DTZ Servicio Técnico a disponer del mismo según el Art. 2525 y 2526 del Código Civil y Comercial. La empresa no se responsabiliza por pérdidas de datos, tarjetas SIM o memorias SD no declaradas. Todo equipo ingresado mojado o apagado corre bajo exclusiva responsabilidad del cliente, no teniendo garantía sobre el encendido o funcionamiento general de la placa base posterior a la intervención. La garantía cubre única y exclusivamente la pieza reemplazada y por defectos de fábrica.
+      <strong>Condiciones del Servicio:</strong> Sres. Clientes los equipos que no son retirados pasados los 30 días tendrán un recargo del 50% sobre el precio pactado. Transcurridos los 45 días a partir de la fecha de recepción, se considerara abandonado el equipo según el art. 2525/2526 del código civil. En ese supuesto estaremos facultados a disponer del mismo en concepto de compensación por el servicio prestado mas el costo del deposito. DTZ Servicio Técnico NO SE RESPONSABILIZA por la perdida parcial o total de información que posea el equipo así como tampoco de la procedencia del mismo. Los celulares mojados reparados por nosotros no tienen ningún tipo de garantía. Garantiza la reaparición del celular por un periodo de 3 días a partir de la fecha de entrega del mismo, siempre y cuando no este roto/golpeado y tenga su correspondiente film en pantalla.
     </div>
   </div>
 
@@ -407,9 +427,16 @@
     document.getElementById('f_chk_bateria').checked = false;
     document.getElementById('f_chk_rajado').checked = false;
     document.getElementById('f_chk_mojado').checked = false;
+    document.getElementById('f_chk_sin_bandeja').checked = false;
+    document.getElementById('f_chk_tapa_rota').checked = false;
+    document.getElementById('f_chk_camaras').checked = false;
+    document.getElementById('f_chk_pin_carga').checked = false;
+    document.getElementById('f_chk_parlantes').checked = false;
     document.getElementById('f_fallas').value = '';
     document.getElementById('f_trabajo').value = '';
     document.getElementById('f_presupuesto').value = '';
+    document.getElementById('f_sena').value = '';
+    document.getElementById('rowSenaInicial').style.display = 'grid';
     document.getElementById('f_estado').value = 'Ingresado';
     
     currentPayments = [];
@@ -435,9 +462,15 @@
     document.getElementById('f_chk_bateria').checked = r.chk_sin_bateria || false;
     document.getElementById('f_chk_rajado').checked = r.chk_rajado || false;
     document.getElementById('f_chk_mojado').checked = r.chk_mojado || false;
+    document.getElementById('f_chk_sin_bandeja').checked = r.chk_sin_bandeja || false;
+    document.getElementById('f_chk_tapa_rota').checked = r.chk_tapa_rota || false;
+    document.getElementById('f_chk_camaras').checked = r.chk_camaras_ok || false;
+    document.getElementById('f_chk_pin_carga').checked = r.chk_pin_carga_ok || false;
+    document.getElementById('f_chk_parlantes').checked = r.chk_parlantes_ok || false;
     document.getElementById('f_fallas').value = r.fallas || '';
     document.getElementById('f_trabajo').value = r.trabajo_realizado || '';
     document.getElementById('f_presupuesto').value = r.presupuesto || '';
+    document.getElementById('rowSenaInicial').style.display = 'none';
     document.getElementById('f_estado').value = r.estado || 'Ingresado';
     
     currentPayments = r.historial_pagos || [];
@@ -517,12 +550,28 @@
       chk_sin_bateria: document.getElementById('f_chk_bateria').checked,
       chk_rajado: document.getElementById('f_chk_rajado').checked,
       chk_mojado: document.getElementById('f_chk_mojado').checked,
+      chk_sin_bandeja: document.getElementById('f_chk_sin_bandeja').checked,
+      chk_tapa_rota: document.getElementById('f_chk_tapa_rota').checked,
+      chk_camaras_ok: document.getElementById('f_chk_camaras').checked,
+      chk_pin_carga_ok: document.getElementById('f_chk_pin_carga').checked,
+      chk_parlantes_ok: document.getElementById('f_chk_parlantes').checked,
       fallas: document.getElementById('f_fallas').value.trim() || null,
       trabajo_realizado: document.getElementById('f_trabajo').value.trim() || null,
       presupuesto: Number(document.getElementById('f_presupuesto').value) || 0,
       estado: document.getElementById('f_estado').value,
       historial_pagos: currentPayments
     };
+
+    if (!id) {
+      const sena = Number(document.getElementById('f_sena').value);
+      if (sena > 0) {
+        data.historial_pagos = [{
+          fecha: new Date().toISOString(),
+          monto: sena,
+          metodo: document.getElementById('f_sena_metodo').value
+        }];
+      }
+    }
 
     const btn = document.getElementById('btnSave');
     btn.disabled = true; btn.textContent = 'Guardando...';
@@ -560,14 +609,29 @@
     if(document.getElementById('f_chk_bateria').checked) checks.push('Sin Batería');
     if(document.getElementById('f_chk_rajado').checked) checks.push('Rajado');
     if(document.getElementById('f_chk_mojado').checked) checks.push('Mojado');
+    if(document.getElementById('f_chk_sin_bandeja').checked) checks.push('Sin Bandeja SIM');
+    if(document.getElementById('f_chk_tapa_rota').checked) checks.push('Tapa Rota');
+    if(document.getElementById('f_chk_camaras').checked) checks.push('Cámaras OK');
+    if(document.getElementById('f_chk_pin_carga').checked) checks.push('Pin carga OK');
+    if(document.getElementById('f_chk_parlantes').checked) checks.push('Parlantes OK');
     document.getElementById('p_checks').textContent = checks.length ? checks.join(', ') : 'Ninguno';
     
     document.getElementById('p_fallas').textContent = document.getElementById('f_fallas').value || '-';
     document.getElementById('p_trabajo').textContent = document.getElementById('f_trabajo').value || '-';
     
-    document.getElementById('p_pres').textContent = document.getElementById('sumTotal').textContent;
-    document.getElementById('p_abonado').textContent = document.getElementById('sumPagado').textContent;
-    document.getElementById('p_saldo').textContent = document.getElementById('sumSaldo').textContent;
+    const pres = Number(document.getElementById('f_presupuesto').value) || 0;
+    let pagado = currentPayments.reduce((s, p) => s + Number(p.monto), 0);
+    // Si es nuevo y puso seña, calculamos en vivo para el PDF
+    const isNew = !document.getElementById('f_id').value;
+    if (isNew) {
+      const sena = Number(document.getElementById('f_sena').value) || 0;
+      pagado = sena;
+    }
+    const saldo = Math.max(0, pres - pagado);
+
+    document.getElementById('p_pres').textContent = '$' + pres.toLocaleString('es-AR');
+    document.getElementById('p_abonado').textContent = '$' + pagado.toLocaleString('es-AR');
+    document.getElementById('p_saldo').textContent = '$' + saldo.toLocaleString('es-AR');
     
     window.print();
   }
