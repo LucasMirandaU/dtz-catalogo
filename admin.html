@@ -1052,7 +1052,7 @@ async function bulkCompressImages() {
 
 const imgDrop=document.getElementById('imgDrop');
 imgDrop.addEventListener('dragover',e=>{e.preventDefault();imgDrop.classList.add('drag-over');});
-imgDrop.addEventListener('dragleave',()=>imgDrop.classList.remove('drag-over');});
+imgDrop.addEventListener('dragleave',()=>imgDrop.classList.remove('drag-over'));
 imgDrop.addEventListener('drop',e=>{e.preventDefault();imgDrop.classList.remove('drag-over');handleImgFile(e.dataTransfer.files[0]);});
 document.getElementById('imgModal').addEventListener('click',function(e){if(e.target===this)closeImgModal();});
 
