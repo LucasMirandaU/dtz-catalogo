@@ -60,6 +60,11 @@ En el panel de administración existen 3 niveles de acceso. Vos como dueño ten�
 
 ⚠️ **Importante sobre Odoo:** Nunca cambies el nombre de las columnas en Odoo al exportar el Excel. Si los nombres cambian (ej: de "Precio de venta" a "Sales Price"), la importación podría fallar.
 
+### Cómo Ocultar Productos (Sin borrar de Odoo)
+1. Si un producto no tiene stock o está temporalmente discontinuado, podés ocultarlo de la web al instante haciendo clic en el icono del **ojo (`👁️`)** en la tabla del panel de administración.
+2. El botón cambiará a **`🙈 (Oculto)`** y el producto desaparecerá del catálogo público inmediatamente.
+3. Al volver a importar un Excel de Odoo, los productos que ya no estén en el Excel se eliminarán automáticamente, mientras que los que sigan estando conservarán su estado de visibilidad y su foto.
+
 ### Cómo gestionar los Banners (Publicidades)
 1. En el panel, ve a la sección **"Banners"**.
 2. Hacé clic en "Nuevo banner" y subí tu foto.
@@ -72,11 +77,14 @@ En el panel de administración existen 3 niveles de acceso. Vos como dueño ten�
 ### Cómo usar el Módulo de Reparaciones (Taller)
 1. Desde el panel, hacé clic en el botón superior **"🛠️ Reparaciones"**.
 2. **Para ingresar un equipo:** Tocá el botón "+ Nueva". Llená los datos del cliente (incluyendo DNI), marcá el estado del equipo en el **Checklist** y anotá la falla.
-3. **Generar el número de orden:** Ya no se ingresa a mano. El sistema generará el número oficial de forma automática y secuencial (Ej: #101) al guardar la orden.
-4. **Señas Inciales:** Podés ingresar el monto en "Seña Inicial ($)" y el método de pago directamente en el formulario al momento de recibir el equipo. El sistema lo restará automáticamente del presupuesto.
-5. **Comprobante (PDF):** Una vez guardada la orden, vas a tener un botón de "🖨️ PDF" en la parte inferior para generar y enviar/imprimir el remito con los términos y condiciones legales.
-6. **Para cambiar de estado:** Tocá la tarjeta del cliente y cambiá el estado (Ej: de "Ingresado" a "Reparado"). El color de la tarjeta cambiará automáticamente para que sea fácil identificarlo a simple vista.
-7. **Pagos posteriores:** Si el cliente viene a pagar un saldo o retirar, entrá a la reparación, bajá hasta "Historial de Pagos" y tocá **"+ Pago"**. El sistema recalculará el saldo a pagar.
+3. **📸 Fotos del Equipo:** Podés adjuntar **hasta 3 fotografías** del estado en que llega el celular (roturas, rayones, número de serie). Se suben automáticamente y quedan vinculadas a la orden.
+4. **Generar el número de orden:** Ya no se ingresa a mano. El sistema generará el número oficial de forma automática y secuencial (Ej: #101) al guardar la orden.
+5. **Señas Iniciales:** Podés ingresar el monto en "Seña Inicial ($)" y el método de pago directamente en el formulario al momento de recibir el equipo. El sistema lo restará automáticamente del presupuesto.
+6. **Comprobante (PDF):** Una vez guardada la orden, vas a tener un botón de "🖨️ PDF" en la parte inferior para generar el remito con los términos y condiciones legales. **Las 3 fotos adjuntas aparecerán en miniatura y el remito está calibrado para imprimirse en 1 sola carilla.**
+7. **Para cambiar de estado:** Tocá la tarjeta del cliente y cambiá el estado (Ej: de "Ingresado" a "Reparado"). El color de la tarjeta cambiará automáticamente para que sea fácil identificarlo a simple vista.
+8. **Pagos posteriores:** Si el cliente viene a pagar un saldo o retirar, entrá a la reparación, bajá hasta "Historial de Pagos" y tocá **"+ Pago"**. El sistema recalculará el saldo a pagar.
+9. **🗑️ Eliminar Órdenes:** Los usuarios con rol Administrador o Superadmin verán un botón rojo de "Eliminar" en la barra inferior para borrar órdenes cargadas por error (con cuadro de confirmación).
+10. **📜 Auditoría Taller:** En la barra superior, el botón "Auditoría Taller" permite visualizar el historial de todas las órdenes creadas, pagos registrados, fotos subidas y eliminaciones efectuadas por el personal.
 
 ---
-*Desarrollado en exclusiva para DTZ por [Tu Nombre / Lucatoons]*
+*Desarrollado en exclusiva para DTZ por Lucatoons*

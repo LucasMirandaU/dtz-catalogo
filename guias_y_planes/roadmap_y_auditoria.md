@@ -59,11 +59,15 @@ A continuación, el registro de las funcionalidades planificadas y su estado de 
 - [x] Estados de orden predefinidos (incluyendo cancelación) con cálculo en tiempo real del saldo deudor.
 - [x] **Checklist Extendido:** 8 parámetros de revisión preestablecidos para agilizar recepciones y evitar reclamos (Bandeja SIM, Cámaras, etc.).
 - [x] Generación nativa de comprobantes en PDF listos para impresión/WhatsApp, incluyendo textos legales y términos de servicio automatizados.
-- [x] UI/UX Mobile-First (Vanilla JS) para maximizar la agilidad operativa en mostradores.
+### 🛠️ Módulo de Taller, Catálogo e ImgBB (v1.2.0)
+- [x] **Migración ImgBB:** Reemplazo de subida de imágenes a Supabase Storage por la API de ImgBB mediante `uploadToImgBB()`, eliminando límites de cuota de almacenamiento.
+- [x] **Compresión Inteligente WebP:** Compresión automática en el navegador antes de subir (800px para catálogo, 600px para taller) optimizando velocidad de carga y ancho de banda.
+- [x] **Ocultar Productos:** Nuevo toggle de visibilidad (`oculto`) en `product_overrides` con botón de ojo (`👁️`/`🙈`) en `admin.html` y filtrado en `index.html`.
+- [x] **📸 Fotos en Taller:** Soporte para adjuntar hasta 3 fotografías por orden de reparación, persistidas en columna JSONB `fotos`.
+- [x] **🖨️ PDF en 1 Sola Carilla:** Rediseño del CSS de impresión (`@media print`) para incluir miniaturas de fotos y legales del remito en una sola página.
+- [x] **🗑️ Eliminar Reparaciones con Seguridad de Roles:** Botón de borrado con confirmación de seguridad, estrictamente limitado a roles `Admin` y `Superadmin` (rol `Staff` bloqueado).
+- [x] **📜 Auditoría Propia del Taller:** Visor modal de historial exclusivo para movimientos de servicio técnico conectado a `audit_log`.
 
 ---
 
-
-
----
 *Fin del documento de auditoría. Proyecto listo para escalar.*
