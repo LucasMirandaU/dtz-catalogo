@@ -132,14 +132,15 @@
     </div>
     <div class="header-right">
       <span class="user-chip" id="userEmail">Cargando...</span>
-      <span style="font-size: 0.7rem; color: var(--muted); margin-left: 0.5rem; margin-right: 0.5rem;" title="Versión actual">v1.2.0</span>
+      <span style="font-size: 0.7rem; color: var(--muted); margin-left: 0.5rem; margin-right: 0.5rem;" title="Versión actual">v1.3.0</span>
     </div>
   </header>
 
   <div class="container">
     <div class="toolbar">
       <input type="text" id="searchInput" class="search-input" placeholder="Buscar cliente o nro orden..." autocomplete="off">
-      <div style="display:flex;gap:0.5rem">
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+        <button class="btn-sm" style="background:var(--surface2);color:#fff;padding:0.6rem 1rem;border-radius:6px;border:1px solid var(--border);cursor:pointer;font-weight:600" onclick="openTarifarioModal()">💲 Precios</button>
         <button class="btn-sm" style="background:var(--surface2);color:#fff;padding:0.6rem 1rem;border-radius:6px;border:1px solid var(--border);cursor:pointer;font-weight:600" onclick="openAuditTallerModal()">📜 Auditoría</button>
         <button class="btn-primary" onclick="openPanel()">+ Nueva</button>
       </div>
@@ -167,12 +168,13 @@
         <div class="form-group">
           <label>Estado</label>
           <select id="f_estado">
-            <option value="Ingresado">Ingresado</option>
-            <option value="En revisión">En revisión</option>
-            <option value="Esperando repuesto">Esperando repuesto</option>
-            <option value="Reparado">Reparado</option>
+            <option value="Ingresado / En Revisión">Ingresado / En Revisión</option>
+            <option value="Presupuestado / Esperando Confirmación">Presupuestado / Esperando Confirmación</option>
+            <option value="Reparando">Reparando</option>
+            <option value="Esperando Repuesto">Esperando Repuesto</option>
+            <option value="Reparado / Avisado al Cliente">Reparado / Avisado al Cliente</option>
+            <option value="Sin Reparación / Rechazado">Sin Reparación / Rechazado</option>
             <option value="Entregado">Entregado</option>
-            <option value="Cancelado">Cancelado</option>
           </select>
         </div>
       </div>
@@ -201,28 +203,89 @@
         <input type="text" id="f_clave" placeholder="PIN, Patrón o 'Sin clave'" autocomplete="off">
       </div>
       <div class="form-group">
-        <label>Estado de Ingreso (Checklist)</label>
-        <div style="display:flex;gap:1rem;margin-top:0.3rem;flex-wrap:wrap">
+        <label>Estado de Ingreso (Checklist Rápido)</label>
+        <div style="display:flex;gap:1.5rem;margin-top:0.3rem;flex-wrap:wrap">
           <label style="display:flex;align-items:center;gap:5px;font-size:0.85rem;color:var(--text);cursor:pointer"><input type="checkbox" id="f_chk_bateria"> Sin Batería</label>
           <label style="display:flex;align-items:center;gap:5px;font-size:0.85rem;color:var(--text);cursor:pointer"><input type="checkbox" id="f_chk_rajado"> Rajado</label>
           <label style="display:flex;align-items:center;gap:5px;font-size:0.85rem;color:var(--text);cursor:pointer"><input type="checkbox" id="f_chk_mojado"> Mojado</label>
-          <label style="display:flex;align-items:center;gap:5px;font-size:0.85rem;color:var(--text);cursor:pointer"><input type="checkbox" id="f_chk_sin_bandeja"> Sin Bandeja SIM</label>
-          <label style="display:flex;align-items:center;gap:5px;font-size:0.85rem;color:var(--text);cursor:pointer"><input type="checkbox" id="f_chk_tapa_rota"> Tapa Rota</label>
-          <label style="display:flex;align-items:center;gap:5px;font-size:0.85rem;color:var(--text);cursor:pointer"><input type="checkbox" id="f_chk_camaras"> Cámaras OK</label>
-          <label style="display:flex;align-items:center;gap:5px;font-size:0.85rem;color:var(--text);cursor:pointer"><input type="checkbox" id="f_chk_pin_carga"> Pin carga OK</label>
-          <label style="display:flex;align-items:center;gap:5px;font-size:0.85rem;color:var(--text);cursor:pointer"><input type="checkbox" id="f_chk_parlantes"> Parlantes OK</label>
         </div>
       </div>
       <div class="form-group">
         <label>Fallas detectadas / Notas</label>
         <textarea id="f_fallas" placeholder="Describe el problema que reporta el cliente..."></textarea>
       </div>
+      <!-- Inspección Detallada de Hardware (2 Columnas) -->
+      <div class="form-group" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0.8rem;margin-bottom:1rem">
+        <label style="color:var(--teal);font-weight:700;margin-bottom:0.6rem;display:block">📋 Inspección Detallada de Hardware (2 Columnas)</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;font-size:0.82rem">
+          <div><span style="color:var(--muted);display:block;margin-bottom:2px">Tapa trasera:</span>
+            <select id="insp_tapa" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
+              <option value="Buen estado">Buen estado</option><option value="Dañada">Dañada</option>
+            </select>
+          </div>
+          <div><span style="color:var(--muted);display:block;margin-bottom:2px">Batería:</span>
+            <select id="insp_bateria" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
+              <option value="Normal">Normal</option><option value="Hinchada">Hinchada</option><option value="No se pudo probar">No se pudo probar</option>
+            </select>
+          </div>
+          <div><span style="color:var(--muted);display:block;margin-bottom:2px">Cámara selfie:</span>
+            <select id="insp_cam_selfie" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
+              <option value="Bien">Bien</option><option value="Defectuosa">Defectuosa</option><option value="No se pudo probar">No se pudo probar</option>
+            </select>
+          </div>
+          <div><span style="color:var(--muted);display:block;margin-bottom:2px">Cámaras traseras:</span>
+            <select id="insp_cam_tras" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
+              <option value="Bien">Bien</option><option value="Defectuosas">Defectuosas</option><option value="No se pudo probar">No se pudo probar</option>
+            </select>
+          </div>
+          <div><span style="color:var(--muted);display:block;margin-bottom:2px">Bandeja SIM:</span>
+            <select id="insp_sim" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
+              <option value="Tiene">Tiene</option><option value="No tiene">No tiene</option>
+            </select>
+          </div>
+          <div><span style="color:var(--muted);display:block;margin-bottom:2px">Pin de Carga:</span>
+            <select id="insp_pin" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
+              <option value="Buen estado">Buen estado</option><option value="Muy Sucio">Muy Sucio</option><option value="Carga lenta">Carga lenta</option><option value="No se pudo probar">No se pudo probar</option>
+            </select>
+          </div>
+          <div><span style="color:var(--muted);display:block;margin-bottom:2px">Biometría (Huella/FaceID):</span>
+            <select id="insp_bio" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
+              <option value="Funciona">Funciona</option><option value="No funciona">No funciona</option><option value="No se pudo probar">No se pudo probar</option>
+            </select>
+          </div>
+          <div><span style="color:var(--muted);display:block;margin-bottom:2px">Pantalla / Táctil:</span>
+            <select id="insp_display" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
+              <option value="Impecable">Impecable</option><option value="Manchas o Líneas">Manchas o Líneas</option><option value="Táctil falla">Táctil falla</option><option value="Sin imagen">Sin imagen</option>
+            </select>
+          </div>
+          <div><span style="color:var(--muted);display:block;margin-bottom:2px">Altavoz (Música/Altavoz):</span>
+            <select id="insp_altavoz" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
+              <option value="Bien">Bien</option><option value="Falla">Falla</option><option value="No se pudo probar">No se pudo probar</option>
+            </select>
+          </div>
+          <div><span style="color:var(--muted);display:block;margin-bottom:2px">Auricular (Llamadas):</span>
+            <select id="insp_auricular" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
+              <option value="Bien">Bien</option><option value="Falla">Falla</option><option value="No se pudo probar">No se pudo probar</option>
+            </select>
+          </div>
+          <div style="grid-column:span 2"><span style="color:var(--muted);display:block;margin-bottom:2px">Micrófono:</span>
+            <select id="insp_microfono" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
+              <option value="Bien">Bien</option><option value="Falla">Falla</option><option value="No se pudo probar">No se pudo probar</option>
+            </select>
+          </div>
+        </div>
+      </div>
       <div class="form-group">
         <label>Trabajo Realizado (Uso Técnico)</label>
         <textarea id="f_trabajo" placeholder="Detalle de lo que se le hizo al equipo para la entrega final..."></textarea>
       </div>
       <div class="form-group">
-        <label>Presupuesto Total ($)</label>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem">
+          <label style="margin:0">Presupuesto Total ($)</label>
+          <select id="f_tarifario_autocompletar" onchange="applyTarifarioSelection(this)" style="background:var(--surface2);color:var(--teal);border:1px solid var(--teal);border-radius:6px;padding:2px 8px;font-size:0.75rem;font-weight:700;cursor:pointer">
+            <option value="">⚡ Cargar Precio de Lista ▾</option>
+          </select>
+        </div>
         <input type="number" id="f_presupuesto" placeholder="0" autocomplete="off" oninput="renderPaymentsUI()">
       </div>
       <div class="form-row" id="rowSenaInicial">
@@ -307,6 +370,18 @@
     </div>
   </div>
 
+  <!-- TARIFARIO MODAL -->
+  <div class="modal-overlay" id="tarifarioModal">
+    <div class="modal-content" style="max-width:650px;max-height:80vh;overflow-y:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+        <h3 style="margin:0">💲 Tarifario Rápido de Reparaciones</h3>
+        <button class="btn-sm" onclick="closeTarifarioModal()">✕</button>
+      </div>
+      <input type="text" id="searchTarifario" placeholder="Buscar modelo o servicio..." oninput="renderTarifarioModalList()" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);margin-bottom:1rem;box-sizing:border-box">
+      <div id="tarifarioModalList" style="font-size:0.85rem;color:var(--text)">Cargando precios...</div>
+    </div>
+  </div>
+
   <div id="toast"></div>
 
   <!-- PRINT LAYOUT (HIDDEN UNTIL PRINT) -->
@@ -357,6 +432,7 @@
   let allRepairs = [];
   let currentPayments = [];
   let currentRepairPhotos = [];
+  let dtzPreciosTaller = [];
 
   // Init
   window.onload = async () => {
@@ -378,6 +454,7 @@
     document.getElementById('userEmail').textContent = cachedName || currentUser.email;
 
     loadRepairs();
+    loadPreciosTaller();
   };
 
   // Toast
@@ -386,6 +463,107 @@
     el.textContent = msg;
     el.className = 'show ' + type;
     setTimeout(() => el.classList.remove('show'), 3000);
+  }
+
+  // ── TARIFARIO DE PRECIOS RÁPIDOS ────────────────────────
+  async function loadPreciosTaller() {
+    try {
+      const {data, error} = await db.from('precios_taller').select('*').order('orden', {ascending: true}).order('categoria', {ascending: true});
+      if (error) return;
+      dtzPreciosTaller = data || [];
+      renderTarifarioSelect();
+    } catch(e) {}
+  }
+
+  function renderTarifarioSelect() {
+    const sel = document.getElementById('f_tarifario_autocompletar');
+    if (!sel) return;
+    let html = '<option value="">⚡ Cargar Precio de Lista ▾</option>';
+    const catGroups = {};
+    dtzPreciosTaller.forEach(p => {
+      const c = p.categoria || 'GENERAL';
+      if (!catGroups[c]) catGroups[c] = [];
+      catGroups[c].push(p);
+    });
+    for (const cat in catGroups) {
+      html += `<optgroup label="${cat}">`;
+      catGroups[cat].forEach(p => {
+        html += `<option value="${p.id}">${p.servicio} ($${Number(p.precio).toLocaleString('es-AR')})</option>`;
+      });
+      html += `</optgroup>`;
+    }
+    sel.innerHTML = html;
+  }
+
+  function applyTarifarioSelection(sel) {
+    const id = Number(sel.value);
+    if (!id) return;
+    const item = dtzPreciosTaller.find(p => p.id === id);
+    if (!item) return;
+    
+    document.getElementById('f_presupuesto').value = item.precio;
+    renderPaymentsUI();
+    
+    const txtFallas = document.getElementById('f_fallas');
+    const nota = `[${item.categoria}] ${item.servicio}`;
+    if (!txtFallas.value.trim()) {
+      txtFallas.value = nota;
+    } else if (!txtFallas.value.includes(item.servicio)) {
+      txtFallas.value += `\n+ ${nota}`;
+    }
+    toast(`⚡ Cargado: ${item.servicio} ($${Number(item.precio).toLocaleString('es-AR')})`, 'ok');
+  }
+
+  function openTarifarioModal() {
+    document.getElementById('tarifarioModal').style.display = 'flex';
+    document.getElementById('searchTarifario').value = '';
+    renderTarifarioModalList();
+  }
+
+  function closeTarifarioModal() {
+    document.getElementById('tarifarioModal').style.display = 'none';
+  }
+
+  function renderTarifarioModalList() {
+    const wrap = document.getElementById('tarifarioModalList');
+    const term = (document.getElementById('searchTarifario').value || '').toLowerCase().trim();
+    
+    let list = dtzPreciosTaller;
+    if (term) {
+      list = list.filter(p => (p.categoria||'').toLowerCase().includes(term) || (p.servicio||'').toLowerCase().includes(term));
+    }
+    
+    if (!list.length) {
+      wrap.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--muted)">No se encontraron precios en el tarifario.</div>';
+      return;
+    }
+
+    const catGroups = {};
+    list.forEach(p => {
+      const c = p.categoria || 'GENERAL';
+      if (!catGroups[c]) catGroups[c] = [];
+      catGroups[c].push(p);
+    });
+
+    let html = '';
+    for (const cat in catGroups) {
+      html += `<div style="font-weight:700;color:var(--teal);margin-top:0.8rem;margin-bottom:0.4rem;border-bottom:1px solid var(--border);padding-bottom:2px">${cat}</div>`;
+      html += `<div style="display:grid;gap:0.4rem;margin-bottom:0.8rem">`;
+      catGroups[cat].forEach(p => {
+        html += `
+          <div style="display:flex;justify-content:space-between;align-items:center;background:var(--surface);padding:0.6rem 0.8rem;border-radius:6px;border:1px solid var(--border2)">
+            <div>
+              <span style="font-weight:600;color:#fff">${p.servicio}</span>
+            </div>
+            <div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--ok);font-size:1.05rem">
+              $${Number(p.precio).toLocaleString('es-AR')}
+            </div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+    }
+    wrap.innerHTML = html;
   }
 
   // Cargar lista
@@ -424,8 +602,13 @@
       const eMap = {
         'ingresado': 'st-ingresado',
         'en revisión': 'st-revision',
+        'ingresado / en revisión': 'st-revision',
+        'presupuestado / esperando confirmación': 'st-revision',
+        'reparando': 'st-revision',
         'esperando repuesto': 'st-esperando',
+        'reparado / avisado al cliente': 'st-reparado',
         'reparado': 'st-reparado',
+        'sin reparación / rechazado': 'st-cancelado',
         'entregado': 'st-entregado',
         'cancelado': 'st-cancelado'
       };
@@ -467,17 +650,28 @@
     document.getElementById('f_chk_bateria').checked = false;
     document.getElementById('f_chk_rajado').checked = false;
     document.getElementById('f_chk_mojado').checked = false;
-    document.getElementById('f_chk_sin_bandeja').checked = false;
-    document.getElementById('f_chk_tapa_rota').checked = false;
-    document.getElementById('f_chk_camaras').checked = false;
-    document.getElementById('f_chk_pin_carga').checked = false;
-    document.getElementById('f_chk_parlantes').checked = false;
     document.getElementById('f_fallas').value = '';
+    
+    // Reset inspección HW
+    document.getElementById('insp_tapa').value = 'Buen estado';
+    document.getElementById('insp_bateria').value = 'Normal';
+    document.getElementById('insp_cam_selfie').value = 'Bien';
+    document.getElementById('insp_cam_tras').value = 'Bien';
+    document.getElementById('insp_sim').value = 'Tiene';
+    document.getElementById('insp_pin').value = 'Buen estado';
+    document.getElementById('insp_bio').value = 'Funciona';
+    document.getElementById('insp_display').value = 'Impecable';
+    document.getElementById('insp_altavoz').value = 'Bien';
+    document.getElementById('insp_auricular').value = 'Bien';
+    document.getElementById('insp_microfono').value = 'Bien';
+
     document.getElementById('f_trabajo').value = '';
     document.getElementById('f_presupuesto').value = '';
+    const selTar = document.getElementById('f_tarifario_autocompletar');
+    if (selTar) selTar.value = '';
     document.getElementById('f_sena').value = '';
     document.getElementById('rowSenaInicial').style.display = 'grid';
-    document.getElementById('f_estado').value = 'Ingresado';
+    document.getElementById('f_estado').value = 'Ingresado / En Revisión';
     
     currentPayments = [];
     currentRepairPhotos = [];
@@ -505,16 +699,28 @@
     document.getElementById('f_chk_bateria').checked = r.chk_sin_bateria || false;
     document.getElementById('f_chk_rajado').checked = r.chk_rajado || false;
     document.getElementById('f_chk_mojado').checked = r.chk_mojado || false;
-    document.getElementById('f_chk_sin_bandeja').checked = r.chk_sin_bandeja || false;
-    document.getElementById('f_chk_tapa_rota').checked = r.chk_tapa_rota || false;
-    document.getElementById('f_chk_camaras').checked = r.chk_camaras_ok || false;
-    document.getElementById('f_chk_pin_carga').checked = r.chk_pin_carga_ok || false;
-    document.getElementById('f_chk_parlantes').checked = r.chk_parlantes_ok || false;
+
+    // Cargar inspección HW
+    const hw = r.inspeccion_hw || {};
+    document.getElementById('insp_tapa').value = hw.tapa || (r.chk_tapa_rota ? 'Dañada' : 'Buen estado');
+    document.getElementById('insp_bateria').value = hw.bateria || 'Normal';
+    document.getElementById('insp_cam_selfie').value = hw.cam_selfie || 'Bien';
+    document.getElementById('insp_cam_tras').value = hw.cam_tras || (r.chk_camaras_ok ? 'Bien' : 'Defectuosas');
+    document.getElementById('insp_sim').value = hw.sim || (r.chk_sin_bandeja ? 'No tiene' : 'Tiene');
+    document.getElementById('insp_pin').value = hw.pin || 'Buen estado';
+    document.getElementById('insp_bio').value = hw.bio || 'Funciona';
+    document.getElementById('insp_display').value = hw.display || 'Impecable';
+    document.getElementById('insp_altavoz').value = hw.altavoz || (r.chk_parlantes_ok ? 'Bien' : 'Falla');
+    document.getElementById('insp_auricular').value = hw.auricular || 'Bien';
+    document.getElementById('insp_microfono').value = hw.microfono || 'Bien';
+
     document.getElementById('f_fallas').value = r.fallas || '';
     document.getElementById('f_trabajo').value = r.trabajo_realizado || '';
     document.getElementById('f_presupuesto').value = r.presupuesto || '';
+    const selTar = document.getElementById('f_tarifario_autocompletar');
+    if (selTar) selTar.value = '';
     document.getElementById('rowSenaInicial').style.display = 'none';
-    document.getElementById('f_estado').value = r.estado || 'Ingresado';
+    document.getElementById('f_estado').value = r.estado || 'Ingresado / En Revisión';
     
     currentPayments = r.historial_pagos || [];
     currentRepairPhotos = r.fotos || [];
@@ -748,11 +954,24 @@
       chk_sin_bateria: document.getElementById('f_chk_bateria').checked,
       chk_rajado: document.getElementById('f_chk_rajado').checked,
       chk_mojado: document.getElementById('f_chk_mojado').checked,
-      chk_sin_bandeja: document.getElementById('f_chk_sin_bandeja').checked,
-      chk_tapa_rota: document.getElementById('f_chk_tapa_rota').checked,
-      chk_camaras_ok: document.getElementById('f_chk_camaras').checked,
-      chk_pin_carga_ok: document.getElementById('f_chk_pin_carga').checked,
-      chk_parlantes_ok: document.getElementById('f_chk_parlantes').checked,
+      chk_sin_bandeja: document.getElementById('insp_sim').value === 'No tiene',
+      chk_tapa_rota: document.getElementById('insp_tapa').value === 'Dañada',
+      chk_camaras_ok: document.getElementById('insp_cam_tras').value === 'Bien' && document.getElementById('insp_cam_selfie').value === 'Bien',
+      chk_pin_carga_ok: document.getElementById('insp_pin').value === 'Buen estado',
+      chk_parlantes_ok: document.getElementById('insp_altavoz').value === 'Bien' && document.getElementById('insp_auricular').value === 'Bien',
+      inspeccion_hw: {
+        tapa: document.getElementById('insp_tapa').value,
+        bateria: document.getElementById('insp_bateria').value,
+        cam_selfie: document.getElementById('insp_cam_selfie').value,
+        cam_tras: document.getElementById('insp_cam_tras').value,
+        sim: document.getElementById('insp_sim').value,
+        pin: document.getElementById('insp_pin').value,
+        bio: document.getElementById('insp_bio').value,
+        display: document.getElementById('insp_display').value,
+        altavoz: document.getElementById('insp_altavoz').value,
+        auricular: document.getElementById('insp_auricular').value,
+        microfono: document.getElementById('insp_microfono').value
+      },
       fallas: document.getElementById('f_fallas').value.trim() || null,
       trabajo_realizado: document.getElementById('f_trabajo').value.trim() || null,
       presupuesto: Number(document.getElementById('f_presupuesto').value) || 0,
@@ -773,23 +992,23 @@
     }
 
     const btn = document.getElementById('btnSave');
-    btn.disabled = true; btn.textContent = 'Guardando...';
+    if (btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }
 
+    let error;
     if (id) {
-      const {error} = await db.from('reparaciones').update(data).eq('id', id);
-      btn.disabled = false; btn.textContent = 'GUARDAR ORDEN';
-      if (error) return toast(error.message, 'err');
-      logAudit('ACTUALIZAR_REPARACION', id, `Cliente: ${cliente} | Estado: ${data.estado}`);
-      toast('Orden actualizada', 'ok');
+      const res = await db.from('reparaciones').update(data).eq('id', id);
+      error = res.error;
     } else {
-      const {data: insData, error} = await db.from('reparaciones').insert([data]).select();
-      btn.disabled = false; btn.textContent = 'GUARDAR ORDEN';
-      if (error) return toast(error.message, 'err');
-      const newId = insData?.[0]?.id || 'Nueva';
-      logAudit('CREAR_REPARACION', newId, `Cliente: ${cliente} | Equipo: ${data.equipo || 'N/A'}`);
-      toast('Orden creada', 'ok');
+      const res = await db.from('reparaciones').insert([data]).select();
+      error = res.error;
     }
+
+    if (btn) { btn.disabled = false; btn.textContent = 'GUARDAR ORDEN'; }
+
+    if (error) return toast('Error al guardar: ' + error.message,'err');
     
+    toast('✔ Orden guardada exitosamente','ok');
+    logAudit(id ? 'REPARACION_EDITAR' : 'REPARACION_CREAR', id || 'Nueva', `Cliente: ${cliente} - Estado: ${data.estado} - Presupuesto: $${data.presupuesto}`);
     closePanel();
     loadRepairs();
   }
@@ -800,26 +1019,23 @@
     }
     const id = document.getElementById('f_id').value;
     if (!id) return;
-    if (!confirm("¿Estás seguro de que deseás eliminar esta orden de reparación? Esta acción no se puede deshacer.")) return;
+    if (!confirm(`¿Estás seguro de eliminar la orden #${id}? Esta acción es permanente.`)) return;
     
-    const r = allRepairs.find(x => String(x.id) === String(id));
+    const r = allRepairs.find(x => x.id === parseInt(id));
     const {error} = await db.from('reparaciones').delete().eq('id', id);
-    if (error) return toast("Error al eliminar: " + error.message, "err");
-    
-    logAudit("ELIMINAR_REPARACION", id, `Cliente: ${r?.cliente || 'N/A'} | Equipo: ${r?.equipo || 'N/A'}`);
-    toast("🗑️ Orden de reparación eliminada", "ok");
+    if (error) return toast('Error al eliminar: ' + error.message, 'err');
+
+    toast('Orden eliminada', 'info');
+    logAudit('REPARACION_ELIMINAR', id, `Orden de cliente ${r?.cliente || ''} eliminada`);
     closePanel();
     loadRepairs();
   }
 
   // Print PDF
-  function printComprobante() {
-    const id = document.getElementById('f_id').value;
-    if (!id) return toast('Guardá la orden antes de imprimir', 'warn');
-    
-    document.getElementById('p_orden').textContent = '#' + id;
+  function printPDF() {
+    document.getElementById('p_ord').textContent = document.getElementById('f_orden').value;
     document.getElementById('p_fecha').textContent = new Date().toLocaleDateString('es-AR');
-    document.getElementById('p_cliente').textContent = document.getElementById('f_cliente').value;
+    document.getElementById('p_cliente').textContent = document.getElementById('f_cliente').value || '-';
     document.getElementById('p_dni').textContent = document.getElementById('f_dni').value || '-';
     document.getElementById('p_tel').textContent = document.getElementById('f_telefono').value || '-';
     document.getElementById('p_equipo').textContent = document.getElementById('f_equipo').value || '-';
@@ -829,11 +1045,11 @@
     if(document.getElementById('f_chk_bateria').checked) checks.push('Sin Batería');
     if(document.getElementById('f_chk_rajado').checked) checks.push('Rajado');
     if(document.getElementById('f_chk_mojado').checked) checks.push('Mojado');
-    if(document.getElementById('f_chk_sin_bandeja').checked) checks.push('Sin Bandeja SIM');
-    if(document.getElementById('f_chk_tapa_rota').checked) checks.push('Tapa Rota');
-    if(document.getElementById('f_chk_camaras').checked) checks.push('Cámaras OK');
-    if(document.getElementById('f_chk_pin_carga').checked) checks.push('Pin carga OK');
-    if(document.getElementById('f_chk_parlantes').checked) checks.push('Parlantes OK');
+    if(document.getElementById('insp_sim').value === 'No tiene') checks.push('Sin Bandeja SIM');
+    if(document.getElementById('insp_tapa').value === 'Dañada') checks.push('Tapa Dañada');
+    if(document.getElementById('insp_cam_tras').value !== 'Bien' || document.getElementById('insp_cam_selfie').value !== 'Bien') checks.push('Cámaras Rev.');
+    if(document.getElementById('insp_pin').value !== 'Buen estado') checks.push('Pin: ' + document.getElementById('insp_pin').value);
+    if(document.getElementById('insp_display').value !== 'Impecable') checks.push('Display: ' + document.getElementById('insp_display').value);
     document.getElementById('p_checks').textContent = checks.length ? checks.join(', ') : 'Ninguno';
     
     document.getElementById('p_fallas').textContent = document.getElementById('f_fallas').value || '-';

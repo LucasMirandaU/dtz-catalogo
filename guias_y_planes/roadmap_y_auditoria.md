@@ -66,7 +66,14 @@ A continuación, el registro de las funcionalidades planificadas y su estado de 
 - [x] **📸 Fotos en Taller:** Soporte para adjuntar hasta 3 fotografías por orden de reparación, persistidas en columna JSONB `fotos`.
 - [x] **🖨️ PDF en 1 Sola Carilla:** Rediseño del CSS de impresión (`@media print`) para incluir miniaturas de fotos y legales del remito en una sola página.
 - [x] **🗑️ Eliminar Reparaciones con Seguridad de Roles:** Botón de borrado con confirmación de seguridad, estrictamente limitado a roles `Admin` y `Superadmin` (rol `Staff` bloqueado).
-- [x] **📜 Auditoría Propia del Taller:** Visor modal de historial exclusivo para movimientos de servicio técnico conectado a `audit_log`.
+### 🎁 Promociones, Cupones y Mejoras Taller (v1.3.0)
+- [x] **Gestión de Descuentos (Cupones):** Nueva pestaña en el panel Admin para crear, activar, pausar y eliminar códigos de descuento en porcentaje.
+- [x] **RPC de Validación Segura (`validar_cupon`):** El carrito consulta la validez del cupón sin exponer la tabla en el frontend (`anon_key`), manteniendo RLS privado.
+- [x] **Regla de No Acumulabilidad (UX Nivel Dios):** Comparación automática entre promociones por volumen y cupones de descuento, aplicando el beneficio más alto.
+- [x] **Tarifario Rápido de Taller:** Nueva tabla `precios_taller` gestionable por Admins y de lectura rápida para el Staff.
+- [x] **⚡ Autocompletado en Recepción:** Select en creación/edición de reparaciones para cargar precios y autocompletar descripciones de servicios al instante.
+- [x] **📋 Checklist Detallado de Hardware (2 Columnas):** Reducción del ingreso rápido a 3 estados críticos (Sin Batería, Rajado, Mojado) y agregado de inspección exhaustiva de 11 componentes (Tapa, Batería, Cámaras, SIM, Pin, Biometría, Display, Audio, Micrófono) guardados en JSONB `inspeccion_hw`.
+- [x] **Flujo Oficial de Estados DTZ:** Sincronización del ciclo de vida de reparaciones (`Ingresado / En Revisión`, `Presupuestado / Esperando Confirmación`, `Reparando`, etc.).
 
 ---
 
