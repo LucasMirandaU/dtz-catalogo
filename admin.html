@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>DTZ Admin – Panel de administración</title>
 <link rel="icon" href="favicon.png" type="image/png">
 <script src="config.js"></script>
@@ -110,6 +110,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .search-input:focus{border-color:var(--teal)}
 .search-input::placeholder{color:var(--muted)}
 .filter-select{background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:.5rem .75rem;border-radius:8px;font-size:.82rem;font-family:'Inter',sans-serif;outline:none;cursor:pointer}
+.table-wrap, #productsTableWrap, #bannersTableWrap, #promosTableWrap, #discountsTableWrap, #tarifarioTableWrap, #usersTableWrap, #contactTableWrap, #auditTableWrap { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
 .products-table{width:100%;border-collapse:collapse}
 .products-table th{background:var(--surface2);padding:.65rem 1rem;text-align:left;font-size:.75rem;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;font-weight:500}
 .products-table th:first-child{border-radius:8px 0 0 8px}
@@ -344,14 +345,16 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
         <option value="without">Sin stock</option>
       </select>
     </div>
-    <table class="products-table" id="productsTable">
-      <thead>
-        <tr id="productsTableHead">
-          <th>Imagen</th><th>Código</th><th>Nombre Odoo</th><th>Precio Odoo</th><th>Stock</th><th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody id="productsTbody"></tbody>
-    </table>
+    <div id="productsTableWrap">
+      <table class="products-table" id="productsTable">
+        <thead>
+          <tr id="productsTableHead">
+            <th>Imagen</th><th>Código</th><th>Nombre Odoo</th><th>Precio Odoo</th><th>Stock</th><th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="productsTbody"></tbody>
+      </table>
+    </div>
     <div class="pagination" id="prodPagination"></div>
   </div>
 
