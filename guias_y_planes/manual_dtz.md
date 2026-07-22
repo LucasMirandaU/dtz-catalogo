@@ -72,7 +72,8 @@ En el panel de administración existen 3 niveles de acceso. Vos como dueño ten�
     *   Ancho: 1200 píxeles.
     *   Alto: 400 píxeles.
     *   Relación: 3:1 panorámica.
-4. Podés pausar (desactivar) una publicidad en cualquier momento sin borrarla. También podés cambiar el orden arrastrándolas. (Máximo 5 activas).
+4. **💡 Tip Oficial de Optimización:** Para que los banners generados con IA o Photoshop carguen instantáneamente y no consuman datos móviles, pasalos primero por [https://squoosh.app/](https://squoosh.app/). Comprimí el archivo en `.webp` o `.jpg` optimizado (menos de 200 KB) manteniendo la medida 1200x400 px antes de subirlo.
+5. Podés pausar (desactivar) una publicidad en cualquier momento sin borrarla. También podés cambiar el orden arrastrándolas. (Máximo 5 activas).
 
 ### Cómo usar el Módulo de Reparaciones (Taller)
 1. Desde el panel, hacé clic en el botón superior **"🛠️ Reparaciones"**.
