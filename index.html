@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DTZ Servicio Técnico – Catálogo</title>
 <link rel="icon" href="favicon.png" type="image/png">
+<!-- PWA & Apple Meta Tags -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DTZ">
+<link rel="apple-touch-icon" href="nuevo_favicon.png">
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -905,5 +912,16 @@ loadProducts().then(() => loadCartFromStorage());
   <footer class="site-footer">
     &copy; 2026 Desarrollado por <span>Lucatoons</span>. Todos los derechos reservados.
   </footer>
+  
+  <!-- PWA Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(err => {
+          console.warn('PWA Service Worker falló:', err);
+        });
+      });
+    }
+  </script>
 </body>
 </html>
