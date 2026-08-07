@@ -1,21 +1,28 @@
 {
   "name": "DTZ Servicio Técnico",
   "short_name": "DTZ",
-  "description": "Sistema de gestión y catálogo web DTZ",
-  "start_url": "./admin.html",
+  "description": "Panel de administración y taller",
+  "start_url": "admin.html",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
-  "orientation": "portrait-primary",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "./favicon.png",
+      "src": "favicon.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
-      "src": "./nuevo_favicon.png",
+      "src": "nuevo_favicon.png",
       "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "nuevo_favicon.png",
+      "sizes": "any",
       "type": "image/png"
     }
   ]
