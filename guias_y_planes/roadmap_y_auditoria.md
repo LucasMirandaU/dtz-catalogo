@@ -82,6 +82,10 @@ A continuación, el registro de las funcionalidades planificadas y su estado de 
 - [x] **📍 Selector de Sucursal de Ingreso:** Campo seleccionable en recepción (`Local 2984` / `Local 1912`) que se refleja en tarjeta y en el remito impreso PDF.
 - [x] **📋 Biometría "No tiene":** Nueva opción en inspección de hardware para teléfonos sin lector biométrico.
 
+### v1.3.2 - Hotfix: Estabilidad Multimedia ImgBB (Agosto 2026)
+- [x] **Compresión JPEG por defecto (Web):** Reemplazo de WebP por JPEG en el motor de canvas (`reparaciones.html`, `admin.html`) para evitar falsos positivos y borrados automáticos del bot anti-spam de ImgBB, y para eliminar la alta latencia de su CDN.
+- [x] **Detección MIME Dinámica (App Móvil):** La app React Native ahora detecta dinámicamente si la cámara entregó un JPG, PNG, HEIC o WebP, conservando la extensión nativa para sincronizar firmas de archivo y evitar bloqueos en ImgBB.
+
 ---
 
 *Fin del documento de auditoría.*

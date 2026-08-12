@@ -53,7 +53,7 @@ Si Odoo cambia un nombre, solo se debe agregar el nuevo alias al array correspon
 Para no consumir cuota de transferencia y almacenamiento en Supabase (evitando errores de "Cached Egress Exceeded"), toda subida de imágenes fue migrada a **ImgBB API**:
 1. **API Key Centralizada:** Definida en `config.js` (`imgbbApiKey`).
 2. **Función Helper:** `uploadToImgBB(file, customName)` en `admin.html`.
-3. **Compresión WebP en Cliente:** Antes del envío al endpoint `https://api.imgbb.com/1/upload`, el frontend comprime usando un canvas invisible en formato WebP (800px para catálogo, 600px para taller).
+3. **Compresión JPEG en Cliente (Hotfix Agosto 2026):** Antes del envío al endpoint `https://api.imgbb.com/1/upload`, el frontend web comprime usando un canvas invisible en formato **JPEG (800px para catálogo, 600px para taller)**. Se abandonó el formato WebP debido a falsos positivos en los detectores de spam de ImgBB que generaban la eliminación silenciosa (Error 404) y tiempos lentos de carga en su CDN. En la app móvil, se utiliza detección dinámica del MIME original de la cámara para asegurar coincidencia de extensiones.
 
 ## Módulo de Promociones y Descuentos (v1.3.0)
 El carrito de compras implementa una regla de **no acumulabilidad automática**:
