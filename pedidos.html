@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Pedidos de Stock - DTZ</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --teal:#2DD4BF;--teal-dark:#0F9583;--teal-glow:rgba(45,212,191,0.13);
+      --bg:#0a0a0a;--surface:#111;--surface2:#1a1a1a;--surface3:#222;
+      --border:rgba(45,212,191,0.2);--border2:rgba(255,255,255,0.08);
+      --text:#f0f0f0;--muted:#777;--danger:#ef4444;--warn:#f59e0b;--ok:#22c55e;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden}
+
+    /* HEADER */
+    .header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1rem;display:flex;align-items:center;height:60px;position:sticky;top:0;z-index:100;justify-content:space-between}
+    .header-left{display:flex;align-items:center;gap:.75rem}
+    .btn-back{background:none;border:none;color:var(--teal);font-size:1.5rem;cursor:pointer;padding:0 .5rem}
+    .logo-text{font-family:'Rajdhani',sans-serif;font-size:1.2rem;letter-spacing:1px;color:#fff;font-weight:700}
+    .header-right{display:flex;align-items:center;gap:.5rem}
+    .user-chip{font-size:.75rem;color:var(--muted)}
+
+    #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:.75rem 1.5rem;border-radius:30px;font-size:.85rem;z-index:10000;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap}
+    #toast.show{opacity:1}
+    #toast.ok{background:var(--teal);color:#000;font-weight:600}
+    #toast.err{background:var(--danger);color:#fff;font-weight:600}
+
+    .container{padding:1rem;max-width:800px;margin:0 auto}
+    
+    .toolbar{display:flex;gap:.5rem;margin-bottom:1rem;position:sticky;top:70px;z-index:90;background:var(--bg);padding-bottom:.5rem;flex-wrap:wrap}
+    .filter-btn{flex:1;background:var(--surface2);border:1px solid var(--border2);color:var(--muted);padding:.75rem 1rem;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;text-align:center}
+    .filter-btn.active{background:var(--teal-glow);color:var(--teal);border-color:var(--teal)}
+    .btn-primary{background:var(--teal);border:none;color:#000;padding:.75rem 1rem;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;white-space:nowrap;width:100%;margin-top:10px}
+    .btn-print{background:var(--surface);border:1px solid var(--border);color:var(--teal);padding:.75rem 1rem;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;width:100%;margin-top:10px}
+
+    /* LIST */
+    .brand-section{margin-bottom:1.5rem}
+    .brand-title{font-family:'Rajdhani',sans-serif;font-size:1.3rem;color:#fff;border-bottom:1px solid var(--border2);padding-bottom:.3rem;margin-bottom:.75rem;text-transform:uppercase}
+    .list-group{display:flex;flex-direction:column;gap:.5rem}
+    
+    .pedido-card{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:1rem;display:flex;justify-content:space-between;align-items:center}
+    .pedido-card.recibido{opacity:0.6;background:var(--surface);border-style:dashed}
+    
+    .p-info{flex:1}
+    .p-main{font-weight:600;font-size:1rem;margin-bottom:.2rem}
+    .p-sub{font-size:.85rem;color:var(--muted)}
+    .p-badge{font-size:.7rem;padding:2px 6px;border-radius:4px;background:var(--surface3);border:1px solid var(--border2);margin-right:5px}
+    
+    .p-actions{display:flex;gap:.5rem}
+    .btn-icon{background:var(--surface3);border:none;color:#fff;width:32px;height:32px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .btn-ok{color:var(--ok)}
+    .btn-del{color:var(--danger)}
+
+    /* FORM PANEL */
+    .panel-overlay{position:fixed;inset:0;background:var(--bg);z-index:200;transform:translateX(100%);transition:transform .3s ease-out;display:flex;flex-direction:column}
+    .panel-overlay.open{transform:translateX(0)}
+    .panel-header{display:flex;align-items:center;justify-content:space-between;padding:1rem;border-bottom:1px solid var(--border);background:var(--surface)}
+    .panel-title{font-family:'Rajdhani',sans-serif;font-size:1.2rem;color:var(--teal)}
+    .panel-body{flex:1;overflow-y:auto;padding:1rem;padding-bottom:5rem}
+    
+    .form-group{margin-bottom:1rem}
+    .form-group label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:.3rem}
+    .form-group input, .form-group select{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:.75rem;color:var(--text);font-size:.9rem;outline:none}
+    .form-group input:focus, .form-group select:focus{border-color:var(--teal)}
+    
+    .action-bar{position:fixed;bottom:0;left:0;right:0;padding:1rem;background:var(--surface);border-top:1px solid var(--border);z-index:210}
+    .btn-save{width:100%;background:var(--teal);border:none;color:#000;padding:.85rem;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer}
+
+    /* PRINT STYLES */
+    @media print {
+      @page { margin: 0; } /* Oculta la URL y Fecha automática del navegador */
+      body { background: #fff; color:#000; margin: 0; padding: 2cm; font-family: Arial, sans-serif; }
+      body > :not(#printLayout) { display: none !important; }
+      #printLayout { display: block !important; }
+      .print-header { font-size: 14px; font-weight: bold; margin-bottom: 20px; text-align: left; border-bottom: 1px solid #000; padding-bottom: 10px; }
+      .print-local { font-size: 18px; font-weight: bold; margin-top: 20px; margin-bottom: 15px; text-transform: uppercase; }
+      .print-brand { font-size: 13px; font-weight: bold; margin-top: 15px; text-transform: uppercase; font-style: italic; }
+      .print-item { font-size: 12px; margin-bottom: 4px; padding-left: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <button class="btn-back" onclick="window.location.href='admin.html'">‹</button>
+      <div class="logo-text">PEDIDOS</div>
+    </div>
+    <div class="header-right">
+      <span class="user-chip" id="userEmail">Cargando...</span>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="toolbar">
+      <button class="filter-btn active" id="btnFilter1912" onclick="setFilter('Local 1912')">1912</button>
+      <button class="filter-btn" id="btnFilter2984" onclick="setFilter('Local 2984')">2984</button>
+      <button class="filter-btn" id="btnFilterTodo" onclick="setFilter('TODO')">Todo</button>
+      
+      <button class="btn-primary" onclick="openPanel()">+ Nuevo Pedido / Faltante</button>
+      <button class="btn-print" onclick="generatePrint()">🖨️ Imprimir Listas (PDF)</button>
+    </div>
+
+    <div id="listContainer">
+      <div style="text-align:center;color:var(--muted);margin-top:2rem">Cargando pedidos...</div>
+    </div>
+  </div>
+
+  <!-- PANEL FORMULARIO -->
+  <div class="panel-overlay" id="formPanel">
+    <div class="panel-header">
+      <div class="panel-title">NUEVO PEDIDO</div>
+      <button class="btn-back" onclick="closePanel()">✕</button>
+    </div>
+    <div class="panel-body">
+      <div class="form-group">
+        <label>Sucursal</label>
+        <select id="f_sucursal">
+          <option value="Local 1912">Local 1912</option>
+          <option value="Local 2984">Local 2984</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Categoría / Marca</label>
+        <select id="f_marca">
+          <option value="FALTANTES AMBOS LOCALES">FALTANTES AMBOS LOCALES</option>
+          <option value="IPHONE">IPHONE</option>
+          <option value="SAMSUNG">SAMSUNG</option>
+          <option value="MOTOROLA">MOTOROLA</option>
+          <option value="XIAOMI">XIAOMI</option>
+          <option value="VARIOS">VARIOS</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tipo de Producto</label>
+        <select id="f_tipo">
+          <option value="Funda">Funda</option>
+          <option value="Templado Común">Templado Común</option>
+          <option value="Templado Privado">Templado Privado</option>
+          <option value="Cable">Cable</option>
+          <option value="Cargador">Cargador</option>
+          <option value="Aro de Luz">Aro de Luz</option>
+          <option value="Insumo">Insumo</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Variante / Material</label>
+        <select id="f_variante">
+          <option value="N/A">N/A</option>
+          <option value="Antishock">Antishock</option>
+          <option value="Silicon Case">Silicon Case</option>
+          <option value="Rígida">Rígida</option>
+          <option value="Silicona">Silicona</option>
+          <option value="Space">Space</option>
+          <option value="MagSafe">MagSafe</option>
+          <option value="Con Soporte">Con Soporte</option>
+          <option value="Simil Metal">Simil Metal</option>
+          <option value="New Skin">New Skin</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Modelo, Color y Detalles (Libre)</label>
+        <input type="text" id="f_detalle" placeholder="Ej: A23 negra azul">
+      </div>
+      <div class="form-group">
+        <label>Nombre del Cliente (Opcional)</label>
+        <input type="text" id="f_nombre" placeholder="Ej: Juan">
+      </div>
+      <div class="form-group">
+        <label>Teléfono (Opcional)</label>
+        <input type="text" id="f_telefono" placeholder="Ej: 341 358 9446">
+      </div>
+    </div>
+    <div class="action-bar">
+      <button class="btn-save" id="btnSave" onclick="savePedido()">Guardar Pedido</button>
+    </div>
+  </div>
+
+  <!-- CAPA DE IMPRESION OCULTA -->
+  <div id="printLayout" style="display:none;"></div>
+
+  <div id="toast"></div>
+
+  <script>
+    const db = supabase.createClient(DTZ_CONFIG.supabaseUrl, DTZ_CONFIG.supabaseAnonKey);
+    let currentUser = null;
+    let userRole = null;
+    let allPedidos = [];
+    let currentFilter = 'Local 1912';
+
+    const MARCAS_ORDER = ['FALTANTES AMBOS LOCALES', 'IPHONE', 'SAMSUNG', 'MOTOROLA', 'XIAOMI', 'VARIOS'];
+
+    function toast(msg, type='ok') {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.className = 'show ' + type;
+      setTimeout(() => el.className = '', 3000);
+    }
+
+    async function checkAuth() {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) {
+        window.location.href = 'index.html';
+        return;
+      }
+      currentUser = session.user;
+      document.getElementById('userEmail').textContent = currentUser.email;
+
+      // Obtener rol
+      const { data: prof } = await db.from('profiles').select('role').eq('id', currentUser.id).single();
+      if (prof) userRole = prof.role;
+
+      // Asignar local por defecto según usuario si queremos, por ahora default 1912
+      loadPedidos();
+    }
+
+    async function loadPedidos() {
+      const { data, error } = await db.from('pedidos_stock').select('*').order('created_at', {ascending: true});
+      if (error) {
+        toast('Error al cargar pedidos', 'err');
+        return;
+      }
+      allPedidos = data;
+      renderList();
+    }
+
+    function setFilter(filter) {
+      currentFilter = filter;
+      document.getElementById('btnFilter1912').className = filter === 'Local 1912' ? 'filter-btn active' : 'filter-btn';
+      document.getElementById('btnFilter2984').className = filter === 'Local 2984' ? 'filter-btn active' : 'filter-btn';
+      document.getElementById('btnFilterTodo').className = filter === 'TODO' ? 'filter-btn active' : 'filter-btn';
+      renderList();
+    }
+
+    function renderList() {
+      const container = document.getElementById('listContainer');
+      container.innerHTML = '';
+
+      let filtered = allPedidos;
+      if (currentFilter !== 'TODO') {
+        // En los faltantes generales, se muestran para ambos locales.
+        filtered = allPedidos.filter(p => p.sucursal === currentFilter || p.marca === 'FALTANTES AMBOS LOCALES');
+      }
+
+      // Separar pendientes de recibidos
+      const pendientes = filtered.filter(p => p.estado !== 'Recibido');
+      const recibidos = filtered.filter(p => p.estado === 'Recibido');
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div style="text-align:center;color:var(--muted);margin-top:2rem">Sin pedidos para este filtro.</div>';
+        return;
+      }
+
+      // Agrupar pendientes por marca
+      const grouped = {};
+      MARCAS_ORDER.forEach(m => grouped[m] = []);
+      
+      pendientes.forEach(p => {
+        if (!grouped[p.marca]) grouped[p.marca] = [];
+        grouped[p.marca].push(p);
+      });
+
+      // Render Pendientes agrupados
+      MARCAS_ORDER.forEach(marca => {
+        if (grouped[marca].length > 0) {
+          const section = document.createElement('div');
+          section.className = 'brand-section';
+          section.innerHTML = `<div class="brand-title">*${marca}*</div>`;
+          const list = document.createElement('div');
+          list.className = 'list-group';
+          
+          grouped[marca].forEach(p => {
+            list.appendChild(createCard(p));
+          });
+          section.appendChild(list);
+          container.appendChild(section);
+        }
+      });
+
+      // Render Recibidos (Abajo de todo)
+      if (recibidos.length > 0) {
+        const section = document.createElement('div');
+        section.className = 'brand-section';
+        section.style.marginTop = '2rem';
+        section.innerHTML = `<div class="brand-title" style="color:var(--ok)">✓ RECIBIDOS (Historial)</div>`;
+        const list = document.createElement('div');
+        list.className = 'list-group';
+        recibidos.forEach(p => {
+          list.appendChild(createCard(p));
+        });
+        section.appendChild(list);
+        container.appendChild(section);
+      }
+    }
+
+    function createCard(p) {
+      const div = document.createElement('div');
+      div.className = 'pedido-card' + (p.estado === 'Recibido' ? ' recibido' : '');
+      
+      let varianteStr = p.variante !== 'N/A' ? ` <span class="p-badge">${p.variante}</span>` : '';
+      let clienteStr = '';
+      if (p.cliente_nombre || p.cliente_telefono) {
+        clienteStr = `<br><span style="color:var(--teal)">👤 ${p.cliente_nombre || ''} - ${p.cliente_telefono || ''}</span>`;
+      }
+
+      div.innerHTML = `
+        <div class="p-info">
+          <div class="p-main">${p.tipo} ${p.detalle_libre} ${varianteStr}</div>
+          <div class="p-sub">📍 ${p.sucursal} ${clienteStr}</div>
+        </div>
+        <div class="p-actions">
+          ${p.estado !== 'Recibido' ? `<button class="btn-icon btn-ok" title="Marcar Recibido" onclick="marcarRecibido(${p.id})">✓</button>` : ''}
+          <button class="btn-icon btn-del" title="Eliminar" onclick="eliminarPedido(${p.id})">✕</button>
+        </div>
+      `;
+      return div;
+    }
+
+    async function marcarRecibido(id) {
+      const { error } = await db.from('pedidos_stock').update({ estado: 'Recibido' }).eq('id', id);
+      if (error) return toast('Error al actualizar', 'err');
+      toast('Marcado como recibido');
+      loadPedidos();
+    }
+
+    async function eliminarPedido(id) {
+      if (!confirm("¿Seguro que querés eliminar este registro?")) return;
+      const { error } = await db.from('pedidos_stock').delete().eq('id', id);
+      if (error) return toast('Error al eliminar', 'err');
+      toast('Registro eliminado');
+      loadPedidos();
+    }
+
+    function openPanel() {
+      // Preseleccionar la sucursal actual si no es TODO
+      if (currentFilter !== 'TODO') document.getElementById('f_sucursal').value = currentFilter;
+      document.getElementById('f_marca').value = 'IPHONE';
+      document.getElementById('f_tipo').value = 'Funda';
+      document.getElementById('f_variante').value = 'N/A';
+      document.getElementById('f_detalle').value = '';
+      document.getElementById('f_nombre').value = '';
+      document.getElementById('f_telefono').value = '';
+      document.getElementById('formPanel').classList.add('open');
+    }
+    function closePanel() {
+      document.getElementById('formPanel').classList.remove('open');
+    }
+
+    async function savePedido() {
+      const sucursal = document.getElementById('f_sucursal').value;
+      const marca = document.getElementById('f_marca').value;
+      const tipo = document.getElementById('f_tipo').value;
+      const variante = document.getElementById('f_variante').value;
+      const detalle_libre = document.getElementById('f_detalle').value.trim();
+      const cliente_nombre = document.getElementById('f_nombre').value.trim();
+      const cliente_telefono = document.getElementById('f_telefono').value.trim();
+
+      if (!detalle_libre && marca !== 'FALTANTES AMBOS LOCALES') {
+        toast('Completá el detalle', 'warn');
+        return;
+      }
+
+      const btn = document.getElementById('btnSave');
+      btn.disabled = true; btn.textContent = 'Guardando...';
+
+      const obj = { sucursal, marca, tipo, variante, detalle_libre, cliente_nombre, cliente_telefono, estado: 'Pendiente' };
+      const { error } = await db.from('pedidos_stock').insert([obj]);
+
+      btn.disabled = false; btn.textContent = 'Guardar Pedido';
+
+      if (error) {
+        toast('Error al guardar', 'err');
+      } else {
+        toast('Guardado con éxito', 'ok');
+        closePanel();
+        loadPedidos();
+      }
+    }
+
+    // -- GENERACIÓN DE PDF --
+    function generatePrint() {
+      // Agrupar solo pendientes
+      const pendientes = allPedidos.filter(p => p.estado !== 'Recibido');
+      
+      const faltantesGenerales = pendientes.filter(p => p.marca === 'FALTANTES AMBOS LOCALES');
+      const pedidos1912 = pendientes.filter(p => p.sucursal === 'Local 1912' && p.marca !== 'FALTANTES AMBOS LOCALES');
+      const pedidos2984 = pendientes.filter(p => p.sucursal === 'Local 2984' && p.marca !== 'FALTANTES AMBOS LOCALES');
+
+      let html = `<div class="print-header">Actualizada ${new Date().toLocaleDateString('es-AR')} - ${new Date().toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'})}hs</div>`;
+
+      // 1. FALTANTES AMBOS LOCALES
+      if (faltantesGenerales.length > 0) {
+        html += `<div class="print-brand">*FALTANTES AMBOS LOCALES*</div>`;
+        faltantesGenerales.forEach(p => html += renderPrintItem(p));
+      }
+
+      // 2. LOCAL 1912
+      html += `<div class="print-local">LOCAL 1912</div>`;
+      html += renderBrandGroups(pedidos1912);
+
+      // 3. LOCAL 2984
+      html += `<div style="page-break-before: always;"></div>`; // Forzar nueva hoja si es muy largo, o simplemente separar
+      html += `<div class="print-local">LOCAL 2984</div>`;
+      html += renderBrandGroups(pedidos2984);
+
+      const layout = document.getElementById('printLayout');
+      layout.innerHTML = html;
+      window.print();
+    }
+
+    function renderBrandGroups(pedidosLocal) {
+      let html = '';
+      MARCAS_ORDER.forEach(marca => {
+        if (marca === 'FALTANTES AMBOS LOCALES') return;
+        const deMarca = pedidosLocal.filter(p => p.marca === marca);
+        if (deMarca.length > 0) {
+          html += `<div class="print-brand">*${marca}*</div>`;
+          deMarca.forEach(p => html += renderPrintItem(p));
+        }
+      });
+      return html;
+    }
+
+    function renderPrintItem(p) {
+      let variant = p.variante !== 'N/A' ? ` ${p.variante}` : '';
+      let text = `- ${p.tipo} ${p.detalle_libre}${variant}`;
+      if (p.cliente_nombre || p.cliente_telefono) {
+        text += ` (${p.cliente_nombre || ''} ${p.cliente_telefono || ''})`;
+      }
+      return `<div class="print-item">${text}</div>`;
+    }
+
+    checkAuth();
+  </script>
+</body>
+</html>
