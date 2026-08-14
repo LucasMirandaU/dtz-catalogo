@@ -1839,7 +1839,7 @@ async function loadAuditTab() {
   if (!wrap) return;
   wrap.innerHTML = '<div style="color:var(--muted);font-size:.85rem;padding:1rem 0">Cargando...</div>';
   const {data, error} = await db.from('audit_log')
-    .select('*').order('created_at', {ascending: false}).limit(1000);
+    .select('*').order('created_at', {ascending: false}).limit(50);
   document.getElementById('btnExportAudit').disabled = false;
   if (error || !data?.length) {
     wrap.innerHTML = '<div style="color:var(--muted);font-size:.85rem;padding:1rem 0">No hay acciones registradas aún.</div>';
