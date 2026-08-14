@@ -330,7 +330,10 @@
 
     async function marcarRecibido(id) {
       const { error } = await db.from('pedidos_stock').update({ estado: 'Recibido' }).eq('id', id);
-      if (error) return toast('Error al actualizar', 'err');
+      if (error) {
+        console.error("Update error:", error);
+        return toast('Error update: ' + error.message, 'err');
+      }
       toast('Marcado como recibido');
       loadPedidos();
     }
@@ -338,7 +341,10 @@
     async function eliminarPedido(id) {
       if (!confirm("¿Seguro que querés eliminar este registro?")) return;
       const { error } = await db.from('pedidos_stock').delete().eq('id', id);
-      if (error) return toast('Error al eliminar', 'err');
+      if (error) {
+        console.error("Delete error:", error);
+        return toast('Error delete: ' + error.message, 'err');
+      }
       toast('Registro eliminado');
       loadPedidos();
     }
