@@ -282,6 +282,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     </div>
     <nav class="admin-nav" id="adminNav">
       <button class="nav-btn active" data-tab="import" onclick="showTab('import',this)">📊 Importar</button>
+      <button class="nav-btn" onclick="window.location.href='pedidos.html'" style="border:1px solid var(--teal);color:var(--teal)">📋 Lista de Pedidos</button>
+      <button class="nav-btn" onclick="window.location.href='reparaciones.html'" style="border:1px solid var(--teal);color:var(--teal)">📱 Reparaciones</button>
       <button class="nav-btn" data-tab="products" onclick="showTab('products',this)">📦 Productos</button>
       <button class="nav-btn" data-tab="promotions" onclick="showTab('promotions',this)">🏷️ Promociones</button>
       <button class="nav-btn" data-tab="discounts" onclick="showTab('discounts',this)">🎟️ Descuentos</button>
@@ -291,8 +293,6 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
       <button class="nav-btn" data-tab="contact" onclick="showTab('contact',this)">📞 Contacto</button>
       <button class="nav-btn" data-tab="audit" onclick="showTab('audit',this)">📊 Auditoría</button>
       <button class="nav-btn" data-tab="users" onclick="showTab('users',this)">👥 Usuarios</button>
-      <button class="nav-btn" onclick="window.location.href='pedidos.html'" style="border:1px solid var(--teal);color:var(--teal);margin-left:auto">📋 Lista de Pedidos</button>
-      <button class="nav-btn" onclick="window.location.href='reparaciones.html'" style="border:1px solid var(--teal);color:var(--teal);margin-left:0.5rem">📱 Reparaciones</button>
     </nav>
     <div class="admin-right">
       <span class="user-chip" id="userEmail"></span>
