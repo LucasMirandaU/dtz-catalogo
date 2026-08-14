@@ -1,9 +1,10 @@
-const CACHE_NAME = 'dtz-pwa-v2';
+const CACHE_NAME = 'dtz-pwa-v3';
 const urlsToCache = [
   './',
   './index.html',
   './admin.html',
   './reparaciones.html',
+  './pedidos.html',
   './config.js',
   './manifest.json',
   './favicon.png',
