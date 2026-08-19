@@ -321,6 +321,7 @@
           <div class="p-sub">📍 ${p.sucursal} ${clienteStr}</div>
         </div>
         <div class="p-actions">
+          <button class="btn-icon btn-edit" title="Editar" onclick="openPanel(${p.id})">✏️</button>
           ${p.estado !== 'Recibido' ? `<button class="btn-icon btn-ok" title="Marcar Recibido" onclick="marcarRecibido(${p.id})">✓</button>` : ''}
           <button class="btn-icon btn-del" title="Eliminar" onclick="eliminarPedido(${p.id})">✕</button>
         </div>
@@ -349,19 +350,39 @@
       loadPedidos();
     }
 
-    function openPanel() {
-      // Preseleccionar la sucursal actual si no es TODO
-      if (currentFilter !== 'TODO') document.getElementById('f_sucursal').value = currentFilter;
-      document.getElementById('f_marca').value = 'IPHONE';
-      document.getElementById('f_tipo').value = 'Funda';
-      document.getElementById('f_variante').value = 'N/A';
-      document.getElementById('f_detalle').value = '';
-      document.getElementById('f_nombre').value = '';
-      document.getElementById('f_telefono').value = '';
+    let editPedidoId = null;
+
+    function openPanel(id = null) {
+      editPedidoId = id;
+      const titleEl = document.querySelector('.panel-title');
+      if (id) {
+        titleEl.textContent = 'EDITAR PEDIDO';
+        const p = allPedidos.find(x => x.id === id);
+        if (p) {
+          document.getElementById('f_sucursal').value = p.sucursal;
+          document.getElementById('f_marca').value = p.marca;
+          document.getElementById('f_tipo').value = p.tipo;
+          document.getElementById('f_variante').value = p.variante || 'N/A';
+          document.getElementById('f_detalle').value = p.detalle_libre || '';
+          document.getElementById('f_nombre').value = p.cliente_nombre || '';
+          document.getElementById('f_telefono').value = p.cliente_telefono || '';
+        }
+      } else {
+        titleEl.textContent = 'NUEVO PEDIDO';
+        if (currentFilter !== 'TODO') document.getElementById('f_sucursal').value = currentFilter;
+        document.getElementById('f_marca').value = 'IPHONE';
+        document.getElementById('f_tipo').value = 'Funda';
+        document.getElementById('f_variante').value = 'N/A';
+        document.getElementById('f_detalle').value = '';
+        document.getElementById('f_nombre').value = '';
+        document.getElementById('f_telefono').value = '';
+      }
       document.getElementById('formPanel').classList.add('open');
     }
+
     function closePanel() {
       document.getElementById('formPanel').classList.remove('open');
+      editPedidoId = null;
     }
 
     async function savePedido() {
@@ -382,11 +403,20 @@
       btn.disabled = true; btn.textContent = 'Guardando...';
 
       const obj = { sucursal, marca, tipo, variante, detalle_libre, cliente_nombre, cliente_telefono, estado: 'Pendiente' };
-      const { error } = await db.from('pedidos_stock').insert([obj]);
+      
+      let error;
+      if (editPedidoId) {
+        const res = await db.from('pedidos_stock').update(obj).eq('id', editPedidoId);
+        error = res.error;
+      } else {
+        const res = await db.from('pedidos_stock').insert([obj]);
+        error = res.error;
+      }
 
       btn.disabled = false; btn.textContent = 'Guardar Pedido';
 
       if (error) {
+        console.error("Save error:", error);
         toast('Error al guardar', 'err');
       } else {
         toast('Guardado con éxito', 'ok');
