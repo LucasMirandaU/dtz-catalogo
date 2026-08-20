@@ -46,8 +46,11 @@
     .toolbar{display:flex;gap:.5rem;margin-bottom:1rem;position:sticky;top:70px;z-index:90;background:var(--bg);padding-bottom:.5rem}
     .search-input{flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:.75rem;color:var(--text);font-size:.9rem;outline:none}
     .search-input:focus{border-color:var(--teal)}
-    .btn-primary{background:var(--teal);border:none;color:#000;padding:.75rem 1rem;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;white-space:nowrap}
+    .btn-primary{background:var(--teal);border:none;color:#000;padding:.85rem 1.5rem;border-radius:30px;font-size:.9rem;font-weight:600;cursor:pointer;white-space:nowrap}
     .btn-primary:active{opacity:.8}
+
+    .filter-btn{flex:1;background:var(--surface2);border:1px solid var(--border2);color:var(--muted);padding:.75rem 1rem;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;text-align:center}
+    .filter-btn.active{background:var(--teal-glow);color:var(--teal);border-color:var(--teal)}
 
     /* LIST */
     .rep-list{display:flex;flex-direction:column;gap:.75rem;padding-bottom:5rem}
@@ -146,7 +149,12 @@
   <div class="container">
     <div class="toolbar" style="flex-wrap:wrap">
       <input type="text" id="searchInput" class="search-input" placeholder="Buscar cliente o nro orden..." autocomplete="off">
-      <select id="filterEstado" class="search-input" style="max-width: 220px; cursor: pointer;" onchange="renderRepairs()">
+      <div style="display:flex; gap:0.5rem; width:100%; margin-top: 5px;">
+        <button class="filter-btn active" id="btnFilter1912" onclick="setBranchFilter('Local 1912')">1912</button>
+        <button class="filter-btn" id="btnFilter2984" onclick="setBranchFilter('Local 2984')">2984</button>
+        <button class="filter-btn" id="btnFilterTodo" onclick="setBranchFilter('TODO')">Todo</button>
+      </div>
+      <select id="filterEstado" class="search-input" style="max-width: 220px; cursor: pointer; margin-top: 5px;" onchange="renderRepairs()">
         <option value="">Todos los estados</option>
         <option value="Ingresado / En Revisión">Ingresado / En Revisión</option>
         <option value="Presupuestado / Esperando Confirmación">Presupuestado / Esperando Confirmación</option>
@@ -601,12 +609,27 @@
     renderRepairs();
   }
 
+  let currentBranchFilter = 'Local 1912';
+
+  function setBranchFilter(branch) {
+    currentBranchFilter = branch;
+    document.getElementById('btnFilter1912').className = branch === 'Local 1912' ? 'filter-btn active' : 'filter-btn';
+    document.getElementById('btnFilter2984').className = branch === 'Local 2984' ? 'filter-btn active' : 'filter-btn';
+    document.getElementById('btnFilterTodo').className = branch === 'TODO' ? 'filter-btn active' : 'filter-btn';
+    renderRepairs();
+  }
+
   function renderRepairs() {
     const term = document.getElementById('searchInput').value.toLowerCase().trim();
     const stFilter = (document.getElementById('filterEstado').value || '').trim();
     const list = document.getElementById('repList');
     
     let filtered = allRepairs;
+    
+    if (currentBranchFilter !== 'TODO') {
+      filtered = filtered.filter(r => r.sucursal === currentBranchFilter);
+    }
+
     if (term) {
       filtered = filtered.filter(r => 
         (r.cliente||'').toLowerCase().includes(term) || 
@@ -668,6 +691,54 @@
   document.getElementById('searchInput').addEventListener('input', renderRepairs);
 
   // Panel Handlers
+  function saveDraft() {
+    if (document.getElementById('f_id').value) return; // no guardar draft si estamos editando
+    const draft = {};
+    const elements = document.querySelectorAll('#formPanel input:not([type="file"]), #formPanel textarea, #formPanel select');
+    elements.forEach(el => {
+      if (el.id) {
+        if (el.type === 'checkbox') draft[el.id] = el.checked;
+        else draft[el.id] = el.value;
+      }
+    });
+    localStorage.setItem('dtz_reparacion_draft', JSON.stringify(draft));
+  }
+
+  function loadDraft() {
+    try {
+      const draftStr = localStorage.getItem('dtz_reparacion_draft');
+      if (!draftStr) return;
+      const draft = JSON.parse(draftStr);
+      // Ignorar si el borrador está vacío
+      if (Object.keys(draft).length === 0) return;
+      
+      if (!confirm("Tenés un borrador guardado de una reparación sin terminar. ¿Querés recuperarlo?")) {
+        clearDraft();
+        return;
+      }
+      
+      for (const id in draft) {
+        const el = document.getElementById(id);
+        if (el) {
+          if (el.type === 'checkbox') el.checked = draft[id];
+          else el.value = draft[id];
+        }
+      }
+      toast('Borrador recuperado', 'ok');
+    } catch(e) {}
+  }
+
+  function clearDraft() {
+    localStorage.removeItem('dtz_reparacion_draft');
+  }
+
+  // Listener para autoguardado
+  document.getElementById('formPanel').addEventListener('input', () => {
+    if (!document.getElementById('f_id').value) {
+      saveDraft();
+    }
+  });
+
   function openPanel() {
     document.getElementById('formPanel').classList.add('open');
     document.getElementById('f_id').value = '';
@@ -710,6 +781,9 @@
     document.getElementById('paySection').style.display = 'none';
     document.getElementById('btnDeleteRepair').style.display = 'none';
     renderRepairPhotosUI();
+
+    // Intentar recuperar borrador si es nueva reparación (timeout para que se aplique después del render base)
+    setTimeout(loadDraft, 100);
   }
 
   function closePanel() {
@@ -1041,6 +1115,7 @@
 
     if (error) return toast('Error al guardar: ' + error.message,'err');
     
+    clearDraft();
     toast('✔ Orden guardada exitosamente','ok');
     logAudit(id ? 'REPARACION_EDITAR' : 'REPARACION_CREAR', id || 'Nueva', `Cliente: ${cliente} - Estado: ${data.estado} - Presupuesto: $${data.presupuesto}`);
     closePanel();
