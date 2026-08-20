@@ -732,10 +732,18 @@
     localStorage.removeItem('dtz_reparacion_draft');
   }
 
-  // Listener para autoguardado
+  // Listener para autoguardado local y remoto
+  let autoSaveTimeout = null;
   document.getElementById('formPanel').addEventListener('input', () => {
-    if (!document.getElementById('f_id').value) {
-      saveDraft();
+    const id = document.getElementById('f_id').value;
+    if (!id) {
+      saveDraft(); // Nueva reparación: guardar en borrador local
+    } else {
+      // Reparación existente: autoguardar en base de datos después de 2 segundos de inactividad
+      clearTimeout(autoSaveTimeout);
+      autoSaveTimeout = setTimeout(() => {
+        backgroundAutoSave(id);
+      }, 2000);
     }
   });
 
@@ -1046,13 +1054,11 @@
     `).join('');
   }
 
-  // Save
-  async function saveRepair() {
-    const id = document.getElementById('f_id').value;
+  function getRepairFormData() {
     const cliente = document.getElementById('f_cliente').value.trim();
-    if (!cliente) return toast('El cliente es obligatorio','err');
+    if (!cliente) return null;
 
-    const data = {
+    return {
       cliente,
       dni: document.getElementById('f_dni').value.trim() || null,
       telefono: document.getElementById('f_telefono').value.trim() || null,
@@ -1087,6 +1093,27 @@
       historial_pagos: currentPayments,
       fotos: currentRepairPhotos
     };
+  }
+
+  // Save Background (Para autoguardado de ediciones en BD)
+  async function backgroundAutoSave(id) {
+    const data = getRepairFormData();
+    if (!data) return; // Faltan datos críticos como el cliente
+
+    try {
+      await db.from('reparaciones').update(data).eq('id', id);
+      console.log('Autoguardado silencioso completado:', id);
+    } catch(e) {
+      console.error('Error autoguardando', e);
+    }
+  }
+
+  // Save
+  async function saveRepair() {
+    const id = document.getElementById('f_id').value;
+    const data = getRepairFormData();
+    
+    if (!data) return toast('El cliente es obligatorio','err');
 
     if (!id) {
       const sena = Number(document.getElementById('f_sena').value);
