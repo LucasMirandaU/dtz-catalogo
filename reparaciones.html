@@ -349,6 +349,13 @@
         <div id="repairPhotosList" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:0.5rem"></div>
       </div>
 
+      <!-- FIRMA DEL CLIENTE -->
+      <div class="form-group" id="firmaSection" style="display:none; margin-top:1.5rem;background:var(--surface2);padding:1rem;border-radius:8px;border:1px solid var(--border);text-align:center">
+        <label style="margin:0;color:#fff;font-weight:600;display:block;margin-bottom:0.5rem">✍️ Firma Digital del Cliente</label>
+        <img id="f_firma_img" style="max-height:100px; background:#fff; border-radius:4px; padding:4px;" />
+        <div style="font-size:0.75rem;color:var(--muted);margin-top:0.5rem">Firmado desde la App Móvil</div>
+      </div>
+
       <!-- PAYMENTS -->
       <div class="pay-section" id="paySection" style="display:none">
         <div class="pay-header">
@@ -447,6 +454,11 @@
     <div id="p_fotos_container" class="print-fotos" style="display:none">
       <div style="font-weight:bold; font-size:12px; margin-bottom:5px; text-align:left">Fotos del equipo:</div>
       <div id="p_fotos_list" style="display:flex; justify-content:center; gap:10px"></div>
+    </div>
+
+    <div id="p_firma_container" class="print-fotos" style="display:none; margin-top:20px; text-align:center;">
+      <div style="font-weight:bold; font-size:12px; margin-bottom:5px;">Consentimiento Firmado por Cliente:</div>
+      <img id="p_firma_img" style="max-height: 80px; border: 1px solid #ccc;" />
     </div>
 
     <div class="print-totals">
@@ -787,6 +799,7 @@
     currentPayments = [];
     currentRepairPhotos = [];
     document.getElementById('paySection').style.display = 'none';
+    document.getElementById('firmaSection').style.display = 'none';
     document.getElementById('btnDeleteRepair').style.display = 'none';
     renderRepairPhotosUI();
 
@@ -836,6 +849,14 @@
     if (selTar) selTar.value = '';
     document.getElementById('rowSenaInicial').style.display = 'none';
     document.getElementById('f_estado').value = r.estado || 'Ingresado / En Revisión';
+    
+    if (r.firma_cliente) {
+      document.getElementById('firmaSection').style.display = 'block';
+      document.getElementById('f_firma_img').src = r.firma_cliente;
+    } else {
+      document.getElementById('firmaSection').style.display = 'none';
+      document.getElementById('f_firma_img').src = '';
+    }
     
     currentPayments = r.historial_pagos || [];
     currentRepairPhotos = r.fotos || [];
@@ -1223,6 +1244,18 @@
     } else {
       fotContainer.style.display = 'none';
       fotList.innerHTML = '';
+    }
+    
+    // Firma en PDF
+    const firmaUrl = document.getElementById('f_firma_img').src;
+    const pFirmaContainer = document.getElementById('p_firma_container');
+    const pFirmaImg = document.getElementById('p_firma_img');
+    if (firmaUrl && firmaUrl.includes('http')) {
+      pFirmaContainer.style.display = 'block';
+      pFirmaImg.src = firmaUrl;
+    } else {
+      pFirmaContainer.style.display = 'none';
+      pFirmaImg.src = '';
     }
     
     window.print();
