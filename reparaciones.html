@@ -1130,11 +1130,12 @@
     if (btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }
 
     let error;
+    let res;
     if (id) {
-      const res = await db.from('reparaciones').update(data).eq('id', id);
+      res = await db.from('reparaciones').update(data).eq('id', id).select();
       error = res.error;
     } else {
-      const res = await db.from('reparaciones').insert([data]).select();
+      res = await db.from('reparaciones').insert([data]).select();
       error = res.error;
     }
 
@@ -1144,7 +1145,10 @@
     
     clearDraft();
     toast('✔ Orden guardada exitosamente','ok');
-    logAudit(id ? 'REPARACION_EDITAR' : 'REPARACION_CREAR', id || 'Nueva', `Cliente: ${cliente} - Estado: ${data.estado} - Presupuesto: $${data.presupuesto}`);
+    
+    const insertedId = id || (res.data && res.data[0] ? res.data[0].id : 'Nueva');
+    logAudit(id ? 'REPARACION_EDITAR' : 'REPARACION_CREAR', insertedId, `Cliente: ${data.cliente} - Estado: ${data.estado} - Presupuesto: $${data.presupuesto}`);
+    
     closePanel();
     loadRepairs();
   }
