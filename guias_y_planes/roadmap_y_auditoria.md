@@ -90,12 +90,12 @@ A continuaci贸n, el registro de las funcionalidades planificadas y su estado de 
 
 *Fin del documento de auditor铆a.*
 
-### ?? App M髒il DTZ y PWA
-- [x] Adaptaci髇 multiplataforma de DTZMobile para compilar en Web (PWA) nativa y funcionar en Safari (iOS).
+### 馃摫 App M贸vil DTZ y PWA
+- [x] Adaptaci贸n multiplataforma de DTZMobile para compilar en Web (PWA) nativa y funcionar en Safari (iOS).
 - [x] Componentes de Firma Digital condicionales (DOM Canvas para Web, WebView Canvas para Android).
-- [x] Componentes de visor de im醙enes adaptados a Web nativo.
-- [x] Recepci髇, guardado (Base64) y renderizado de la Firma Digital de conformidad del cliente en los remitos PDF web (eparaciones.html).
-- [x] Correcci髇 de concurrencia al guardar M鷏tiples 觬denes en la web de Taller.
-- [x] Deploy continuo autom醫ico de PWA en subdominio/subcarpeta v韆 GitHub Pages.
-- [ ] Deploy de instalador nativo Android (.apk) v韆 EAS Build (Pendiente).
+- [x] Componentes de visor de im谩genes adaptados a Web nativo.
+- [x] Recepci贸n, guardado (Base64) y renderizado de la Firma Digital de conformidad del cliente en los remitos PDF web (eparaciones.html).
+- [x] Correcci贸n de concurrencia al guardar M煤ltiples 脫rdenes en la web de Taller.
+- [x] Deploy continuo autom谩tico de PWA en subdominio/subcarpeta v铆a GitHub Pages.
+- [ ] Deploy de instalador nativo Android (.apk) v铆a EAS Build (Pendiente).
 
