@@ -206,7 +206,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 @media(max-width:800px){.users-grid{grid-template-columns:1fr}}
 .users-card{background:var(--surface2);border-radius:12px;padding:1.5rem;border:1px solid var(--border2)}
 .users-card h3{font-family:'Rajdhani',sans-serif;font-size:1.1rem;color:var(--teal);margin-bottom:1.25rem;letter-spacing:1px}
-.users-table{width:100%;border-collapse:collapse}
+.users-table{width:100%;border-collapse:collapse;display:block;overflow-x:auto;white-space:nowrap}
 .users-table th{background:var(--surface);padding:.55rem .85rem;text-align:left;font-size:.72rem;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;font-weight:500}
 .users-table td{padding:.65rem .85rem;border-bottom:1px solid var(--border2);font-size:.83rem;vertical-align:middle}
 .users-table tr:last-child td{border-bottom:none}
@@ -228,7 +228,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 @media(max-width:800px){.promo-grid{grid-template-columns:1fr}}
 .promo-card{background:var(--surface2);border-radius:12px;padding:1.5rem;border:1px solid var(--border2)}
 .promo-card h3{font-family:'Rajdhani',sans-serif;font-size:1.1rem;color:var(--teal);margin-bottom:1.25rem;letter-spacing:1px}
-.promo-table{width:100%;border-collapse:collapse}
+.promo-table{width:100%;border-collapse:collapse;display:block;overflow-x:auto;white-space:nowrap}
 .promo-table th{background:var(--surface);padding:.55rem .85rem;text-align:left;font-size:.72rem;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;font-weight:500}
 .promo-table td{padding:.65rem .85rem;border-bottom:1px solid var(--border2);font-size:.83rem;vertical-align:middle}
 .promo-table tr:last-child td{border-bottom:none}
@@ -296,7 +296,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
     </nav>
     <div class="admin-right">
       <span class="user-chip" id="userEmail"></span>
-      <span style="font-size: 0.7rem; color: var(--muted); margin-left: 0.5rem; margin-right: 0.5rem;" title="Versión actual">v1.3.0</span>
+      <span style="font-size: 0.7rem; color: var(--muted); margin-left: 0.5rem; margin-right: 0.5rem;" title="Versión actual">v1.4.0</span>
       <button class="btn-logout" onclick="doLogout()">Salir</button>
     </div>
   </header>

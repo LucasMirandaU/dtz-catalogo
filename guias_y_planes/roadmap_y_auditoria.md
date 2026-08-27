@@ -89,3 +89,13 @@ A continuaciÃ³n, el registro de las funcionalidades planificadas y su estado de 
 ---
 
 *Fin del documento de auditorÃ­a.*
+
+### ?? App Móvil DTZ y PWA
+- [x] Adaptación multiplataforma de DTZMobile para compilar en Web (PWA) nativa y funcionar en Safari (iOS).
+- [x] Componentes de Firma Digital condicionales (DOM Canvas para Web, WebView Canvas para Android).
+- [x] Componentes de visor de imágenes adaptados a Web nativo.
+- [x] Recepción, guardado (Base64) y renderizado de la Firma Digital de conformidad del cliente en los remitos PDF web (eparaciones.html).
+- [x] Corrección de concurrencia al guardar Múltiples Órdenes en la web de Taller.
+- [x] Deploy continuo automático de PWA en subdominio/subcarpeta vía GitHub Pages.
+- [ ] Deploy de instalador nativo Android (.apk) vía EAS Build (Pendiente).
+
