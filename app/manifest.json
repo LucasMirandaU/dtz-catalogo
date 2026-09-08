@@ -1,0 +1,21 @@
+{
+  "short_name": "DTZ Taller",
+  "name": "DTZ Servicio Técnico Móvil",
+  "icons": [
+    {
+      "src": "/app/icon.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/app/icon.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/app/",
+  "background_color": "#0D1117",
+  "display": "standalone",
+  "scope": "/app/",
+  "theme_color": "#00AEEF"
+}
