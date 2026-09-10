@@ -66,3 +66,18 @@ El carrito de compras implementa una regla de **no acumulabilidad automática**:
 2. **Impresión de Remito PDF (`reparaciones.html`):** Se unificó la llamada de impresión al método `printPDF()`, corrigiendo las referencias al DOM para el número de orden (`p_orden`) y añadiendo de forma destacada el membrete con la **Sucursal de Ingreso** (`Local 2984` o `Local 1912`).
 3. **Filtros en Taller:** Se implementó un menú de filtrado por estado (`#filterEstado`) combinable con búsqueda por texto libre.
 4. **Inspección de Biometría:** Se añadió la opción `"No tiene"` para dispositivos sin sensor biométrico.
+
+## 📱 Arquitectura DTZ Mobile (PWA & Android)
+La aplicación para los técnicos se desarrolló utilizando **React Native** con el enrutador **Expo Router**.
+
+*   **Compilación PWA (iOS/Safari):** La aplicación se exporta estáticamente (\
+px expo export -p web\) y se aloja en el subdirectorio \/app/\ de GitHub Pages. Se inyectan etiquetas meta específicas de Apple y un \manifest.json\ para lograr la experiencia de pantalla completa sin barra de navegación.
+*   **Firma Digital Híbrida:** Dado que las librerías nativas de lienzo fallan en la web y viceversa, se implementó una carga condicional en el componente \SignatureBox\: \.native.tsx\ usa un WebView para Android, y \.web.tsx\ usa el DOM Canvas, devolviendo ambas plataformas un string en Base64.
+
+## 🔐 Auditoría de Seguridad RLS
+Para evitar ataques de escalada de privilegios y fuga de datos mediante ingeniería inversa de la API (exposición de \non_key\), se bloqueó la creación automática de cuentas y se endurecieron las políticas:
+*   **Supabase Triggers:** Se eliminó el trigger automático que asignaba perfiles predeterminados a nuevos sign-ups.
+*   **Políticas de Reparaciones y Pedidos:** El acceso \SELECT\ y \UPDATE\ ahora valida estrictamente que \(SELECT role FROM profiles WHERE id = auth.uid()) IN ('staff', 'admin')\.
+
+## 💾 Automatización de Backups
+Se provee un script \ackup_dtz.js\ en Node.js que utiliza la \service_role_key\ para bypasear las reglas RLS de Supabase. El script itera sobre las tablas críticas mediante la API REST de Supabase (\/rest/v1/\), generando archivos JSON locales organizados por fecha que se sincronizan con Google Drive, asegurando continuidad de negocio ante cualquier catástrofe en la nube.
