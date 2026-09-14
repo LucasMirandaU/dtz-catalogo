@@ -250,13 +250,26 @@
 
       let filtered = allPedidos;
       if (currentFilter !== 'TODO') {
-        // En los faltantes generales, se muestran para ambos locales.
         filtered = allPedidos.filter(p => p.sucursal === currentFilter || p.marca === 'FALTANTES AMBOS LOCALES');
       }
 
-      // Separar pendientes de recibidos
-      const pendientes = filtered.filter(p => p.estado !== 'Recibido');
+      const fifteenDaysAgo = new Date();
+      fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
+
       const recibidos = filtered.filter(p => p.estado === 'Recibido');
+      const noRecibidos = filtered.filter(p => p.estado !== 'Recibido');
+      
+      const pendientes = [];
+      const viejos = [];
+
+      noRecibidos.forEach(p => {
+        const pDate = new Date(p.created_at);
+        if (pDate < fifteenDaysAgo && p.marca !== 'FALTANTES AMBOS LOCALES') {
+           viejos.push(p);
+        } else {
+           pendientes.push(p);
+        }
+      });
 
       if (filtered.length === 0) {
         container.innerHTML = '<div style="text-align:center;color:var(--muted);margin-top:2rem">Sin pedidos para este filtro.</div>';
@@ -289,12 +302,27 @@
         }
       });
 
+      // Render Viejos
+      if (viejos.length > 0) {
+        const section = document.createElement('div');
+        section.className = 'brand-section';
+        section.style.marginTop = '2rem';
+        section.innerHTML = `<div class="brand-title" style="color:#f39c12">⏳ PEDIDOS VIEJOS (más de 15 días)</div>`;
+        const list = document.createElement('div');
+        list.className = 'list-group';
+        viejos.forEach(p => {
+          list.appendChild(createCard(p, true));
+        });
+        section.appendChild(list);
+        container.appendChild(section);
+      }
+
       // Render Recibidos (Abajo de todo)
       if (recibidos.length > 0) {
         const section = document.createElement('div');
         section.className = 'brand-section';
         section.style.marginTop = '2rem';
-        section.innerHTML = `<div class="brand-title" style="color:var(--ok)">✓ RECIBIDOS (Historial)</div>`;
+        section.innerHTML = `<div class="brand-title" style="color:var(--ok)">✔️ RECIBIDOS (Historial)</div>`;
         const list = document.createElement('div');
         list.className = 'list-group';
         recibidos.forEach(p => {
@@ -305,25 +333,27 @@
       }
     }
 
-    function createCard(p) {
+    function createCard(p, isViejo = false) {
       const div = document.createElement('div');
-      div.className = 'pedido-card' + (p.estado === 'Recibido' ? ' recibido' : '');
+      div.className = 'pedido-card' + (p.estado === 'Recibido' || isViejo ? ' recibido' : '');
       
       let varianteStr = p.variante !== 'N/A' ? ` <span class="p-badge">${p.variante}</span>` : '';
       let clienteStr = '';
       if (p.cliente_nombre || p.cliente_telefono) {
         clienteStr = `<br><span style="color:var(--teal)">👤 ${p.cliente_nombre || ''} - ${p.cliente_telefono || ''}</span>`;
       }
+      
+      const dateStr = new Date(p.created_at).toLocaleDateString('es-AR', {day:'2-digit', month:'2-digit'});
 
       div.innerHTML = `
         <div class="p-info">
           <div class="p-main">${p.tipo} ${p.detalle_libre} ${varianteStr}</div>
-          <div class="p-sub">📍 ${p.sucursal} ${clienteStr}</div>
+          <div class="p-sub">📍 ${p.sucursal} | 📅 ${dateStr} ${clienteStr}</div>
         </div>
         <div class="p-actions">
           <button class="btn-icon btn-edit" title="Editar" onclick="openPanel(${p.id})">✏️</button>
-          ${p.estado !== 'Recibido' ? `<button class="btn-icon btn-ok" title="Marcar Recibido" onclick="marcarRecibido(${p.id})">✓</button>` : ''}
-          <button class="btn-icon btn-del" title="Eliminar" onclick="eliminarPedido(${p.id})">✕</button>
+          ${p.estado !== 'Recibido' ? `<button class="btn-icon btn-ok" title="Marcar Recibido" onclick="marcarRecibido(${p.id})">✔️</button>` : ''}
+          <button class="btn-icon btn-del" title="Eliminar" onclick="eliminarPedido(${p.id})">🗑️</button>
         </div>
       `;
       return div;
