@@ -538,7 +538,7 @@
       if (p.cliente_nombre || p.cliente_telefono) {
         text += ` (${p.cliente_nombre || ''} ${p.cliente_telefono || ''})`;
       }
-      const colorStyle = isViejo ? 'color:#666; font-style:italic; text-decoration:line-through;' : '';
+      const colorStyle = isViejo ? 'color:#666; font-style:italic;' : '';
       return `<div class="print-item" style="${colorStyle}">${text}</div>`;
     }
 
