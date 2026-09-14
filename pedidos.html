@@ -457,12 +457,26 @@
 
     // -- GENERACIÓN DE PDF --
     function generatePrint() {
-      // Agrupar solo pendientes
-      const pendientes = allPedidos.filter(p => p.estado !== 'Recibido');
+      const fifteenDaysAgo = new Date();
+      fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
+
+      const todosPendientes = allPedidos.filter(p => p.estado !== 'Recibido');
       
-      const faltantesGenerales = pendientes.filter(p => p.marca === 'FALTANTES AMBOS LOCALES');
-      const pedidos1912 = pendientes.filter(p => p.sucursal === 'Local 1912' && p.marca !== 'FALTANTES AMBOS LOCALES');
-      const pedidos2984 = pendientes.filter(p => p.sucursal === 'Local 2984' && p.marca !== 'FALTANTES AMBOS LOCALES');
+      const pendientesActivos = [];
+      const viejos = [];
+
+      todosPendientes.forEach(p => {
+        const pDate = new Date(p.created_at);
+        if (pDate < fifteenDaysAgo && p.marca !== 'FALTANTES AMBOS LOCALES') {
+           viejos.push(p);
+        } else {
+           pendientesActivos.push(p);
+        }
+      });
+      
+      const faltantesGenerales = pendientesActivos.filter(p => p.marca === 'FALTANTES AMBOS LOCALES');
+      const pedidos1912 = pendientesActivos.filter(p => p.sucursal === 'Local 1912' && p.marca !== 'FALTANTES AMBOS LOCALES');
+      const pedidos2984 = pendientesActivos.filter(p => p.sucursal === 'Local 2984' && p.marca !== 'FALTANTES AMBOS LOCALES');
 
       let html = `<div class="print-header">Actualizada ${new Date().toLocaleDateString('es-AR')} - ${new Date().toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'})}hs</div>`;
 
@@ -477,9 +491,27 @@
       html += renderBrandGroups(pedidos1912);
 
       // 3. LOCAL 2984
-      html += `<div style="page-break-before: always;"></div>`; // Forzar nueva hoja si es muy largo, o simplemente separar
+      html += `<div style="page-break-before: always;"></div>`;
       html += `<div class="print-local">LOCAL 2984</div>`;
       html += renderBrandGroups(pedidos2984);
+
+      // 4. VIEJOS
+      if (viejos.length > 0) {
+        html += `<div style="page-break-before: always;"></div>`;
+        html += `<div class="print-local" style="color:#666">⏳ PEDIDOS VIEJOS (+15 DÍAS)</div>`;
+        
+        const viejos1912 = viejos.filter(p => p.sucursal === 'Local 1912');
+        const viejos2984 = viejos.filter(p => p.sucursal === 'Local 2984');
+
+        if (viejos1912.length > 0) {
+           html += `<div class="print-brand" style="color:#666">LOCAL 1912</div>`;
+           viejos1912.forEach(p => html += renderPrintItem(p, true));
+        }
+        if (viejos2984.length > 0) {
+           html += `<div class="print-brand" style="color:#666">LOCAL 2984</div>`;
+           viejos2984.forEach(p => html += renderPrintItem(p, true));
+        }
+      }
 
       const layout = document.getElementById('printLayout');
       layout.innerHTML = html;
@@ -499,13 +531,15 @@
       return html;
     }
 
-    function renderPrintItem(p) {
+    function renderPrintItem(p, isViejo = false) {
       let variant = p.variante !== 'N/A' ? ` ${p.variante}` : '';
-      let text = `- ${p.tipo} ${p.detalle_libre}${variant}`;
+      const dateStr = new Date(p.created_at).toLocaleDateString('es-AR', {day:'2-digit', month:'2-digit'});
+      let text = `- [${dateStr}] ${p.tipo} ${p.detalle_libre}${variant}`;
       if (p.cliente_nombre || p.cliente_telefono) {
         text += ` (${p.cliente_nombre || ''} ${p.cliente_telefono || ''})`;
       }
-      return `<div class="print-item">${text}</div>`;
+      const colorStyle = isViejo ? 'color:#666; font-style:italic; text-decoration:line-through;' : '';
+      return `<div class="print-item" style="${colorStyle}">${text}</div>`;
     }
 
     checkAuth();
