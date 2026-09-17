@@ -35,23 +35,37 @@ El proyecto está diseñado bajo un enfoque **Serverless + Backend-First** para 
 *   **Registro de Auditoría (Audit Log):** Trazabilidad inmutable implementada desde el backend para monitorear todas las acciones de los empleados.
 *   **Integración ImgBB API:** Sistema propio de carga, compresión inteligente local (WebP/JPEG dinámico) y alojamiento de imágenes ilimitado evadiendo cuotas de almacenamiento on-premise.
 
+## 📸 Galería del Sistema (Demo)
+
+Para proteger la privacidad de los clientes de DTZ, adjunto capturas de pantalla del sistema interno utilizando datos de prueba:
+
+<div align="center">
+  <img src="demo/admin_demo.PNG" width="48%" alt="Panel de Administración" />
+  <img src="demo/pedidos_demo.PNG" width="48%" alt="Gestión de Pedidos" />
+</div>
+<br>
+<div align="center">
+  <img src="demo/reparaciones_demo1.PNG" width="48%" alt="Módulo de Reparaciones" />
+  <img src="demo/reparaciones_demo3.PNG" width="48%" alt="Checklist y Firma Digital" />
+</div>
+
 ## 📂 Estructura del Repositorio
 
-A los reclutadores y desarrolladores: Los invito a revisar la carpeta `/guias_y_planes`, donde documento mi proceso de ingeniería de software, arquitectura de base de datos y auditorías de ciberseguridad.
+A los reclutadores y desarrolladores: Los invito a revisar la carpeta `/docs`, donde documento mi proceso de ingeniería de software, arquitectura de base de datos y auditorías de ciberseguridad.
 
 ```text
 ├── admin.html               # SPA del Panel de Administración ERP
 ├── index.html               # SPA Pública (Catálogo E-Commerce)
 ├── /app/                    # App Móvil PWA (Exportación estática de Expo Web)
 ├── /DTZMobile/              # Código fuente React Native de la App Móvil
-├── /scripts_sql/            # DDL, Funciones, Triggers y Políticas RLS de Supabase
-├── /guias_y_planes/         # 🧠 Documentación de diseño arquitectónico y Roadmap
+├── /db/                     # DDL, Funciones, Triggers y Políticas RLS de Supabase
+├── /docs/                   # 🧠 Documentación de diseño arquitectónico y Roadmap
 └── backup_dtz.js            # Script Node.js REST API para automatización de respaldos
 ```
 
 ## 🔒 Nota sobre Ciberseguridad
 El sistema aprobó una exhaustiva auditoría de seguridad. Dado que el Frontend expone la `anon_key` (estándar en arquitecturas BaaS), **la base de datos se encuentra blindada a nivel SQL**. 
-Las reglas de RLS impiden la creación arbitraria de usuarios, el acceso a datos sensibles (teléfonos/pines de clientes) y evitan ataques de escalada de privilegios, validando en cada transacción de PostgreSQL el token JWT y la jerarquía del perfil. Todo el código de seguridad se puede verificar en `scripts_sql/16_auditoria_seguridad.sql`.
+Las reglas de RLS impiden la creación arbitraria de usuarios, el acceso a datos sensibles (teléfonos/pines de clientes) y evitan ataques de escalada de privilegios, validando en cada transacción de PostgreSQL el token JWT y la jerarquía del perfil. Todo el código de seguridad se puede verificar en `db/16_auditoria_seguridad.sql`.
 
 ---
 *Diseñado, desarrollado y documentado integralmente por [Lucas Miranda U](https://github.com/LucasMirandaU) en colaboración con DTZ Servicio Técnico.*
