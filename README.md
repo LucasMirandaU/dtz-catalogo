@@ -1,4 +1,4 @@
-﻿# 📱 DTZ Servicio Técnico — E-Commerce, ERP & PWA Móvil
+# 📱 DTZ Servicio Técnico — E-Commerce, ERP & PWA Móvil
 
 ¡Bienvenido al repositorio oficial del ecosistema informático de **DTZ Servicio Técnico**!  
 🌐 **Sitio en vivo:** [www.dtzserviciotecnico.com.ar](https://www.dtzserviciotecnico.com.ar)
@@ -47,6 +47,11 @@ Para proteger la privacidad de los clientes de DTZ, adjunto capturas de pantalla
 <div align="center">
   <img src="demo/reparaciones_demo1.PNG" width="48%" alt="Módulo de Reparaciones" />
   <img src="demo/reparaciones_demo3.PNG" width="48%" alt="Checklist de Hardware y Estados" />
+</div>
+<br>
+<div align="center">
+  <img src="demo/tarifario_demo.PNG" width="48%" alt="Tarifario y Costos" />
+  <img src="demo/reparaciones_demo2.PNG" width="48%" alt="Detalles de Reparación" />
 </div>
 
 ## 📂 Estructura del Repositorio
