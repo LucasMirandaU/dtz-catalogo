@@ -21,6 +21,3 @@ ignorar_git/
 
 backup_dtz.js
 
-# Obsidian Configs
-.obsidian/workspace.json
-.obsidian/workspace-mobile.json
