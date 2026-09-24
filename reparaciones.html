@@ -358,9 +358,16 @@
 
       <!-- FIRMA DEL CLIENTE -->
       <div class="form-group" id="firmaSection" style="display:none; margin-top:1.5rem;background:var(--surface2);padding:1rem;border-radius:8px;border:1px solid var(--border);text-align:center">
-        <label style="margin:0;color:#fff;font-weight:600;display:block;margin-bottom:0.5rem">✍️ Firma Digital del Cliente</label>
+        <label style="margin:0;color:#fff;font-weight:600;display:block;margin-bottom:0.5rem">✍️ Firma Digital (Ingreso)</label>
         <img id="f_firma_img" style="max-height:100px; background:#fff; border-radius:4px; padding:4px;" />
-        <div style="font-size:0.75rem;color:var(--muted);margin-top:0.5rem">Firmado desde la App Móvil</div>
+        <div style="font-size:0.75rem;color:var(--muted);margin-top:0.5rem">Firmado al ingresar el equipo</div>
+      </div>
+      
+      <!-- FIRMA DE RETIRO -->
+      <div class="form-group" id="firmaRetiroSection" style="display:none; margin-top:1rem;background:var(--surface2);padding:1rem;border-radius:8px;border:1px solid var(--border);text-align:center">
+        <label style="margin:0;color:#fff;font-weight:600;display:block;margin-bottom:0.5rem">✅ Firma Digital (Retiro)</label>
+        <img id="f_firma_retiro_img" style="max-height:100px; background:#fff; border-radius:4px; padding:4px;" />
+        <div style="font-size:0.75rem;color:var(--muted);margin-top:0.5rem">Firmado al retirar el equipo</div>
       </div>
 
       <!-- PAYMENTS -->
@@ -463,9 +470,15 @@
       <div id="p_fotos_list" style="display:flex; justify-content:center; gap:10px"></div>
     </div>
 
-    <div id="p_firma_container" class="print-fotos" style="display:none; margin-top:20px; text-align:center;">
-      <div style="font-weight:bold; font-size:12px; margin-bottom:5px;">Consentimiento Firmado por Cliente:</div>
-      <img id="p_firma_img" style="max-height: 80px; border: 1px solid #ccc;" />
+    <div id="p_firmas_wrapper" style="display:flex; justify-content:space-around; margin-top:20px;">
+      <div id="p_firma_container" class="print-fotos" style="display:none; text-align:center;">
+        <div style="font-weight:bold; font-size:12px; margin-bottom:5px;">Firma de Ingreso:</div>
+        <img id="p_firma_img" style="max-height: 80px; border: 1px solid #ccc;" />
+      </div>
+      <div id="p_firma_retiro_container" class="print-fotos" style="display:none; text-align:center;">
+        <div style="font-weight:bold; font-size:12px; margin-bottom:5px;">Firma de Retiro:</div>
+        <img id="p_firma_retiro_img" style="max-height: 80px; border: 1px solid #ccc;" />
+      </div>
     </div>
 
     <div class="print-totals">
@@ -826,6 +839,7 @@
     currentRepairPhotos = [];
     document.getElementById('paySection').style.display = 'none';
     document.getElementById('firmaSection').style.display = 'none';
+    document.getElementById('firmaRetiroSection').style.display = 'none';
     document.getElementById('btnDeleteRepair').style.display = 'none';
     renderRepairPhotosUI();
 
@@ -882,6 +896,14 @@
     } else {
       document.getElementById('firmaSection').style.display = 'none';
       document.getElementById('f_firma_img').src = '';
+    }
+
+    if (r.firma_retiro) {
+      document.getElementById('firmaRetiroSection').style.display = 'block';
+      document.getElementById('f_firma_retiro_img').src = r.firma_retiro;
+    } else {
+      document.getElementById('firmaRetiroSection').style.display = 'none';
+      document.getElementById('f_firma_retiro_img').src = '';
     }
     
     currentPayments = r.historial_pagos || [];
@@ -1272,7 +1294,7 @@
       fotList.innerHTML = '';
     }
     
-    // Firma en PDF
+    // Firmas en PDF
     const firmaUrl = document.getElementById('f_firma_img').src;
     const pFirmaContainer = document.getElementById('p_firma_container');
     const pFirmaImg = document.getElementById('p_firma_img');
@@ -1282,6 +1304,17 @@
     } else {
       pFirmaContainer.style.display = 'none';
       pFirmaImg.src = '';
+    }
+
+    const firmaRetiroUrl = document.getElementById('f_firma_retiro_img').src;
+    const pFirmaRetiroContainer = document.getElementById('p_firma_retiro_container');
+    const pFirmaRetiroImg = document.getElementById('p_firma_retiro_img');
+    if (firmaRetiroUrl && firmaRetiroUrl.includes('http')) {
+      pFirmaRetiroContainer.style.display = 'block';
+      pFirmaRetiroImg.src = firmaRetiroUrl;
+    } else {
+      pFirmaRetiroContainer.style.display = 'none';
+      pFirmaRetiroImg.src = '';
     }
     
     window.print();
