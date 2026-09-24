@@ -653,6 +653,9 @@
       filtered = filtered.filter(r => 
         (r.cliente||'').toLowerCase().includes(term) || 
         (r.nro_orden||'').toLowerCase().includes(term) ||
+        (r.equipo||'').toLowerCase().includes(term) ||
+        (r.fallas||'').toLowerCase().includes(term) ||
+        (r.observaciones||'').toLowerCase().includes(term) ||
         String(r.id).includes(term)
       );
     }
