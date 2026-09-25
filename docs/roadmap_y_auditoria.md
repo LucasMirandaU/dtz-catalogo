@@ -1,4 +1,4 @@
-# Historial de Desarrollo y Auditoría — WebDTZ
+﻿# Historial de Desarrollo y Auditoría — WebDTZ
 
 Este documento detalla la evolución arquitectónica del proyecto, el plan de funcionalidades implementado y la auditoría de seguridad realizada antes del pase a producción.
 
@@ -83,6 +83,15 @@ A continuación, el registro de las funcionalidades planificadas y su estado de 
 - [x] **📋 Biometría "No tiene":** Nueva opción en inspección de hardware para teléfonos sin lector biométrico.
 
 ### v1.3.2 - Hotfix: Estabilidad Multimedia ImgBB (Agosto 2026)
+- [x] **Compresión JPEG por defecto (Web):** Reemplazo de WebP por JPEG en el motor de canvas para evitar falsos positivos y borrados automáticos del bot anti-spam de ImgBB.
+- [x] **Detección MIME Dinámica (App Móvil):** La app React Native detecta dinámicamente si la cámara entregó JPG, PNG, HEIC o WebP.
+
+### v1.4.0 - Doble Firma Digital y Optimización Móvil (Septiembre 2026)
+- [x] **Firma de Retiro:** Nueva funcionalidad que exige firma digital de conformidad al momento de entregar el equipo, mitigando reclamos posteriores. Modificación del schema de base de datos para agregar `firma_retiro`.
+- [x] **Rediseño Remito PDF:** Reconstrucción integral de la plantilla de impresión CSS para ser más limpia (blanco y negro). Integración del marco para incluir la Firma de Ingreso y Firma de Retiro en una sola hoja.
+- [x] **Galería Fotográfica Impresa:** Anexo de las 3 fotografías de estado inicial del equipo directamente en la plantilla del comprobante, otorgando máxima transparencia técnica.
+- [x] **Barra de Búsqueda Avanzada (Pedidos):** Implementación de filtro predictivo en tiempo real para rastrear ingresos por cliente, marca o falla.
+- [x] **Fix PWA Print Workflow:** Implementación de ventana virtual emergente para forzar el diálogo de impresión con renderizado de template en entornos Progressive Web App donde el módulo nativo fallaba.
 - [x] **Compresión JPEG por defecto (Web):** Reemplazo de WebP por JPEG en el motor de canvas (`reparaciones.html`, `admin.html`) para evitar falsos positivos y borrados automáticos del bot anti-spam de ImgBB, y para eliminar la alta latencia de su CDN.
 - [x] **Detección MIME Dinámica (App Móvil):** La app React Native ahora detecta dinámicamente si la cámara entregó un JPG, PNG, HEIC o WebP, conservando la extensión nativa para sincronizar firmas de archivo y evitar bloqueos en ImgBB.
 
@@ -94,7 +103,8 @@ A continuación, el registro de las funcionalidades planificadas y su estado de 
 - [x] Adaptación multiplataforma de DTZMobile para compilar en Web (PWA) nativa y funcionar en Safari (iOS).
 - [x] Componentes de Firma Digital condicionales (DOM Canvas para Web, WebView Canvas para Android).
 - [x] Componentes de visor de imágenes adaptados a Web nativo.
-- [x] Recepción, guardado (Base64) y renderizado de la Firma Digital de conformidad del cliente en los remitos PDF web (eparaciones.html).
+- [x] Recepción, guardado (Base64) y renderizado de la Firma Digital de conformidad del cliente en los remitos PDF web (
+eparaciones.html).
 - [x] Corrección de concurrencia al guardar Múltiples Órdenes en la web de Taller.
 - [x] Deploy continuo automático de PWA en subdominio/subcarpeta vía GitHub Pages.
 - [ ] Deploy de instalador nativo Android (.apk) vía EAS Build (Pendiente).

@@ -1,4 +1,4 @@
-# 🛠️ Documentación Técnica - Catálogo DTZ
+﻿# 🛠️ Documentación Técnica - Catálogo DTZ
 
 Esta documentación es exclusiva para el desarrollador del proyecto.
 
@@ -61,7 +61,7 @@ El carrito de compras implementa una regla de **no acumulabilidad automática**:
 * Aplica exclusivamente el descuento que represente un mayor ahorro económico para el cliente ("Solución Nivel Dios UX").
 * Las validaciones de cupones se ejecutan a través del RPC `validar_cupon` en Supabase, preservando la privacidad del listado completo de códigos.
 
-## Actualización v1.3.1 (Correcciones y Mejoras de Taller)
+## Actualización v1.4.0 (Correcciones y Mejoras de Taller)
 1. **Seguridad y Navegación en Admin:** Se corrigió el arreglo de permisos `ROLE_TABS` en `admin.html` para autorizar a roles `admin` y `superadmin` al uso persistente de las pestañas **🎟️ Descuentos** y **🛠️ Tarifario**.
 2. **Impresión de Remito PDF (`reparaciones.html`):** Se unificó la llamada de impresión al método `printPDF()`, corrigiendo las referencias al DOM para el número de orden (`p_orden`) y añadiendo de forma destacada el membrete con la **Sucursal de Ingreso** (`Local 2984` o `Local 1912`).
 3. **Filtros en Taller:** Se implementó un menú de filtrado por estado (`#filterEstado`) combinable con búsqueda por texto libre.
