@@ -25,7 +25,7 @@ if (!supabaseKey) {
 // CONFIGURACIÓN DEL GRUPO DE WHATSAPP
 // =========================================================================
 // Poné ACÁ el nombre exacto del grupo de WhatsApp donde están los técnicos.
-const NOMBRE_GRUPO = "Técnicos DTZ";
+const NOMBRE_GRUPO = "SÓLO REPARACIONES Y PRESUPUESTOS!";
 
 console.log('⏳ Iniciando cliente de WhatsApp...');
 const client = new Client({
@@ -59,6 +59,8 @@ client.on('qr', (qr) => {
 
 client.on('ready', async () => {
     console.log('✅ ¡WhatsApp conectado exitosamente!');
+    console.log('⏳ Esperando 10 segundos para que WhatsApp Web sincronice los chats...');
+    await new Promise(resolve => setTimeout(resolve, 10000));
     await verificarReparacionesDormidas();
 });
 
