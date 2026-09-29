@@ -24,3 +24,5 @@ backup_dtz.js
 
 node_modules/
 .wwebjs_auth/
+
+.wwebjs_cache/
