@@ -1,4 +1,4 @@
-require('dotenv').config();
+﻿require('dotenv').config();
 const { createClient } = require('@supabase/supabase-js');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
@@ -95,7 +95,7 @@ async function verificarReparacionesDormidas() {
   // 1. Buscar todas las reparaciones que NO estén en estados finales
   const { data: reparaciones, error } = await supabase
     .from('reparaciones')
-    .select('id, cliente, equipo, estado, sucursal')
+    .select('id, cliente, equipo, estado, sucursal, fecha, fecha_ingreso')
     .neq('estado', 'Entregado')
     .neq('estado', 'Cancelado')
     .neq('estado', 'Sin Reparación / Rechazado');
@@ -120,7 +120,7 @@ async function verificarReparacionesDormidas() {
 
     if (errAud) continue;
 
-    let ultimaModificacion = rep.fecha || 0; // Usar fecha de ingreso si no hay log
+    let ultimaModificacion = rep.fecha || rep.fecha_ingreso || 0; // Usar fecha de ingreso si no hay log
     if (auditoria && auditoria.length > 0) {
       ultimaModificacion = auditoria[0].created_at;
     }
@@ -156,3 +156,4 @@ async function verificarReparacionesDormidas() {
   await client.destroy();
   process.exit(0);
 }
+
