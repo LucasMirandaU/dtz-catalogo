@@ -716,7 +716,7 @@
 
       const displayDate = r.fecha 
         ? new Date(r.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') 
-        : (r.created_at ? new Date(r.created_at).toLocaleDateString('es-AR') : '');
+        : (r.fecha_ingreso ? new Date(r.fecha_ingreso).toLocaleDateString('es-AR') : '');
 
       return `
       <div class="rep-card" onclick="openEdit(${r.id})">
@@ -878,7 +878,7 @@
     
     let fDate = '';
     if (r.fecha) fDate = r.fecha.split('T')[0];
-    else if (r.created_at) fDate = r.created_at.split('T')[0];
+    else if (r.fecha_ingreso) fDate = r.fecha_ingreso.split('T')[0];
     document.getElementById('f_fecha').value = fDate;
 
     if(document.getElementById('f_sucursal')) document.getElementById('f_sucursal').value = r.sucursal || 'Local 2984';
@@ -1352,4 +1352,5 @@
 </script>
 </body>
 </html>
+
 
