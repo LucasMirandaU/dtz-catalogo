@@ -140,6 +140,8 @@ async function verificarReparacionesDormidas() {
     try {
         await client.sendMessage(GRUPO_ID, textoMensaje);
         console.log('✅ Mensaje de alerta enviado con éxito.');
+        console.log('⏳ Esperando 5 segundos para asegurar que el mensaje salga de la computadora...');
+        await new Promise(resolve => setTimeout(resolve, 5000));
     } catch (errorEnvio) {
         console.log('❌ Error al enviar el mensaje. Asegurate de haber puesto bien el WHATSAPP_GRUPO_ID.');
         console.log(errorEnvio.message);
@@ -148,8 +150,6 @@ async function verificarReparacionesDormidas() {
     console.log('✅ Todo al día. No hay reparaciones demoradas más de 24hs.');
   }
 
-  // Desconectamos para que el script termine 
-  // (es lo mejor para cuando lo ponés en Tareas Programadas, así no queda trabado)
   console.log('Cerrando conexión y finalizando el script. ¡Chau!');
   await client.destroy();
   process.exit(0);
