@@ -24,8 +24,16 @@ if (!supabaseKey) {
 // =========================================================================
 // CONFIGURACIÓN DEL GRUPO DE WHATSAPP
 // =========================================================================
-// Poné ACÁ el nombre exacto del grupo de WhatsApp donde están los técnicos.
-const NOMBRE_GRUPO = "SÓLO REPARACIONES Y PRESUPUESTOS!";
+// Poné el nombre de tu grupo en el archivo .env así:
+// WHATSAPP_GRUPO="SÓLO REPARACIONES Y PRESUPUESTOS!"
+const NOMBRE_GRUPO = process.env.WHATSAPP_GRUPO;
+
+if (!NOMBRE_GRUPO) {
+    console.error('\n❌ ERROR: Falta configurar el grupo de WhatsApp.');
+    console.error('Agregá una nueva línea a tu archivo ".env" que diga:');
+    console.error('WHATSAPP_GRUPO="Acá va el nombre de tu grupo"');
+    process.exit(1);
+}
 
 console.log('⏳ Iniciando cliente de WhatsApp...');
 const client = new Client({
