@@ -24,16 +24,7 @@ if (!supabaseKey) {
 // =========================================================================
 // CONFIGURACIÓN DEL GRUPO DE WHATSAPP
 // =========================================================================
-// Poné el nombre de tu grupo en el archivo .env así:
-// WHATSAPP_GRUPO="SÓLO REPARACIONES Y PRESUPUESTOS!"
-const NOMBRE_GRUPO = process.env.WHATSAPP_GRUPO;
-
-if (!NOMBRE_GRUPO) {
-    console.error('\n❌ ERROR: Falta configurar el grupo de WhatsApp.');
-    console.error('Agregá una nueva línea a tu archivo ".env" que diga:');
-    console.error('WHATSAPP_GRUPO="Acá va el nombre de tu grupo"');
-    process.exit(1);
-}
+const GRUPO_ID = process.env.WHATSAPP_GRUPO_ID;
 
 console.log('⏳ Iniciando cliente de WhatsApp...');
 const client = new Client({
@@ -52,8 +43,7 @@ const client = new Client({
       ] 
     },
     webVersionCache: {
-      type: 'remote',
-      remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html'
+      type: 'none'
     }
 });
 
@@ -65,10 +55,30 @@ client.on('qr', (qr) => {
     qrcode.generate(qr, { small: true });
 });
 
+// Listener para averiguar el ID del grupo
+client.on('message', async msg => {
+    if (msg.body === '!vincular') {
+        console.log(`\n=========================================================`);
+        console.log(`✅ ¡Mensaje '!vincular' recibido exitosamente!`);
+        console.log(`El ID secreto de este grupo es:`);
+        console.log(`${msg.from}`);
+        console.log(`\nPor favor, agregá esta nueva línea en tu archivo .env:`);
+        console.log(`WHATSAPP_GRUPO_ID="${msg.from}"`);
+        console.log(`=========================================================\n`);
+        await msg.reply('✅ ¡Bot vinculado! Ya tengo el ID de este grupo. Ahora ponelo en tu archivo .env y ejecutá el script de nuevo para probar la alerta.');
+    }
+});
+
 client.on('ready', async () => {
     console.log('✅ ¡WhatsApp conectado exitosamente!');
-    console.log('⏳ Esperando 10 segundos para que WhatsApp Web sincronice los chats...');
-    await new Promise(resolve => setTimeout(resolve, 10000));
+    
+    if (!GRUPO_ID) {
+        console.log('\n⚠️ ATENCIÓN: No tenés el WHATSAPP_GRUPO_ID en tu archivo .env');
+        console.log('Para averiguar el ID de tu grupo, agarrá tu celular y mandá el mensaje "!vincular" (sin comillas) adentro del grupo de los técnicos.');
+        console.log('El bot está escuchando ahora mismo... (esperando tu mensaje)\n');
+        return; 
+    }
+
     await verificarReparacionesDormidas();
 });
 
@@ -126,20 +136,13 @@ async function verificarReparacionesDormidas() {
   if (alertas.length > 0) {
     const textoMensaje = `⚠️ *ALERTA DE DEMORA EN TALLER* ⚠️\n\nLas siguientes reparaciones llevan más de 24hs sin cambios de estado y el cliente podría estar esperando:\n\n${alertas.join('\n\n')}\n\nPor favor, actualicen los estados o avisen al cliente.`;
     
-    // Buscar el grupo para enviar el mensaje
-    console.log('Buscando chats...');
-    const chats = await client.getChats();
-    const grupo = chats.find(c => c.isGroup && c.name === NOMBRE_GRUPO);
-
-    if (grupo) {
-      console.log(`Enviando mensaje al grupo "${NOMBRE_GRUPO}"...`);
-      await grupo.sendMessage(textoMensaje);
-      console.log('✅ Mensaje de alerta enviado con éxito.');
-    } else {
-      console.log(`❌ ATENCIÓN: No se encontró un grupo de WhatsApp que se llame EXACTAMENTE "${NOMBRE_GRUPO}".`);
-      console.log('Revisá si te agregaron al grupo, si el nombre tiene mayúsculas/tildes y configuralo en el script en la constante NOMBRE_GRUPO.');
-      console.log('Por ahora, acá te dejo lo que hubiera enviado:');
-      console.log(textoMensaje);
+    console.log(`Enviando mensaje al grupo con ID "${GRUPO_ID}"...`);
+    try {
+        await client.sendMessage(GRUPO_ID, textoMensaje);
+        console.log('✅ Mensaje de alerta enviado con éxito.');
+    } catch (errorEnvio) {
+        console.log('❌ Error al enviar el mensaje. Asegurate de haber puesto bien el WHATSAPP_GRUPO_ID.');
+        console.log(errorEnvio.message);
     }
   } else {
     console.log('✅ Todo al día. No hay reparaciones demoradas más de 24hs.');
