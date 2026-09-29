@@ -7,14 +7,17 @@ const qrcode = require('qrcode-terminal');
 // CONFIGURACIÓN DE SUPABASE
 // =========================================================================
 const supabaseUrl = 'https://homlckofhxahqohpcwrd.supabase.co';
-// ¡ATENCIÓN! Acá tenés que usar la SERVICE ROLE KEY (secreta), NO la Anon Key.
-// La encontrás en Supabase -> Settings -> API -> service_role (secret)
-const supabaseKey = 'PEGÁ_ACÁ_TU_SERVICE_ROLE_KEY'; 
+// ¡ATENCIÓN! La SERVICE ROLE KEY es un secreto que da acceso total a la base de datos.
+// NUNCA la pongas directo en este archivo si lo vas a subir a GitHub.
+// Tenés que crear un archivo llamado ".env" en esta misma carpeta y poner adentro:
+// SUPABASE_SERVICE_KEY=tu_clave_secreta_aqui
+const supabaseKey = process.env.SUPABASE_SERVICE_KEY; 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-if (supabaseKey.includes('PEGÁ_ACÁ')) {
-    console.error('\n❌ ERROR CRÍTICO: Tenés que pegar tu SERVICE ROLE KEY secreta de Supabase en la línea 11 del archivo alerta_24hs.js');
-    console.error('Si dejás la clave pública, Supabase no va a devolver ninguna reparación por seguridad (porque el script no tiene usuario/contraseña).\n');
+if (!supabaseKey) {
+    console.error('\n❌ ERROR CRÍTICO: No se encontró la SUPABASE_SERVICE_KEY.');
+    console.error('Tenés que crear un archivo ".env" en esta carpeta y pegar adentro tu clave secreta de Supabase así:');
+    console.error('SUPABASE_SERVICE_KEY=eyJhbGciOi...');
     process.exit(1);
 }
 
