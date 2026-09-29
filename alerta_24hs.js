@@ -1,41 +1,51 @@
 require('dotenv').config();
 const { createClient } = require('@supabase/supabase-js');
-const axios = require('axios'); // Para enviar peticiones a la API de WhatsApp
+const { Client, LocalAuth } = require('whatsapp-web.js');
+const qrcode = require('qrcode-terminal');
 
 // =========================================================================
 // CONFIGURACIÓN DE SUPABASE
 // =========================================================================
 const supabaseUrl = 'https://homlckofhxahqohpcwrd.supabase.co';
-// Usa la ANON KEY o SERVICE ROLE KEY de tu proyecto
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhvbWxja29maHhhaHFvaHBjd3JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNTgzMTgsImV4cCI6MjA5NTYzNDMxOH0.P6m1CfcOMzy-C7RGL2Xq1_UwTiSK93KS-kzyS8qWupU'; 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // =========================================================================
-// CONFIGURACIÓN DE WHATSAPP (Ejemplo con UltraMsg, Meta API o n8n Webhook)
+// CONFIGURACIÓN DEL GRUPO DE WHATSAPP
 // =========================================================================
-// Si usas un webhook de n8n, pon la URL aquí:
-const WHATSAPP_WEBHOOK_URL = 'https://tu-n8n.com/webhook/alerta-whatsapp';
+// Poné ACÁ el nombre exacto del grupo de WhatsApp donde están los técnicos.
+const NOMBRE_GRUPO = "Técnicos DTZ";
 
-async function enviarAlertaWhatsApp(mensaje) {
-  try {
-    console.log('Enviando alerta a WhatsApp:\n', mensaje);
-    
-    // EJEMPLO DE ENVÍO A UN WEBHOOK DE N8N O API DIRECTA:
-    /*
-    await axios.post(WHATSAPP_WEBHOOK_URL, {
-      grupo: "Técnicos DTZ",
-      mensaje: mensaje
-    });
-    */
-    
-    console.log('✅ Alerta enviada con éxito');
-  } catch (error) {
-    console.error('❌ Error enviando WhatsApp:', error.message);
-  }
-}
+console.log('⏳ Iniciando cliente de WhatsApp...');
+const client = new Client({
+    authStrategy: new LocalAuth(),
+    puppeteer: { 
+      args: ['--no-sandbox', '--disable-setuid-sandbox'] 
+    }
+});
+
+// Cuando requiera escanear código QR por primera vez
+client.on('qr', (qr) => {
+    console.log('\n=========================================================');
+    console.log('📱 ESCANEÁ ESTE CÓDIGO QR CON EL WHATSAPP DE LA EMPRESA');
+    console.log('=========================================================\n');
+    qrcode.generate(qr, { small: true });
+});
+
+client.on('ready', async () => {
+    console.log('✅ ¡WhatsApp conectado exitosamente!');
+    await verificarReparacionesDormidas();
+});
+
+client.on('auth_failure', msg => {
+    console.error('❌ Error de autenticación en WhatsApp:', msg);
+});
+
+// Iniciamos la conexión a WhatsApp
+client.initialize();
 
 async function verificarReparacionesDormidas() {
-  console.log('🔍 Buscando reparaciones sin movimiento por más de 24hs...');
+  console.log('🔍 Buscando reparaciones sin movimiento por más de 24hs en la base de datos...');
   
   // 1. Buscar todas las reparaciones que NO estén entregadas
   const { data: reparaciones, error } = await supabase
@@ -45,6 +55,7 @@ async function verificarReparacionesDormidas() {
 
   if (error) {
     console.error('Error obteniendo reparaciones:', error.message);
+    process.exit(1);
     return;
   }
 
@@ -62,7 +73,6 @@ async function verificarReparacionesDormidas() {
 
     if (errAud) continue;
 
-    // Determinar la última fecha de modificación (si no hay log, usamos la de creación)
     let ultimaModificacion = rep.created_at;
     if (auditoria && auditoria.length > 0) {
       ultimaModificacion = auditoria[0].created_at;
@@ -70,7 +80,7 @@ async function verificarReparacionesDormidas() {
 
     const fechaUltimaMod = new Date(ultimaModificacion);
 
-    // 3. Si pasaron más de 24 horas, la agregamos a la lista de alertas
+    // 3. Si pasaron más de 24 horas
     if (fechaUltimaMod < limite24hs) {
       const horasInactivo = Math.floor((new Date() - fechaUltimaMod) / (1000 * 60 * 60));
       alertas.push(`• *#${rep.id}* - ${rep.cliente} (${rep.equipo})\n  Estado: ${rep.estado}\n  Inactivo hace: ${horasInactivo}hs\n  Sucursal: ${rep.sucursal}`);
@@ -80,11 +90,29 @@ async function verificarReparacionesDormidas() {
   // 4. Si hay alertas, enviar mensaje
   if (alertas.length > 0) {
     const textoMensaje = `⚠️ *ALERTA DE DEMORA EN TALLER* ⚠️\n\nLas siguientes reparaciones llevan más de 24hs sin cambios de estado y el cliente podría estar esperando:\n\n${alertas.join('\n\n')}\n\nPor favor, actualicen los estados o avisen al cliente.`;
-    await enviarAlertaWhatsApp(textoMensaje);
+    
+    // Buscar el grupo para enviar el mensaje
+    console.log('Buscando chats...');
+    const chats = await client.getChats();
+    const grupo = chats.find(c => c.isGroup && c.name === NOMBRE_GRUPO);
+
+    if (grupo) {
+      console.log(`Enviando mensaje al grupo "${NOMBRE_GRUPO}"...`);
+      await grupo.sendMessage(textoMensaje);
+      console.log('✅ Mensaje de alerta enviado con éxito.');
+    } else {
+      console.log(`❌ ATENCIÓN: No se encontró un grupo de WhatsApp que se llame EXACTAMENTE "${NOMBRE_GRUPO}".`);
+      console.log('Revisá si te agregaron al grupo, si el nombre tiene mayúsculas/tildes y configuralo en el script en la constante NOMBRE_GRUPO.');
+      console.log('Por ahora, acá te dejo lo que hubiera enviado:');
+      console.log(textoMensaje);
+    }
   } else {
     console.log('✅ Todo al día. No hay reparaciones demoradas más de 24hs.');
   }
-}
 
-// Ejecutar
-verificarReparacionesDormidas();
+  // Desconectamos para que el script termine 
+  // (es lo mejor para cuando lo ponés en Tareas Programadas, así no queda trabado)
+  console.log('Cerrando conexión y finalizando el script. ¡Chau!');
+  await client.destroy();
+  process.exit(0);
+}

@@ -21,3 +21,6 @@ ignorar_git/
 
 backup_dtz.js
 
+
+node_modules/
+.wwebjs_auth/

@@ -1,0 +1,30 @@
+{
+  "name": "webdtz",
+  "version": "1.0.0",
+  "description": "¡Bienvenido al repositorio oficial del ecosistema informático de **DTZ Servicio Técnico**!  \r 🌐 **Sitio en vivo:** [www.dtzserviciotecnico.com.ar](https://www.dtzserviciotecnico.com.ar)",
+  "main": "alerta_24hs.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LucasMirandaU/dtz-catalogo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/LucasMirandaU/dtz-catalogo/issues"
+  },
+  "homepage": "https://github.com/LucasMirandaU/dtz-catalogo#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.2",
+    "dotenv": "^18.0.4",
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.34.7"
+  }
+}
