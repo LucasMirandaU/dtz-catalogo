@@ -51,7 +51,7 @@ async function verificarReparacionesDormidas() {
   // 1. Buscar todas las reparaciones que NO estén entregadas
   const { data: reparaciones, error } = await supabase
     .from('reparaciones')
-    .select('id, cliente, equipo, estado, created_at, sucursal')
+    .select('id, cliente, equipo, estado, sucursal')
     .neq('estado', 'Entregado');
 
   if (error) {
@@ -74,7 +74,7 @@ async function verificarReparacionesDormidas() {
 
     if (errAud) continue;
 
-    let ultimaModificacion = rep.created_at;
+    let ultimaModificacion = rep.fecha || 0; // Usar fecha de ingreso si no hay log
     if (auditoria && auditoria.length > 0) {
       ultimaModificacion = auditoria[0].created_at;
     }
