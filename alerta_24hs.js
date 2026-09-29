@@ -20,6 +20,7 @@ console.log('⏳ Iniciando cliente de WhatsApp...');
 const client = new Client({
     authStrategy: new LocalAuth(),
     puppeteer: { 
+      executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
       args: ['--no-sandbox', '--disable-setuid-sandbox'] 
     }
 });
