@@ -109,3 +109,11 @@ eparaciones.html).
 - [x] Deploy continuo automático de PWA en subdominio/subcarpeta vía GitHub Pages.
 - [ ] Deploy de instalador nativo Android (.apk) vía EAS Build (Pendiente).
 
+
+### 📱 Notificaciones y Automatización (Node.js)
+- [x] Agregar campo echa a la tabla eparaciones con migración SQL.
+- [x] Desarrollo de bot de notificaciones para técnicos (lerta_24hs.js).
+- [x] Integración de whatsapp-web.js para alertas proactivas a grupos de WhatsApp sin depender de APIs pagas.
+- [x] Implementación de lectura de Historial de Auditoría para determinar la inactividad de una reparación mayor a 24hs.
+- [x] Prevención de envíos a equipos en estados finales (Entregado, Cancelado, Sin Reparación / Rechazado).
+- [x] Configuración en entorno local de Windows (Task Scheduler) minimizando costos de hosting backend.

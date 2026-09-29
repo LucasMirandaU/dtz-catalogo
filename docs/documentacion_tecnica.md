@@ -81,3 +81,9 @@ Para evitar ataques de escalada de privilegios y fuga de datos mediante ingenier
 
 ## 💾 Automatización de Backups
 Se provee un script \ackup_dtz.js\ en Node.js que utiliza la \service_role_key\ para bypasear las reglas RLS de Supabase. El script itera sobre las tablas críticas mediante la API REST de Supabase (\/rest/v1/\), generando archivos JSON locales organizados por fecha que se sincronizan con Google Drive, asegurando continuidad de negocio ante cualquier catástrofe en la nube.
+
+## Automatización con Node.js (Background Worker)
+*   **Tecnología:** Node.js, whatsapp-web.js, Puppeteer.
+*   **Propósito:** Notificar automáticamente a los técnicos sobre reparaciones inactivas por más de 24 horas.
+*   **Ejecución:** Script local configurado mediante Tareas Programadas de Windows (arquitectura de Cron Job local).
+*   **Seguridad:** Las credenciales críticas (SERVICE_ROLE_KEY) y variables dinámicas (WHATSAPP_GRUPO_ID) se aíslan en el archivo .env (ignorado en .gitignore) protegiendo el código en el repositorio público.
