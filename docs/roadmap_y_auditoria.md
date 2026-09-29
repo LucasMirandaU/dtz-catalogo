@@ -117,3 +117,5 @@ eparaciones.html).
 - [x] Implementación de lectura de Historial de Auditoría para determinar la inactividad de una reparación mayor a 24hs.
 - [x] Prevención de envíos a equipos en estados finales (Entregado, Cancelado, Sin Reparación / Rechazado).
 - [x] Configuración en entorno local de Windows (Task Scheduler) minimizando costos de hosting backend.
+
+- [x] **Sanitización XSS (Cross-Site Scripting):** Funciones \escHtml\ inyectadas en los módulos de \eparaciones.html\ y \pedidos.html\ para evitar ejecución de scripts maliciosos almacenados a través de inputs de los empleados (Stored XSS).
