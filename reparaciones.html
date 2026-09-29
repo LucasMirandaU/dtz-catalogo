@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -498,6 +498,9 @@
 
 <script>
   const db = window.supabase.createClient(DTZ_CONFIG.supabaseUrl, DTZ_CONFIG.supabaseAnonKey);
+
+  const entityMap = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '/': '&#x2F;', '`': '&#x60;', '=': '&#x3D;' };
+  function escHtml(s) { return String(s||'').replace(/[&<>"'`=\/]/g, c => entityMap[c]); }
   let currentUser = null;
   let currentUserRole = 'staff';
   let allRepairs = [];
@@ -718,12 +721,12 @@
       return `
       <div class="rep-card" onclick="openEdit(${r.id})">
         <div class="rep-header">
-          <div class="rep-client">${r.cliente} <span style="font-size:0.75rem; color:var(--muted); font-weight:normal; margin-left:6px">${displayDate}</span></div>
-          <div class="rep-ord">${r.nro_orden ? r.nro_orden : '#'+r.id} <span style="font-size:0.72rem;background:var(--surface);padding:2px 6px;border-radius:4px;margin-left:6px;border:1px solid var(--border)">📍 ${r.sucursal || 'Local 2984'}</span></div>
+          <div class="rep-client">${escHtml(r.cliente)} <span style="font-size:0.75rem; color:var(--muted); font-weight:normal; margin-left:6px">${displayDate}</span></div>
+          <div class="rep-ord">${escHtml(r.nro_orden ? r.nro_orden : '#'+r.id)} <span style="font-size:0.72rem;background:var(--surface);padding:2px 6px;border-radius:4px;margin-left:6px;border:1px solid var(--border)">📍 ${escHtml(r.sucursal || 'Local 2984')}</span></div>
         </div>
-        <div class="rep-model">${r.equipo || 'Sin modelo'}</div>
+        <div class="rep-model">${escHtml(r.equipo || 'Sin modelo')}</div>
         <div class="rep-footer">
-          <span class="rep-badge ${stClass}">${r.estado}</span>
+          <span class="rep-badge ${stClass}">${escHtml(r.estado)}</span>
           <span class="rep-balance">${r.presupuesto > 0 ? balStr : '$0'}</span>
         </div>
       </div>
@@ -1349,3 +1352,4 @@
 </script>
 </body>
 </html>
+
