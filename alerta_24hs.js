@@ -7,8 +7,16 @@ const qrcode = require('qrcode-terminal');
 // CONFIGURACIÓN DE SUPABASE
 // =========================================================================
 const supabaseUrl = 'https://homlckofhxahqohpcwrd.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhvbWxja29maHhhaHFvaHBjd3JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNTgzMTgsImV4cCI6MjA5NTYzNDMxOH0.P6m1CfcOMzy-C7RGL2Xq1_UwTiSK93KS-kzyS8qWupU'; 
+// ¡ATENCIÓN! Acá tenés que usar la SERVICE ROLE KEY (secreta), NO la Anon Key.
+// La encontrás en Supabase -> Settings -> API -> service_role (secret)
+const supabaseKey = 'PEGÁ_ACÁ_TU_SERVICE_ROLE_KEY'; 
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+if (supabaseKey.includes('PEGÁ_ACÁ')) {
+    console.error('\n❌ ERROR CRÍTICO: Tenés que pegar tu SERVICE ROLE KEY secreta de Supabase en la línea 11 del archivo alerta_24hs.js');
+    console.error('Si dejás la clave pública, Supabase no va a devolver ninguna reparación por seguridad (porque el script no tiene usuario/contraseña).\n');
+    process.exit(1);
+}
 
 // =========================================================================
 // CONFIGURACIÓN DEL GRUPO DE WHATSAPP
