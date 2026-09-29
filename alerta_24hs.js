@@ -92,11 +92,13 @@ client.initialize();
 async function verificarReparacionesDormidas() {
   console.log('🔍 Buscando reparaciones sin movimiento por más de 24hs en la base de datos...');
   
-  // 1. Buscar todas las reparaciones que NO estén entregadas
+  // 1. Buscar todas las reparaciones que NO estén en estados finales
   const { data: reparaciones, error } = await supabase
     .from('reparaciones')
     .select('id, cliente, equipo, estado, sucursal')
-    .neq('estado', 'Entregado');
+    .neq('estado', 'Entregado')
+    .neq('estado', 'Cancelado')
+    .neq('estado', 'Sin Reparación / Rechazado');
 
   if (error) {
     console.error('Error obteniendo reparaciones:', error.message);
