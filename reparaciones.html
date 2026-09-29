@@ -193,10 +193,14 @@
         </div>
       </div>
       <input type="hidden" id="f_id">
-      <div class="form-row">
+      <div class="form-row" style="grid-template-columns: 1fr 1fr 1.5fr;">
         <div class="form-group">
-          <label>Nro Orden (Automático)</label>
+          <label>Nro Orden</label>
           <input type="text" id="f_orden" value="Generado al guardar" disabled style="opacity:0.7">
+        </div>
+        <div class="form-group">
+          <label>Fecha</label>
+          <input type="date" id="f_fecha">
         </div>
         <div class="form-group">
           <label>Estado</label>
@@ -707,10 +711,14 @@
         ? `<span class="bal-pagado">✔ PAGADO</span>` 
         : `<span class="bal-deuda">Saldo: $${saldo.toLocaleString('es-AR')}</span>`;
 
+      const displayDate = r.fecha 
+        ? new Date(r.fecha + 'T12:00:00Z').toLocaleDateString('es-AR') 
+        : (r.created_at ? new Date(r.created_at).toLocaleDateString('es-AR') : '');
+
       return `
       <div class="rep-card" onclick="openEdit(${r.id})">
         <div class="rep-header">
-          <div class="rep-client">${r.cliente}</div>
+          <div class="rep-client">${r.cliente} <span style="font-size:0.75rem; color:var(--muted); font-weight:normal; margin-left:6px">${displayDate}</span></div>
           <div class="rep-ord">${r.nro_orden ? r.nro_orden : '#'+r.id} <span style="font-size:0.72rem;background:var(--surface);padding:2px 6px;border-radius:4px;margin-left:6px;border:1px solid var(--border)">📍 ${r.sucursal || 'Local 2984'}</span></div>
         </div>
         <div class="rep-model">${r.equipo || 'Sin modelo'}</div>
@@ -808,6 +816,7 @@
     document.getElementById('f_telefono').value = '';
     document.getElementById('f_equipo').value = '';
     document.getElementById('f_clave').value = '';
+    document.getElementById('f_fecha').value = new Date().toISOString().split('T')[0];
     if(document.getElementById('f_sucursal')) document.getElementById('f_sucursal').value = 'Local 2984';
     document.getElementById('f_chk_bateria').checked = false;
     document.getElementById('f_chk_rajado').checked = false;
@@ -863,6 +872,12 @@
     document.getElementById('f_telefono').value = r.telefono || '';
     document.getElementById('f_equipo').value = r.equipo || '';
     document.getElementById('f_clave').value = r.codigo_desbloqueo || '';
+    
+    let fDate = '';
+    if (r.fecha) fDate = r.fecha.split('T')[0];
+    else if (r.created_at) fDate = r.created_at.split('T')[0];
+    document.getElementById('f_fecha').value = fDate;
+
     if(document.getElementById('f_sucursal')) document.getElementById('f_sucursal').value = r.sucursal || 'Local 2984';
     document.getElementById('f_chk_bateria').checked = r.chk_sin_bateria || false;
     document.getElementById('f_chk_rajado').checked = r.chk_rajado || false;
@@ -1129,6 +1144,7 @@
 
     return {
       cliente,
+      fecha: document.getElementById('f_fecha').value || new Date().toISOString().split('T')[0],
       dni: document.getElementById('f_dni').value.trim() || null,
       telefono: document.getElementById('f_telefono').value.trim() || null,
       equipo: document.getElementById('f_equipo').value.trim() || null,
