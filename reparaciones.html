@@ -428,6 +428,7 @@
       </div>
       <div id="auditTallerList" style="font-size:0.85rem;color:var(--text)">Cargando...</div>
     </div>
+  </div>
   <!-- SPECIFIC HISTORY MODAL -->
   <div class="modal-overlay" id="specificHistoryModal">
     <div class="modal-content" style="max-width:650px;max-height:80vh;overflow-y:auto">
@@ -828,7 +829,7 @@
   function openPanel() {
     document.getElementById('formPanel').classList.add('open');
     document.getElementById('f_id').value = '';
-    document.getElementById('f_fecha').disabled = (currentUserRole === 'staff');
+    document.getElementById('f_fecha').readOnly = (currentUserRole === 'staff');
     document.getElementById('panelTitle').textContent = 'NUEVA REPARACIÓN';
     document.getElementById('f_orden').value = 'Generado al guardar';
     document.getElementById('f_cliente').value = '';
@@ -887,7 +888,7 @@
     openPanel();
     document.getElementById('panelTitle').textContent = 'EDITAR ORDEN #' + r.id;
     document.getElementById('f_id').value = r.id;
-    document.getElementById('f_fecha').disabled = (currentUserRole === 'staff');
+    document.getElementById('f_fecha').readOnly = (currentUserRole === 'staff');
     document.getElementById('f_orden').value = '#' + r.id;
     document.getElementById('f_cliente').value = r.cliente || '';
     document.getElementById('f_dni').value = r.dni || '';
@@ -1047,8 +1048,13 @@
     data.forEach(log => {
       const d = new Date(log.created_at).toLocaleString('es-AR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
       let actionStr = log.action_type || '';
-      let action = actionStr.includes('NUEV') ? 'Creación' : (actionStr.includes('ACTUALI') ? 'Actualización' : (actionStr.includes('PAGO') ? 'Pago' : 'Borrado'));
-      let color = actionStr.includes('NUEV') ? 'var(--ok)' : (actionStr.includes('ACTUALI') ? 'var(--teal)' : (actionStr.includes('PAGO') ? 'var(--warn)' : 'var(--danger)'));
+      let action = 'Movimiento';
+      let color = 'var(--text)';
+      if (actionStr.includes('CREAR') || actionStr.includes('NUEVA')) { action = 'Creación'; color = 'var(--ok)'; }
+      else if (actionStr.includes('EDITAR') || actionStr.includes('ACTUALI')) { action = 'Actualización'; color = 'var(--teal)'; }
+      else if (actionStr.includes('PAGO')) { action = 'Pago'; color = 'var(--warn)'; }
+      else if (actionStr.includes('ELIMINAR') || actionStr.includes('BORRAR')) { action = 'Borrado'; color = 'var(--danger)'; }
+      else if (actionStr.includes('IMAGEN')) { action = 'Foto'; color = '#8b5cf6'; }
       let details = escHtml(log.detalle || '');
 
       html += `
@@ -1429,6 +1435,9 @@
 </script>
 </body>
 </html>
+
+
+
 
 
 
