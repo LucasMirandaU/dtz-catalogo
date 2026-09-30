@@ -182,7 +182,7 @@
     <div class="panel-header">
       <button class="btn-back" onclick="closePanel()">‹</button>
       <div class="panel-title" id="panelTitle">NUEVA REPARACIÓN</div>
-      <div style="width:24px"></div>
+      <button id="btnSpecificHistory" class="btn-sm" style="display:none;background:var(--surface3);color:#fff" onclick="loadSpecificHistory(document.getElementById('f_id').value)" title="Historial de esta orden">⏱ Historial</button>
     </div>
     <div class="panel-body">
       <div id="draftBanner" style="display:none; background:var(--warn); color:#000; padding:10px 15px; border-radius:8px; margin-bottom:15px; font-size:0.85rem; font-weight:600; align-items:center; justify-content:space-between;">
@@ -386,13 +386,6 @@
           <div class="summary-row"><span>Abonado</span><span id="sumPagado">$0</span></div>
           <div class="summary-total"><span>Saldo a pagar</span><span id="sumSaldo">$0</span></div>
         </div>
-      <!-- SPECIFIC HISTORY -->
-      <div class="pay-section" id="historySection" style="display:none; margin-top:1.5rem">
-        <div class="pay-header">
-          <h3>⏱ Historial de Estados</h3>
-        </div>
-        <div class="pay-list" id="specificHistoryList" style="font-size:0.85rem;color:var(--text);background:var(--bg);border-radius:6px;padding:0.8rem">Cargando historial...</div>
-      </div>
       </div>
     </div>
     <div class="action-bar">
@@ -435,6 +428,17 @@
       </div>
       <div id="auditTallerList" style="font-size:0.85rem;color:var(--text)">Cargando...</div>
     </div>
+  <!-- SPECIFIC HISTORY MODAL -->
+  <div class="modal-overlay" id="specificHistoryModal">
+    <div class="modal-content" style="max-width:650px;max-height:80vh;overflow-y:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+        <h3 style="margin:0" id="specificHistoryTitle">⏱ Historial de Estados</h3>
+        <button class="btn-sm" onclick="closeSpecificHistoryModal()">✕</button>
+      </div>
+      <div id="specificHistoryList" style="font-size:0.85rem;color:var(--text)">Cargando...</div>
+    </div>
+  </div>
+
   </div>
 
   <!-- TARIFARIO MODAL -->
@@ -471,7 +475,11 @@
     
     <div class="print-box">
       <div class="print-row" style="margin-bottom:10px"><strong>Equipo:</strong> <span id="p_equipo"></span> (Clave: <span id="p_clave"></span>)</div>
-      <div class="print-row"><strong>Estado al Ingresar:</strong> <span id="p_checks"></span></div>
+      <div class="print-row" style="margin-top:10px"><strong>Inspección de Hardware al Ingreso:</strong></div>
+      <div style="display:flex; flex-wrap:wrap; font-size:11px; margin-bottom:10px; border:1px solid #ccc; padding:5px; background:#fafafa">
+        <div style="width:50%" id="p_insp_col1"></div>
+        <div style="width:50%" id="p_insp_col2"></div>
+      </div>
       <div class="print-row"><strong>Fallas / Notas:</strong> <span id="p_fallas"></span></div>
       <div class="print-row" style="margin-top:10px; border-top:1px solid #ccc; padding-top:10px"><strong>Trabajo Realizado:</strong> <span id="p_trabajo"></span></div>
     </div>
@@ -858,7 +866,7 @@
     currentPayments = [];
     currentRepairPhotos = [];
     document.getElementById('paySection').style.display = 'none';
-    document.getElementById('historySection').style.display = 'none';
+    document.getElementById('btnSpecificHistory').style.display = 'none';
     document.getElementById('firmaSection').style.display = 'none';
     document.getElementById('firmaRetiroSection').style.display = 'none';
     document.getElementById('btnDeleteRepair').style.display = 'none';
@@ -939,7 +947,7 @@
     document.getElementById('btnDeleteRepair').style.display = ['admin', 'superadmin'].includes(currentUserRole) ? 'block' : 'none';
     renderPaymentsUI();
     renderRepairPhotosUI();
-    loadSpecificHistory(r.id);
+    document.getElementById('btnSpecificHistory').style.display = 'block';
   }
 
   // Payments
@@ -1017,7 +1025,8 @@
   }
 
   async function loadSpecificHistory(id) {
-    document.getElementById('historySection').style.display = 'block';
+    document.getElementById('specificHistoryModal').style.display = 'flex';
+    document.getElementById('specificHistoryTitle').textContent = '⏱ Historial de Orden #' + id;
     const listEl = document.getElementById('specificHistoryList');
     listEl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:1rem">Cargando historial...</div>';
     
@@ -1058,6 +1067,8 @@
     html += '</table>';
     listEl.innerHTML = html;
   }
+
+  function closeSpecificHistoryModal() { document.getElementById('specificHistoryModal').style.display = 'none'; }
 
   async function openAuditTallerModal() {
     document.getElementById('auditTallerModal').style.display = 'flex';
@@ -1172,7 +1183,7 @@
   function removeRepairPhoto(idx) {
     currentRepairPhotos.splice(idx, 1);
     renderRepairPhotosUI();
-    loadSpecificHistory(r.id);
+    document.getElementById('btnSpecificHistory').style.display = 'block';
   }
 
   function renderRepairPhotosUI() {
@@ -1327,17 +1338,32 @@
     document.getElementById('p_equipo').textContent = document.getElementById('f_equipo').value || '-';
     document.getElementById('p_clave').textContent = document.getElementById('f_clave').value || '-';
     
-    const checks = [];
-    if(document.getElementById('f_chk_bateria').checked) checks.push('Sin Batería');
-    if(document.getElementById('f_chk_rajado').checked) checks.push('Rajado');
-    if(document.getElementById('f_chk_mojado').checked) checks.push('Mojado');
-    if(document.getElementById('insp_sim').value === 'No tiene') checks.push('Sin Bandeja SIM');
-    if(document.getElementById('insp_tapa').value === 'Dañada') checks.push('Tapa Dañada');
-    if(document.getElementById('insp_cam_tras').value !== 'Bien' || document.getElementById('insp_cam_selfie').value !== 'Bien') checks.push('Cámaras Rev.');
-    if(document.getElementById('insp_pin').value !== 'Buen estado') checks.push('Pin: ' + document.getElementById('insp_pin').value);
-    if(document.getElementById('insp_display').value !== 'Impecable') checks.push('Display: ' + document.getElementById('insp_display').value);
-    if(document.getElementById('insp_bio') && document.getElementById('insp_bio').value !== 'Funciona') checks.push('Biometría: ' + document.getElementById('insp_bio').value);
-    document.getElementById('p_checks').textContent = checks.length ? checks.join(', ') : 'Ninguno';
+    let col1 = '';
+    let col2 = '';
+    
+    // Checkboxes superiores (van en col 1)
+    if(document.getElementById('f_chk_bateria').checked) col1 += '• Ingresa SIN BATERÍA<br>';
+    if(document.getElementById('f_chk_rajado').checked) col1 += '• Equipo RAJADO/GOLPEADO<br>';
+    if(document.getElementById('f_chk_mojado').checked) col1 += '• Equipo MOJADO<br>';
+    
+    // Inspección de hardware
+    const dVal = (id) => { const el = document.getElementById(id); return el ? el.value : '-'; };
+    
+    col1 += "<b>Tapa/Carcasa:</b> " + dVal('insp_tapa') + "<br>";
+    col1 += "<b>Display/Glass:</b> " + dVal('insp_display') + "<br>";
+    col1 += "<b>Batería:</b> " + dVal('insp_bateria') + "<br>";
+    col1 += "<b>Bandeja SIM:</b> " + dVal('insp_sim') + "<br>";
+    col1 += "<b>Pin de Carga:</b> " + dVal('insp_pin') + "<br>";
+    
+    col2 += "<b>Cam Selfie:</b> " + dVal('insp_cam_selfie') + "<br>";
+    col2 += "<b>Cam Trasera:</b> " + dVal('insp_cam_tras') + "<br>";
+    col2 += "<b>Biometría:</b> " + dVal('insp_bio') + "<br>";
+    col2 += "<b>Auricular:</b> " + dVal('insp_auricular') + "<br>";
+    col2 += "<b>Altavoz:</b> " + dVal('insp_altavoz') + "<br>";
+    col2 += "<b>Micrófono:</b> " + dVal('insp_microfono') + "<br>";
+    
+    document.getElementById('p_insp_col1').innerHTML = col1;
+    document.getElementById('p_insp_col2').innerHTML = col2;
     
     document.getElementById('p_fallas').textContent = document.getElementById('f_fallas').value || '-';
     document.getElementById('p_trabajo').textContent = document.getElementById('f_trabajo').value || '-';
@@ -1406,6 +1432,16 @@
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
 
 
 
