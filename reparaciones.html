@@ -1046,16 +1046,11 @@
     let html = '<table style="width:100%;border-collapse:collapse;font-size:0.8rem">';
     data.forEach(log => {
       const d = new Date(log.created_at).toLocaleString('es-AR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-      let action = log.action === 'CREATE' ? 'Creación' : (log.action === 'UPDATE' ? 'Actualización' : 'Borrado');
-      let color = log.action === 'CREATE' ? 'var(--ok)' : (log.action === 'UPDATE' ? 'var(--teal)' : 'var(--danger)');
-      let details = '';
-      
-      if(log.new_data && typeof log.new_data === 'object') {
-         if(log.new_data.estado) details += `<b>Estado:</b> ${escHtml(log.new_data.estado)}<br>`;
-         if(log.new_data.presupuesto) details += `<b>Presupuesto:</b> $${log.new_data.presupuesto}<br>`;
-         if(log.new_data.sucursal) details += `<b>Sucursal:</b> ${escHtml(log.new_data.sucursal)}<br>`;
-      }
-      
+      let actionStr = log.action_type || '';
+      let action = actionStr.includes('NUEV') ? 'Creación' : (actionStr.includes('ACTUALI') ? 'Actualización' : (actionStr.includes('PAGO') ? 'Pago' : 'Borrado'));
+      let color = actionStr.includes('NUEV') ? 'var(--ok)' : (actionStr.includes('ACTUALI') ? 'var(--teal)' : (actionStr.includes('PAGO') ? 'var(--warn)' : 'var(--danger)'));
+      let details = escHtml(log.detalle || '');
+
       html += `
         <tr style="border-bottom:1px solid var(--border)">
           <td style="padding:0.5rem 0;color:var(--muted);width:110px">${d}</td>
@@ -1434,6 +1429,7 @@
 </script>
 </body>
 </html>
+
 
 
 
