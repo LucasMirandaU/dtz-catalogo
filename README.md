@@ -1,4 +1,4 @@
-# 📱 DTZ Servicio Técnico — E-Commerce, ERP & PWA Móvil
+﻿# 📱 DTZ Servicio Técnico — E-Commerce, ERP & PWA Móvil
 
 ¡Bienvenido al repositorio oficial del ecosistema informático de **DTZ Servicio Técnico**!  
 🌐 **Sitio en vivo:** [www.dtzserviciotecnico.com.ar](https://www.dtzserviciotecnico.com.ar)
@@ -35,6 +35,10 @@ El proyecto está diseñado bajo un enfoque **Serverless + Backend-First** para 
 *   **Registro de Auditoría (Audit Log):** Trazabilidad inmutable implementada desde el backend para monitorear todas las acciones de los empleados.
 *   **Integración ImgBB API:** Sistema propio de carga, compresión inteligente local (WebP/JPEG dinámico) y alojamiento de imágenes ilimitado evadiendo cuotas de almacenamiento on-premise.
 
+### 🤖 Automatización de Alertas por WhatsApp (Zero-Cost)
+*   **Notificaciones Autónomas 24hs:** Un script en segundo plano escrito en Node.js que audita diariamente la base de datos para detectar dispositivos inactivos o listos para entregar, notificando al grupo de técnicos si una orden lleva más de 24hs estancada en un mismo estado.
+*   **Bypass de Servicios Pagos:** En lugar de depender de herramientas de orquestación de pago (como *n8n*, *Make*, o la costosa API oficial de WhatsApp Cloud), el bot fue desarrollado íntegramente utilizando la librería de código abierto `whatsapp-web.js` corriendo sobre un cron-job local. Esto permitió **reducir los costos operativos de automatización a ## 📸 Galería del Sistema**, manteniendo una latencia de sincronización en tiempo real y resolviendo los desafíos de inyección de sesiones sin necesidad de depender de terceros.
+
 ## 📸 Galería del Sistema (Demo)
 
 Para proteger la privacidad de los clientes de DTZ, adjunto capturas de pantalla del sistema interno utilizando datos de prueba:
@@ -59,6 +63,7 @@ Para proteger la privacidad de los clientes de DTZ, adjunto capturas de pantalla
 A los reclutadores y desarrolladores: Los invito a revisar la carpeta `/docs`, donde documento mi proceso de ingeniería de software, arquitectura de base de datos y auditorías de ciberseguridad.
 
 ```text
+├── alerta_24hs.js           # 🤖 Bot de WhatsApp Autónomo (Node.js)
 ├── admin.html               # SPA del Panel de Administración ERP
 ├── index.html               # SPA Pública (Catálogo E-Commerce)
 ├── /app/                    # App Móvil PWA (Exportación estática de Expo Web)
@@ -74,3 +79,6 @@ Las reglas de RLS impiden la creación arbitraria de usuarios, el acceso a datos
 
 ---
 *Diseñado, desarrollado y documentado integralmente por [Lucas Miranda U](https://github.com/LucasMirandaU) en colaboración con DTZ Servicio Técnico.*
+
+
+
