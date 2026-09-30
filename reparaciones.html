@@ -167,7 +167,7 @@
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
         <button class="btn-sm" style="background:var(--teal-glow);color:var(--teal);padding:0.6rem 1rem;border-radius:6px;border:1px solid var(--teal);cursor:pointer;font-weight:600" onclick="window.location.href='pedidos.html'">📋 Pedidos</button>
         <button class="btn-sm" style="background:var(--surface2);color:#fff;padding:0.6rem 1rem;border-radius:6px;border:1px solid var(--border);cursor:pointer;font-weight:600" onclick="openTarifarioModal()">💲 Precios</button>
-        <button class="btn-sm" style="background:var(--surface2);color:#fff;padding:0.6rem 1rem;border-radius:6px;border:1px solid var(--border);cursor:pointer;font-weight:600" onclick="openAuditTallerModal()">📜 Auditoría</button>
+        <button id="btnGlobalAudit" class="btn-sm" style="display:none;background:var(--surface2);color:#fff;padding:0.6rem 1rem;border-radius:6px;border:1px solid var(--border);cursor:pointer;font-weight:600" onclick="openAuditTallerModal()">?? Auditoría</button>
         <button class="btn-primary" onclick="openPanel()">+ Nueva</button>
       </div>
     </div>
@@ -386,6 +386,13 @@
           <div class="summary-row"><span>Abonado</span><span id="sumPagado">$0</span></div>
           <div class="summary-total"><span>Saldo a pagar</span><span id="sumSaldo">$0</span></div>
         </div>
+      <!-- SPECIFIC HISTORY -->
+      <div class="pay-section" id="historySection" style="display:none; margin-top:1.5rem">
+        <div class="pay-header">
+          <h3>⏱ Historial de Estados</h3>
+        </div>
+        <div class="pay-list" id="specificHistoryList" style="font-size:0.85rem;color:var(--text);background:var(--bg);border-radius:6px;padding:0.8rem">Cargando historial...</div>
+      </div>
       </div>
     </div>
     <div class="action-bar">
@@ -521,6 +528,7 @@
     try {
       const {data: prof} = await db.from('profiles').select('role').eq('id', currentUser.id).single();
       if (prof?.role) currentUserRole = prof.role;
+      if (['admin', 'superadmin'].includes(currentUserRole)) document.getElementById('btnGlobalAudit').style.display = 'inline-block';
     } catch(e) {}
 
     // Cargar nombre si hay caché (como hicimos en admin)
@@ -850,6 +858,7 @@
     currentPayments = [];
     currentRepairPhotos = [];
     document.getElementById('paySection').style.display = 'none';
+    document.getElementById('historySection').style.display = 'none';
     document.getElementById('firmaSection').style.display = 'none';
     document.getElementById('firmaRetiroSection').style.display = 'none';
     document.getElementById('btnDeleteRepair').style.display = 'none';
@@ -930,6 +939,7 @@
     document.getElementById('btnDeleteRepair').style.display = ['admin', 'superadmin'].includes(currentUserRole) ? 'block' : 'none';
     renderPaymentsUI();
     renderRepairPhotosUI();
+    loadSpecificHistory(r.id);
   }
 
   // Payments
@@ -1004,6 +1014,49 @@
         detalle: detalle || null
       });
     } catch(e) {}
+  }
+
+  async function loadSpecificHistory(id) {
+    document.getElementById('historySection').style.display = 'block';
+    const listEl = document.getElementById('specificHistoryList');
+    listEl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:1rem">Cargando historial...</div>';
+    
+    const {data, error} = await db.from('audit_log')
+      .select('*')
+      .eq('entity_name', 'reparaciones')
+      .eq('entity_code', id.toString())
+      .order('created_at', {ascending: false});
+      
+    if (error || !data || data.length === 0) {
+      listEl.innerHTML = '<div style="text-align:center;color:var(--muted);padding:1rem">No hay movimientos registrados.</div>';
+      return;
+    }
+    
+    let html = '<table style="width:100%;border-collapse:collapse;font-size:0.8rem">';
+    data.forEach(log => {
+      const d = new Date(log.created_at).toLocaleString('es-AR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      let action = log.action === 'CREATE' ? 'Creación' : (log.action === 'UPDATE' ? 'Actualización' : 'Borrado');
+      let color = log.action === 'CREATE' ? 'var(--ok)' : (log.action === 'UPDATE' ? 'var(--teal)' : 'var(--danger)');
+      let details = '';
+      
+      if(log.new_data && typeof log.new_data === 'object') {
+         if(log.new_data.estado) details += `<b>Estado:</b> ${escHtml(log.new_data.estado)}<br>`;
+         if(log.new_data.presupuesto) details += `<b>Presupuesto:</b> $${log.new_data.presupuesto}<br>`;
+         if(log.new_data.sucursal) details += `<b>Sucursal:</b> ${escHtml(log.new_data.sucursal)}<br>`;
+      }
+      
+      html += `
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:0.5rem 0;color:var(--muted);width:110px">${d}</td>
+          <td style="padding:0.5rem 0">
+            <span style="color:${color};font-weight:bold;font-size:0.7rem;text-transform:uppercase;border:1px solid ${color};padding:1px 4px;border-radius:4px;margin-right:6px">${action}</span>
+            ${escHtml(log.user_email||'Sistema')}
+          </td>
+          <td style="padding:0.5rem 0;text-align:right">${details}</td>
+        </tr>`;
+    });
+    html += '</table>';
+    listEl.innerHTML = html;
   }
 
   async function openAuditTallerModal() {
@@ -1119,6 +1172,7 @@
   function removeRepairPhoto(idx) {
     currentRepairPhotos.splice(idx, 1);
     renderRepairPhotosUI();
+    loadSpecificHistory(r.id);
   }
 
   function renderRepairPhotosUI() {
@@ -1352,5 +1406,10 @@
 </script>
 </body>
 </html>
+
+
+
+
+
 
 
