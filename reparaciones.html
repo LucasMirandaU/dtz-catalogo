@@ -828,6 +828,7 @@
   function openPanel() {
     document.getElementById('formPanel').classList.add('open');
     document.getElementById('f_id').value = '';
+    document.getElementById('f_fecha').disabled = (currentUserRole === 'staff');
     document.getElementById('panelTitle').textContent = 'NUEVA REPARACIÓN';
     document.getElementById('f_orden').value = 'Generado al guardar';
     document.getElementById('f_cliente').value = '';
@@ -886,6 +887,7 @@
     openPanel();
     document.getElementById('panelTitle').textContent = 'EDITAR ORDEN #' + r.id;
     document.getElementById('f_id').value = r.id;
+    document.getElementById('f_fecha').disabled = (currentUserRole === 'staff');
     document.getElementById('f_orden').value = '#' + r.id;
     document.getElementById('f_cliente').value = r.cliente || '';
     document.getElementById('f_dni').value = r.dni || '';
@@ -1032,7 +1034,7 @@
     
     const {data, error} = await db.from('audit_log')
       .select('*')
-      .eq('entity_name', 'reparaciones')
+      .eq('entity_name', 'Orden Reparación')
       .eq('entity_code', id.toString())
       .order('created_at', {ascending: false});
       
@@ -1432,6 +1434,7 @@
 </script>
 </body>
 </html>
+
 
 
 
