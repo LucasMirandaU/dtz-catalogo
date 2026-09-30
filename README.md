@@ -37,7 +37,7 @@ El proyecto está diseñado bajo un enfoque **Serverless + Backend-First** para 
 
 ### 🤖 Automatización de Alertas por WhatsApp (Zero-Cost)
 *   **Notificaciones Autónomas 24hs:** Un script en segundo plano escrito en Node.js que audita diariamente la base de datos para detectar dispositivos inactivos o listos para entregar, notificando al grupo de técnicos si una orden lleva más de 24hs estancada en un mismo estado.
-*   **Bypass de Servicios Pagos:** En lugar de depender de herramientas de orquestación de pago (como *n8n*, *Make*, o la costosa API oficial de WhatsApp Cloud), el bot fue desarrollado íntegramente utilizando la librería de código abierto `whatsapp-web.js` corriendo sobre un cron-job local. Esto permitió **reducir los costos operativos de automatización a ## 📸 Galería del Sistema**, manteniendo una latencia de sincronización en tiempo real y resolviendo los desafíos de inyección de sesiones sin necesidad de depender de terceros.
+*   **Bypass de Servicios Pagos:** En lugar de depender de herramientas de orquestación de pago (como *n8n*, *Make*, o la costosa API oficial de WhatsApp Cloud), el bot fue desarrollado íntegramente utilizando la librería de código abierto `whatsapp-web.js` corriendo sobre un cron-job local. Esto permitió **reducir los costos operativos de automatización a $0**, manteniendo una latencia de sincronización en tiempo real y resolviendo los desafíos de inyección de sesiones sin necesidad de depender de terceros.
 
 ## 📸 Galería del Sistema (Demo)
 
