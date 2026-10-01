@@ -71,6 +71,8 @@ client.on('message', async msg => {
 
 client.on('ready', async () => {
     console.log('✅ ¡WhatsApp conectado exitosamente!');
+    console.log('⏳ Esperando 15 segundos para que WhatsApp sincronice los chats...');
+    await new Promise(resolve => setTimeout(resolve, 15000));
     
     if (!GRUPO_ID) {
         console.log('\n⚠️ ATENCIÓN: No tenés el WHATSAPP_GRUPO_ID en tu archivo .env');
@@ -142,8 +144,8 @@ async function verificarReparacionesDormidas() {
     try {
         await client.sendMessage(GRUPO_ID, textoMensaje);
         console.log('✅ Mensaje de alerta enviado con éxito.');
-        console.log('⏳ Esperando 5 segundos para asegurar que el mensaje salga de la computadora...');
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        console.log('⏳ Esperando 15 segundos para asegurar que el mensaje salga de la computadora...');
+        await new Promise(resolve => setTimeout(resolve, 15000));
     } catch (errorEnvio) {
         console.log('❌ Error al enviar el mensaje. Asegurate de haber puesto bien el WHATSAPP_GRUPO_ID.');
         console.log(errorEnvio.message);
@@ -156,4 +158,5 @@ async function verificarReparacionesDormidas() {
   await client.destroy();
   process.exit(0);
 }
+
 
