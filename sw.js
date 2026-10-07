@@ -43,6 +43,12 @@ self.addEventListener('fetch', event => {
   // Only handle GET requests
   if (event.request.method !== 'GET') return;
 
+  // Ignorar las peticiones al subdirectorio /app/ para que no se mezcle con la PWA principal
+  const url = new URL(event.request.url);
+  if (url.pathname.startsWith('/app/')) {
+    return;
+  }
+
   event.respondWith(
     fetch(event.request).catch(() => {
       return caches.match(event.request);
