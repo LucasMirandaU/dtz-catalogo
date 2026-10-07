@@ -87,3 +87,11 @@ Se provee un script \ackup_dtz.js\ en Node.js que utiliza la \service_role_key\
 *   **Propósito:** Notificar automáticamente a los técnicos sobre reparaciones inactivas por más de 24 horas.
 *   **Ejecución:** Script local configurado mediante Tareas Programadas de Windows (arquitectura de Cron Job local).
 *   **Seguridad:** Las credenciales críticas (SERVICE_ROLE_KEY) y variables dinámicas (WHATSAPP_GRUPO_ID) se aíslan en el archivo .env (ignorado en .gitignore) protegiendo el código en el repositorio público.
+
+## 📝 Historial Inborrable de Notas (v1.5.0)
+Para mantener la trazabilidad de las reparaciones, las columnas `fallas` y `trabajo_realizado` en Supabase migraron a un formato de **array JSON**. Cada nueva nota inyecta un objeto inmutable `{ texto, fecha }` en el array, previniendo el borrado accidental por parte de los técnicos y proporcionando un flujo tipo "bitácora" en el panel. Se diseñó una capa de _Backward Compatibility_ (`parseNotas`) que convierte al vuelo las viejas cadenas de texto plano al nuevo formato JSON array de forma transparente.
+
+## 🚀 Arquitectura PWA Avanzada (v1.5.0)
+La sub-aplicación DTZ Mobile alojada en `/app/` fue completamente aislada de la PWA raíz para evitar superposición en Android:
+* **Service Worker Scoping**: El `sw.js` de la raíz incluye una regla de exclusión condicional (`if (url.pathname.startsWith('/app/')) return;`) que impide a Chrome "chupar" la instalación de la sub-PWA hacia la PWA principal.
+* **Persistencia de Build en Expo**: Para evitar que `npx expo export -p web` elimine las configuraciones PWA (las cuales omite en builds SPA por defecto), se creó la estructura base en `public/` (incluyendo `index.html` customizado, `manifest.json` y `icon.png`) dentro del repositorio `DTZMobile`, asegurando que cada compilación sincronice automáticamente una PWA validable.
