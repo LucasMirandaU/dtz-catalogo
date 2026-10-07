@@ -81,6 +81,17 @@
     .panel-body{flex:1;overflow-y:auto;padding:1rem;padding-bottom:5rem}
     
     .form-group{margin-bottom:1rem}
+    .historial-notas { margin-top: 5px; }
+    .notas-list { display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
+    .notas-list:empty { display:none; }
+    .nota-item { background:var(--surface); border:1px solid var(--border2); padding:8px 12px; border-radius:6px; display:flex; justify-content:space-between; align-items:flex-start; gap:10px; font-size:0.9rem; }
+    .nota-text { flex:1; line-height:1.4; }
+    .nota-meta { font-size:0.75rem; color:var(--muted); margin-top:4px; font-family:monospace; }
+    .nota-delete { background:none; border:none; color:#ef4444; cursor:pointer; padding:4px; font-size:1rem; opacity:0.7; }
+    .nota-delete:hover { opacity:1; }
+    .nota-input-group { display:flex; gap:8px; }
+    .nota-input-group input { flex:1; padding:8px; border-radius:6px; border:1px solid var(--border); background:var(--surface); color:var(--text); }
+    .nota-input-group button { padding:8px 16px; border-radius:6px; background:var(--teal); color:#fff; border:none; cursor:pointer; font-weight:bold; }
     .form-group label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:.3rem}
     .form-group input, .form-group select, .form-group textarea{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:.75rem;color:var(--text);font-size:.9rem;font-family:'Inter',sans-serif;outline:none}
     .form-group input:focus, .form-group select:focus, .form-group textarea:focus{border-color:var(--teal)}
@@ -258,7 +269,13 @@
       </div>
       <div class="form-group">
         <label>Fallas detectadas / Notas</label>
-        <textarea id="f_fallas" placeholder="Describe el problema que reporta el cliente..."></textarea>
+          <div class="historial-notas">
+            <div id="list_fallas" class="notas-list"></div>
+            <div class="nota-input-group">
+              <input type="text" id="input_falla" placeholder="Agregar nueva nota de falla..." onkeypress="if(event.key==='Enter') { event.preventDefault(); addNota('fallas'); }">
+              <button type="button" onclick="addNota('fallas')">Agregar</button>
+            </div>
+          </div>
       </div>
       <!-- Inspección Detallada de Hardware (2 Columnas) -->
       <div class="form-group" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0.8rem;margin-bottom:1rem">
@@ -323,7 +340,13 @@
       </div>
       <div class="form-group">
         <label>Trabajo Realizado (Uso Técnico)</label>
-        <textarea id="f_trabajo" placeholder="Detalle de lo que se le hizo al equipo para la entrega final..."></textarea>
+          <div class="historial-notas">
+            <div id="list_trabajo" class="notas-list"></div>
+            <div class="nota-input-group">
+              <input type="text" id="input_trabajo" placeholder="Agregar detalle de trabajo..." onkeypress="if(event.key==='Enter') { event.preventDefault(); addNota('trabajo'); }">
+              <button type="button" onclick="addNota('trabajo')">Agregar</button>
+            </div>
+          </div>
       </div>
       <div class="form-group">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem">
@@ -521,6 +544,60 @@
   let currentUserRole = 'staff';
   let allRepairs = [];
   let currentPayments = [];
+  
+  // -- Notas Historial --
+  let currentFallas = [];
+  let currentTrabajos = [];
+
+  function parseNotas(val) {
+    if (!val) return [];
+    try {
+      const parsed = JSON.parse(val);
+      if (Array.isArray(parsed)) return parsed;
+    } catch(e) {}
+    if (String(val).trim() === '') return [];
+    return [{ texto: String(val).trim(), fecha: new Date().toISOString() }];
+  }
+
+  function formatNotasPDF(arr) {
+    if (!arr || arr.length === 0) return '-';
+    return arr.map(x => x.texto).join('. ').replace(/\.\./g, '.');
+  }
+
+  function renderNotasUI(type) {
+    const arr = type === 'fallas' ? currentFallas : currentTrabajos;
+    const container = document.getElementById('list_' + type);
+    if (!container) return;
+    container.innerHTML = arr.map((n, i) => {
+      const d = new Date(n.fecha);
+      const fechaStr = d.toLocaleDateString('es-AR', {day:'2-digit', month:'2-digit'}) + ' ' + d.toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit'});
+      return `<div class="nota-item">
+        <div class="nota-text">
+          <div>${esc(n.texto)}</div>
+          <div class="nota-meta">${fechaStr}</div>
+        </div>
+        <button type="button" class="nota-delete" onclick="deleteNota('${type}', ${i})" title="Eliminar nota">🗑️</button>
+      </div>`;
+    }).join('');
+  }
+
+  window.addNota = function(type) {
+    const input = document.getElementById('input_' + (type==='fallas'?'falla':'trabajo'));
+    const txt = input.value.trim();
+    if (!txt) return;
+    const arr = type === 'fallas' ? currentFallas : currentTrabajos;
+    arr.push({ texto: txt, fecha: new Date().toISOString() });
+    input.value = '';
+    renderNotasUI(type);
+  };
+
+  window.deleteNota = function(type, index) {
+    if (!confirm('¿Estás seguro de eliminar este comentario?')) return;
+    const arr = type === 'fallas' ? currentFallas : currentTrabajos;
+    arr.splice(index, 1);
+    renderNotasUI(type);
+  };
+  // ---------------------
   let currentRepairPhotos = [];
   let dtzPreciosTaller = [];
 
@@ -595,12 +672,12 @@
     document.getElementById('f_presupuesto').value = item.precio;
     renderPaymentsUI();
     
-    const txtFallas = document.getElementById('f_fallas');
-    const nota = `[${item.categoria}] ${item.servicio}`;
-    if (!txtFallas.value.trim()) {
-      txtFallas.value = nota;
-    } else if (!txtFallas.value.includes(item.servicio)) {
-      txtFallas.value += `\n+ ${nota}`;
+    const nota = [] ;
+    const alreadyExists = currentFallas.some(f => f.texto.includes(item.servicio));
+    if (!alreadyExists) {
+      currentFallas.push({texto: nota, fecha: new Date().toISOString()});
+      renderNotasUI('fallas');
+    }`;
     }
     toast(`⚡ Cargado: ${item.servicio} ($${Number(item.precio).toLocaleString('es-AR')})`, 'ok');
   }
@@ -842,7 +919,7 @@
     document.getElementById('f_chk_bateria').checked = false;
     document.getElementById('f_chk_rajado').checked = false;
     document.getElementById('f_chk_mojado').checked = false;
-    document.getElementById('f_fallas').value = '';
+    currentFallas = []; renderNotasUI('fallas');
     
     // Reset inspección HW
     document.getElementById('insp_tapa').value = 'Buen estado';
@@ -857,7 +934,7 @@
     document.getElementById('insp_auricular').value = 'Bien';
     document.getElementById('insp_microfono').value = 'Bien';
 
-    document.getElementById('f_trabajo').value = '';
+    currentTrabajos = []; renderNotasUI('trabajo');
     document.getElementById('f_presupuesto').value = '';
     const selTar = document.getElementById('f_tarifario_autocompletar');
     if (selTar) selTar.value = '';
@@ -920,8 +997,8 @@
     document.getElementById('insp_auricular').value = hw.auricular || 'Bien';
     document.getElementById('insp_microfono').value = hw.microfono || 'Bien';
 
-    document.getElementById('f_fallas').value = r.fallas || '';
-    document.getElementById('f_trabajo').value = r.trabajo_realizado || '';
+    currentFallas = parseNotas(r.fallas); renderNotasUI('fallas');
+    currentTrabajos = parseNotas(r.trabajo_realizado); renderNotasUI('trabajo');
     document.getElementById('f_presupuesto').value = r.presupuesto || '';
     const selTar = document.getElementById('f_tarifario_autocompletar');
     if (selTar) selTar.value = '';
@@ -1242,8 +1319,8 @@
         auricular: document.getElementById('insp_auricular').value,
         microfono: document.getElementById('insp_microfono').value
       },
-      fallas: document.getElementById('f_fallas').value.trim() || null,
-      trabajo_realizado: document.getElementById('f_trabajo').value.trim() || null,
+      fallas: currentFallas.length ? JSON.stringify(currentFallas) : null,
+      trabajo_realizado: currentTrabajos.length ? JSON.stringify(currentTrabajos) : null,
       presupuesto: Number(document.getElementById('f_presupuesto').value) || 0,
       estado: document.getElementById('f_estado').value,
       historial_pagos: currentPayments,
@@ -1368,8 +1445,8 @@
     document.getElementById('p_insp_col1').innerHTML = col1;
     document.getElementById('p_insp_col2').innerHTML = col2;
     
-    document.getElementById('p_fallas').textContent = document.getElementById('f_fallas').value || '-';
-    document.getElementById('p_trabajo').textContent = document.getElementById('f_trabajo').value || '-';
+    document.getElementById('p_fallas').textContent = formatNotasPDF(currentFallas);
+    document.getElementById('p_trabajo').textContent = formatNotasPDF(currentTrabajos);
     
     const pres = Number(document.getElementById('f_presupuesto').value) || 0;
     let pagado = currentPayments.reduce((s, p) => s + Number(p.monto), 0);
