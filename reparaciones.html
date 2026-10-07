@@ -573,7 +573,7 @@
       const fechaStr = d.toLocaleDateString('es-AR', {day:'2-digit', month:'2-digit'}) + ' ' + d.toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit'});
       return `<div class="nota-item">
         <div class="nota-text">
-          <div>${esc(n.texto)}</div>
+          <div>${escHtml(n.texto)}</div>
           <div class="nota-meta">${fechaStr}</div>
         </div>
         <button type="button" class="nota-delete" onclick="deleteNota('${type}', ${i})" title="Eliminar nota">🗑️</button>
