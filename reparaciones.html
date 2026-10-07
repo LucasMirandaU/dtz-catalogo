@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -672,12 +672,11 @@
     document.getElementById('f_presupuesto').value = item.precio;
     renderPaymentsUI();
     
-    const nota = [] ;
+    const nota = `[${item.code}] ${item.servicio}`;
     const alreadyExists = currentFallas.some(f => f.texto.includes(item.servicio));
     if (!alreadyExists) {
       currentFallas.push({texto: nota, fecha: new Date().toISOString()});
       renderNotasUI('fallas');
-    }`;
     }
     toast(`⚡ Cargado: ${item.servicio} ($${Number(item.precio).toLocaleString('es-AR')})`, 'ok');
   }
