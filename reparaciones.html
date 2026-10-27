@@ -286,9 +286,19 @@
               <option value="Buen estado">Buen estado</option><option value="Dañada">Dañada</option>
             </select>
           </div>
+          <div><span style="color:var(--muted);display:block;margin-bottom:2px">Chasis / Marco:</span>
+            <select id="insp_chasis" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
+              <option value="Buen estado">Buen estado</option><option value="Doblado / Curvado">Doblado / Curvado</option><option value="Marcado / Golpeado">Marcado / Golpeado</option>
+            </select>
+          </div>
+          <div><span style="color:var(--muted);display:block;margin-bottom:2px">Pantalla / Táctil:</span>
+            <select id="insp_display" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
+              <option value="Impecable">Impecable</option><option value="Con golpes">Con golpes</option><option value="Glass fisurado / astillado">Glass fisurado / astillado</option><option value="Despegada / Levantada">Despegada / Levantada</option><option value="Manchas o Líneas">Manchas o Líneas</option><option value="Táctil falla">Táctil falla</option><option value="Sin imagen">Sin imagen</option>
+            </select>
+          </div>
           <div><span style="color:var(--muted);display:block;margin-bottom:2px">Batería:</span>
             <select id="insp_bateria" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
-              <option value="Normal">Normal</option><option value="Hinchada">Hinchada</option><option value="No se pudo probar">No se pudo probar</option>
+              <option value="Normal">Normal</option><option value="Hinchada">Hinchada</option><option value="Descarga rápida / Se apaga">Descarga rápida / Se apaga</option><option value="No se pudo probar">No se pudo probar</option>
             </select>
           </div>
           <div><span style="color:var(--muted);display:block;margin-bottom:2px">Cámara selfie:</span>
@@ -298,17 +308,17 @@
           </div>
           <div><span style="color:var(--muted);display:block;margin-bottom:2px">Cámaras traseras:</span>
             <select id="insp_cam_tras" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
-              <option value="Bien">Bien</option><option value="Defectuosas">Defectuosas</option><option value="No se pudo probar">No se pudo probar</option>
+              <option value="Bien">Bien</option><option value="Defectuosas">Defectuosas</option><option value="Vidrio / Lente roto">Vidrio / Lente roto</option><option value="No enfoca / Borrosa">No enfoca / Borrosa</option><option value="No se pudo probar">No se pudo probar</option>
             </select>
           </div>
           <div><span style="color:var(--muted);display:block;margin-bottom:2px">Bandeja SIM:</span>
             <select id="insp_sim" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
-              <option value="Tiene">Tiene</option><option value="No tiene">No tiene</option>
+              <option value="Tiene">Tiene</option><option value="No tiene">No tiene</option><option value="Dañada">Dañada</option><option value="Trabada">Trabada</option><option value="Con SIM / Chip puesto">Con SIM / Chip puesto</option>
             </select>
           </div>
           <div><span style="color:var(--muted);display:block;margin-bottom:2px">Pin de Carga:</span>
             <select id="insp_pin" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
-              <option value="Buen estado">Buen estado</option><option value="Muy Sucio">Muy Sucio</option><option value="Carga lenta">Carga lenta</option><option value="No se pudo probar">No se pudo probar</option>
+              <option value="Buen estado">Buen estado</option><option value="Dañado">Dañado</option><option value="Muy Sucio">Muy Sucio</option><option value="Falso contacto / Con juego">Falso contacto / Con juego</option><option value="Carga lenta">Carga lenta</option><option value="No se pudo probar">No se pudo probar</option>
             </select>
           </div>
           <div><span style="color:var(--muted);display:block;margin-bottom:2px">Biometría (Huella/FaceID):</span>
@@ -316,24 +326,24 @@
               <option value="Funciona">Funciona</option><option value="No funciona">No funciona</option><option value="No se pudo probar">No se pudo probar</option><option value="No tiene">No tiene</option>
             </select>
           </div>
-          <div><span style="color:var(--muted);display:block;margin-bottom:2px">Pantalla / Táctil:</span>
-            <select id="insp_display" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
-              <option value="Impecable">Impecable</option><option value="Manchas o Líneas">Manchas o Líneas</option><option value="Táctil falla">Táctil falla</option><option value="Sin imagen">Sin imagen</option>
-            </select>
-          </div>
-          <div><span style="color:var(--muted);display:block;margin-bottom:2px">Altavoz (Música/Altavoz):</span>
-            <select id="insp_altavoz" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
-              <option value="Bien">Bien</option><option value="Falla">Falla</option><option value="No se pudo probar">No se pudo probar</option>
+          <div><span style="color:var(--muted);display:block;margin-bottom:2px">Botones (Power / Vol):</span>
+            <select id="insp_botones" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
+              <option value="Funcionan">Funcionan</option><option value="Duros / Trabados">Duros / Trabados</option><option value="No funcionan">No funcionan</option>
             </select>
           </div>
           <div><span style="color:var(--muted);display:block;margin-bottom:2px">Auricular (Llamadas):</span>
             <select id="insp_auricular" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
-              <option value="Bien">Bien</option><option value="Falla">Falla</option><option value="No se pudo probar">No se pudo probar</option>
+              <option value="Bien">Bien</option><option value="Bajo / Sucio">Bajo / Sucio</option><option value="Falla">Falla</option><option value="No se pudo probar">No se pudo probar</option>
+            </select>
+          </div>
+          <div><span style="color:var(--muted);display:block;margin-bottom:2px">Altavoz (Música/Altavoz):</span>
+            <select id="insp_altavoz" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
+              <option value="Bien">Bien</option><option value="Bajo / Sucio">Bajo / Sucio</option><option value="Falla">Falla</option><option value="No se pudo probar">No se pudo probar</option>
             </select>
           </div>
           <div style="grid-column:span 2"><span style="color:var(--muted);display:block;margin-bottom:2px">Micrófono:</span>
             <select id="insp_microfono" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:4px 6px;border-radius:4px">
-              <option value="Bien">Bien</option><option value="Falla">Falla</option><option value="No se pudo probar">No se pudo probar</option>
+              <option value="Bien">Bien</option><option value="Bajo / Sucio">Bajo / Sucio</option><option value="Falla">Falla</option><option value="No se pudo probar">No se pudo probar</option>
             </select>
           </div>
         </div>
@@ -922,15 +932,17 @@
     
     // Reset inspección HW
     document.getElementById('insp_tapa').value = 'Buen estado';
+    document.getElementById('insp_chasis').value = 'Buen estado';
+    document.getElementById('insp_display').value = 'Impecable';
     document.getElementById('insp_bateria').value = 'Normal';
     document.getElementById('insp_cam_selfie').value = 'Bien';
     document.getElementById('insp_cam_tras').value = 'Bien';
     document.getElementById('insp_sim').value = 'Tiene';
     document.getElementById('insp_pin').value = 'Buen estado';
     document.getElementById('insp_bio').value = 'Funciona';
-    document.getElementById('insp_display').value = 'Impecable';
-    document.getElementById('insp_altavoz').value = 'Bien';
+    document.getElementById('insp_botones').value = 'Funcionan';
     document.getElementById('insp_auricular').value = 'Bien';
+    document.getElementById('insp_altavoz').value = 'Bien';
     document.getElementById('insp_microfono').value = 'Bien';
 
     currentTrabajos = []; renderNotasUI('trabajo');
@@ -985,15 +997,17 @@
     // Cargar inspección HW
     const hw = r.inspeccion_hw || {};
     document.getElementById('insp_tapa').value = hw.tapa || (r.chk_tapa_rota ? 'Dañada' : 'Buen estado');
+    document.getElementById('insp_chasis').value = hw.chasis || 'Buen estado';
+    document.getElementById('insp_display').value = hw.display || 'Impecable';
     document.getElementById('insp_bateria').value = hw.bateria || 'Normal';
     document.getElementById('insp_cam_selfie').value = hw.cam_selfie || 'Bien';
     document.getElementById('insp_cam_tras').value = hw.cam_tras || (r.chk_camaras_ok ? 'Bien' : 'Defectuosas');
     document.getElementById('insp_sim').value = hw.sim || (r.chk_sin_bandeja ? 'No tiene' : 'Tiene');
-    document.getElementById('insp_pin').value = hw.pin || 'Buen estado';
+    document.getElementById('insp_pin').value = hw.pin || (r.chk_pin_carga_ok ? 'Buen estado' : 'Dañado');
     document.getElementById('insp_bio').value = hw.bio || 'Funciona';
-    document.getElementById('insp_display').value = hw.display || 'Impecable';
-    document.getElementById('insp_altavoz').value = hw.altavoz || (r.chk_parlantes_ok ? 'Bien' : 'Falla');
+    document.getElementById('insp_botones').value = hw.botones || 'Funcionan';
     document.getElementById('insp_auricular').value = hw.auricular || 'Bien';
+    document.getElementById('insp_altavoz').value = hw.altavoz || (r.chk_parlantes_ok ? 'Bien' : 'Falla');
     document.getElementById('insp_microfono').value = hw.microfono || 'Bien';
 
     currentFallas = parseNotas(r.fallas); renderNotasUI('fallas');
@@ -1307,15 +1321,17 @@
       chk_parlantes_ok: document.getElementById('insp_altavoz').value === 'Bien' && document.getElementById('insp_auricular').value === 'Bien',
       inspeccion_hw: {
         tapa: document.getElementById('insp_tapa').value,
+        chasis: document.getElementById('insp_chasis').value,
+        display: document.getElementById('insp_display').value,
         bateria: document.getElementById('insp_bateria').value,
         cam_selfie: document.getElementById('insp_cam_selfie').value,
         cam_tras: document.getElementById('insp_cam_tras').value,
         sim: document.getElementById('insp_sim').value,
         pin: document.getElementById('insp_pin').value,
         bio: document.getElementById('insp_bio').value,
-        display: document.getElementById('insp_display').value,
-        altavoz: document.getElementById('insp_altavoz').value,
+        botones: document.getElementById('insp_botones').value,
         auricular: document.getElementById('insp_auricular').value,
+        altavoz: document.getElementById('insp_altavoz').value,
         microfono: document.getElementById('insp_microfono').value
       },
       fallas: currentFallas.length ? JSON.stringify(currentFallas) : null,
