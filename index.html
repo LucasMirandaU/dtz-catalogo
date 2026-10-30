@@ -911,14 +911,20 @@ loadProducts().then(() => loadCartFromStorage());
       margin-top: 3rem;
       font-family: 'Inter', sans-serif;
     }
-    .site-footer span {
+    .site-footer a {
       color: var(--teal);
       font-weight: 500;
       letter-spacing: 0.5px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .site-footer a:hover {
+      opacity: 0.8;
+      text-decoration: underline;
     }
   </style>
   <footer class="site-footer">
-    &copy; 2026 DTZ Servicio Técnico. Sitio desarrollado por <span>Lucatoons</span> bajo licencia MIT.
+    &copy; 2026 DTZ Servicio Técnico. Sitio desarrollado por <a href="https://www.lucatoons.com.ar/" target="_blank" rel="noopener noreferrer">Lucatoons</a> bajo licencia MIT.
   </footer>
   
   <!-- PWA Service Worker Registration -->
