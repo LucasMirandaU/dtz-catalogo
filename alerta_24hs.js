@@ -1,5 +1,7 @@
 ﻿require('dotenv').config();
 const { createClient } = require('@supabase/supabase-js');
+const { spawn } = require('child_process');
+const path = require('path');
 
 // =========================================================================
 // CONFIGURACIÓN DE SUPABASE
@@ -26,8 +28,60 @@ if (!GRUPO_ID) {
     process.exit(1);
 }
 
+// Asegurar que el microservicio esté encendido y conectado antes de enviar
+async function asegurarBotActivo() {
+    const estadoUrl = BOT_API_URL.replace('/api/enviar', '/api/estado');
+    console.log('🔍 Verificando estado del microservicio de WhatsApp...');
+
+    for (let intento = 0; intento < 2; intento++) {
+        try {
+            const res = await fetch(estadoUrl);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.status === 'READY') {
+                    console.log(`✅ Microservicio listo y conectado como: ${data.user || 'WhatsApp'}`);
+                    return true;
+                }
+            }
+        } catch (e) {
+            // El microservicio no está respondiendo
+        }
+
+        if (intento === 0) {
+            console.log('⚠️ El bot de WhatsApp no está encendido. Iniciándolo automáticamente en segundo plano...');
+            const botDir = path.resolve(__dirname, '../bot_whatsapp');
+            
+            const subprocess = spawn('node', ['index.js'], {
+                cwd: botDir,
+                detached: true,
+                stdio: 'ignore',
+                windowsHide: true
+            });
+            subprocess.unref();
+
+            console.log('⏳ Aguardando a que WhatsApp conecte sesión (puede demorar unos segundos)...');
+            for (let espera = 0; espera < 15; espera++) {
+                await new Promise(r => setTimeout(r, 2000));
+                try {
+                    const res = await fetch(estadoUrl);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.status === 'READY') {
+                            console.log(`✅ ¡Bot iniciado y conectado exitosamente como ${data.user}!`);
+                            return true;
+                        }
+                    }
+                } catch (err) {}
+            }
+        }
+    }
+
+    throw new Error('No se pudo comunicar con el bot de WhatsApp tras intentar iniciarlo automáticamente.');
+}
+
 // Función para enviar mensaje a través del microservicio de WhatsApp
 async function enviarAlertaPorBot(mensaje) {
+    await asegurarBotActivo();
     console.log(`📤 Enviando alerta a través del microservicio (${BOT_API_URL})...`);
     console.log(`📡 Destinatario: ${GRUPO_ID}`);
 
