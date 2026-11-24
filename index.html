@@ -65,8 +65,11 @@ main{padding:1.5rem 2rem;max-width:1400px;margin:0 auto}
 /* PRODUCT CARD */
 .product-card{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:1rem;transition:border-color .2s,transform .2s;display:flex;flex-direction:column;gap:.5rem;position:relative}
 .product-card:hover{border-color:var(--border);transform:translateY(-2px)}
-.product-img{width:100%;aspect-ratio:1;background:var(--surface2);border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid var(--border2);margin-bottom:4px}
-.product-img img{width:100%;height:100%;object-fit:contain}
+.product-img{width:100%;aspect-ratio:1;background:linear-gradient(90deg, var(--surface2) 0%, rgba(255,255,255,.05) 50%, var(--surface2) 100%);background-size:200% 100%;animation:skeletonShimmer 1.5s infinite ease-in-out;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid var(--border2);margin-bottom:4px;position:relative}
+.product-img.loaded{animation:none;background:var(--surface2)}
+@keyframes skeletonShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.product-img img{width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .25s ease-in}
+.product-img.loaded img{opacity:1}
 .no-img-icon{font-size:2rem;color:rgba(255,255,255,.1)}
 .product-code{font-size:.7rem;color:var(--teal);font-family:'Rajdhani',sans-serif;letter-spacing:1px}
 .product-name{font-size:.88rem;font-weight:500;line-height:1.3;flex:1}
@@ -484,6 +487,13 @@ _cw.addEventListener('touchend',   e => {
   _tsX = null;
 });
 
+// ── OPTIMIZACIÓN DE IMÁGENES AL VUELO (CDN WebP) ───────────
+function getOptimizedThumb(url, width = 350) {
+  if (!url || typeof url !== 'string') return '';
+  if (url.startsWith('data:') || url.startsWith('blob:') || url.endsWith('.svg')) return url;
+  return 'https://wsrv.nl/?url=' + encodeURIComponent(url) + '&w=' + width + '&output=webp&q=80';
+}
+
 // ── PRODUCTS ──────────────────────────────────────────────
 async function loadProducts() {
   // document.getElementById('loadingOverlay').classList.remove('hidden');
@@ -560,8 +570,8 @@ function renderPage(page) {
     const displayPrice = (ov?.custom_price != null) ? ov.custom_price : p.price;
     const inCart = !!cart[p.id];
     return `<div class="product-card" id="card-${p.id}">
-      <div class="product-img" ${p.img_url?`onclick="openPubImg('${p.img_url}')" style="cursor:zoom-in" title="Ver imagen ampliada"`:''}>
-        ${p.img_url?`<img src="${p.img_url}" alt="${esc(displayName)}" loading="lazy">`:`<div class="no-img-icon">🖼</div>`}
+      <div class="product-img ${!p.img_url ? 'loaded' : ''}" ${p.img_url?`onclick="openPubImg('${esc(p.img_url)}')" style="cursor:zoom-in" title="Ver imagen ampliada"`:''}>
+        ${p.img_url?`<img src="${getOptimizedThumb(p.img_url, 350)}" alt="${esc(displayName)}" loading="lazy" decoding="async" onload="this.parentElement.classList.add('loaded')" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='${esc(p.img_url)}';}else{this.parentElement.classList.add('loaded');}">`:`<div class="no-img-icon">🖼</div>`}
       </div>
       <div class="product-code">[${p.code}]</div>
       <div class="product-name">${esc(displayName)}</div>
@@ -578,6 +588,13 @@ function renderPage(page) {
       </button>
     </div>`;
   }).join('');
+  requestAnimationFrame(() => {
+    grid.querySelectorAll('.product-img img').forEach(img => {
+      if (img.complete && img.naturalWidth > 0) {
+        img.parentElement.classList.add('loaded');
+      }
+    });
+  });
   renderPagination();
 }
 
@@ -774,7 +791,7 @@ function renderCartDrawer() {
     const displayPrice = (ov?.custom_price != null) ? ov.custom_price : p.price;
     return `<div class="cart-item">
       ${p.img_url
-        ?`<img class="cart-item-img" src="${p.img_url}" alt="${esc(displayName)}">`
+        ?`<img class="cart-item-img" src="${getOptimizedThumb(p.img_url, 100)}" alt="${esc(displayName)}" loading="lazy">`
         :`<div class="cart-item-img-placeholder">🖼</div>`}
       <div class="cart-item-info">
         <div class="cart-item-code">[${p.code}]</div>
