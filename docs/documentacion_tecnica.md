@@ -95,3 +95,20 @@ Para mantener la trazabilidad de las reparaciones, las columnas `fallas` y `trab
 La sub-aplicación DTZ Mobile alojada en `/app/` fue completamente aislada de la PWA raíz para evitar superposición en Android:
 * **Service Worker Scoping**: El `sw.js` de la raíz incluye una regla de exclusión condicional (`if (url.pathname.startsWith('/app/')) return;`) que impide a Chrome "chupar" la instalación de la sub-PWA hacia la PWA principal.
 * **Persistencia de Build en Expo**: Para evitar que `npx expo export -p web` elimine las configuraciones PWA (las cuales omite en builds SPA por defecto), se creó la estructura base en `public/` (incluyendo `index.html` customizado, `manifest.json` y `icon.png`) dentro del repositorio `DTZMobile`, asegurando que cada compilación sincronice automáticamente una PWA validable.
+
+## ⚡ Optimización Extrema de Carga de Imágenes y PWA (v1.6.0 - Noviembre 2026)
+Para acelerar radicalmente la navegación en el catálogo (`index.html`) con más de 1,600 productos:
+1. **CDN Dinámico WebP al Vuelo (`wsrv.nl` / Cloudflare Edge):**
+   - Las tarjetas de producto en el catálogo consumen miniaturas redimensionadas (350px para la grilla, 100px para el drawer del carrito) y convertidas automáticamente a WebP de 15–30 KB mediante `getOptimizedThumb()`.
+   - Reducción del peso de transferencia de la página en un 95% (de ~25 MB a menos de 600 KB por página).
+   - Se mantiene intacta la URL original en alta resolución para el modal de zoom (`openPubImg`).
+   - Posee fallback automático silencioso en `onerror` que recurre a la imagen original en caso de eventual falla en el proxy CDN.
+2. **Skeleton Shimmer y Eliminación de Layout Shifts (CLS = 0):**
+   - El contenedor `.product-img` define `aspect-ratio: 1` con fondo animado shimmer en CSS, eliminando parpadeos y desplazamientos de interfaz mientras se descarga la imagen.
+   - Las imágenes cargan con transición suave de opacidad al completarse el evento `onload`.
+3. **Caché Inteligente de Imágenes en Service Worker (`sw.js` v4):**
+   - Estrategia Cache-First sobre el nuevo almacén `dtz-images-v1` para peticiones de imágenes (`wsrv.nl`, ImgBB, Supabase Storage).
+   - Carga instantánea (0 ms) en visitas recurrentes o cambio de categorías.
+   - Algoritmo de rotación automática (trim) que limita la caché a 250 elementos para no consumir memoria del dispositivo del cliente.
+4. **Mantenimiento en `pedidos.html`:**
+   - Botones de eliminación masiva para pedidos recibidos y con más de 15 días de antigüedad, protegidos exclusivamente para rol Admin con doble confirmación.

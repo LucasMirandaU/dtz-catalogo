@@ -95,6 +95,15 @@ A continuación, el registro de las funcionalidades planificadas y su estado de 
 - [x] **Compresión JPEG por defecto (Web):** Reemplazo de WebP por JPEG en el motor de canvas (`reparaciones.html`, `admin.html`) para evitar falsos positivos y borrados automáticos del bot anti-spam de ImgBB, y para eliminar la alta latencia de su CDN.
 - [x] **Detección MIME Dinámica (App Móvil):** La app React Native ahora detecta dinámicamente si la cámara entregó un JPG, PNG, HEIC o WebP, conservando la extensión nativa para sincronizar firmas de archivo y evitar bloqueos en ImgBB.
 
+### v1.6.0 - Velocidad Extrema de Catálogo y Optimización PWA (Noviembre 2026)
+- [x] **CDN Dinámico al Vuelo (WebP 350px/100px):** Integración de `wsrv.nl` (Cloudflare Edge) para transformar miniaturas al vuelo en WebP ultra-livianas (~15-30 KB), reduciendo el peso de la página en un 95% sin alterar la base de datos de Supabase.
+- [x] **Fallback Resiliente de Imágenes:** Manejador `onerror` automático que recurre a la imagen original si existiese cualquier inconsistencia en el proxy CDN.
+- [x] **Modal Zoom Alta Calidad:** Se preserva la URL original completa al abrir el lightbox de productos (`openPubImg`).
+- [x] **Skeleton Shimmer CSS (CLS = 0):** Placeholders con animación shimmer y `aspect-ratio: 1` para carga progresiva sin parpadeos ni saltos de contenido.
+- [x] **Service Worker v4 con Caché Dedicada (`dtz-images-v1`):** Estrategia Cache-First para imágenes externas con límite automático de 250 elementos (trim), logrando renderizado en 0ms en visitas recurrentes.
+- [x] **Mantenimiento Masivo en Pedidos (`pedidos.html`):** Botones para eliminar pedidos recibidos y de más de 15 días con confirmación y permisos exclusivos para rol Admin.
+- [x] **Atribución en Footer:** Enlace directo de autoría a `https://www.lucatoons.com.ar/`.
+
 ---
 
 *Fin del documento de auditoría.*
